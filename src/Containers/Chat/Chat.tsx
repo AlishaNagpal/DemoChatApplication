@@ -36,8 +36,8 @@ export default class Chat extends React.Component<Props, State> {
     }
 
     componentDidMount() {
-        let id = this.state.uid + '-' + this.state.chatPerson
-        FirebaseServices.refOn(id, (message: any) => {
+        // let id = this.state.uid + '-' + this.state.chatPerson
+        FirebaseServices.refOn(this.state.chatPerson,this.state.uid, (message: any) => {
             this.setState(previousState => ({
                 messages: GiftedChat.append(previousState.messages, message),
             })

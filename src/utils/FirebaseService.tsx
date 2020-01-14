@@ -120,15 +120,22 @@ class FirebaseSDK {
 
     // Storing msgs on Firebase Database
     send = (messages: any) => {
-        console.log('gettin the messages',messages)
+        console.log('gettin the messages', messages)
         for (let i = 0; i < messages.length; i++) {
             const { text, user } = messages[i];
             const message = { text, user, createdAt: new Date().getTime() };
             console.log('msg sended ', message)
-            firebase.database().ref('ChatRooms/').push(message)
+            firebase.database().ref('ChatRooms/' + user.id + user._id).push(message)
             firebase.database().ref('GroupChats/').push(message)
         }
     };
+
+    // Load msgs from Database to Chat
+    refOn = (chatPerson: string, personalID: string, callback: Function) => {
+        firebase.database().ref('ChatRooms/' + chatPerson + personalID) //good for personal ones 
+            .limitToLast(20)
+            .on('child_added', (snapshot: any) => { callback(this.parse(snapshot)) });
+    }
 
     parse = (snapshot: any) => {
         const { timestamp: numberStamp, text, user } = snapshot.val();
@@ -141,13 +148,6 @@ class FirebaseSDK {
 
     GroupChatRefOn = (callback: Function) => {
         firebase.database().ref('GroupChats/') //good for group chats 
-            .limitToLast(20)
-            .on('child_added', (snapshot: any) => { callback(this.parse(snapshot)) });
-    }
-
-    // Load msgs from Database to Chat
-    refOn = (id: string, callback: Function) => {
-        firebase.database().ref('ChatRooms/') //good for personal ones 
             .limitToLast(20)
             .on('child_added', (snapshot: any) => { callback(this.parse(snapshot)) });
     }
