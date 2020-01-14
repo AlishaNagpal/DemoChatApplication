@@ -14,14 +14,10 @@ interface State {
     messages: any,
     avatar: string,
     name: string,
-    chatPerson: string
+    RoomID: string
 }
 
 export default class Chat extends React.Component<Props, State> {
-
-    static navigationOptions = ({ navigation }) => {
-        title: navigation.getParam('name')
-    };
 
     constructor(props: Props) {
         super(props);
@@ -30,14 +26,14 @@ export default class Chat extends React.Component<Props, State> {
             email: this.props.navigation.getParam('email'),
             name: this.props.navigation.getParam('name'),
             avatar: this.props.navigation.getParam('avatar'),
-            chatPerson: this.props.navigation.getParam('sendingChat'),
+            RoomID: this.props.navigation.getParam('sendingChat'),
             messages: [],
         };
     }
 
     componentDidMount() {
         // let id = this.state.uid + '-' + this.state.chatPerson
-        FirebaseServices.refOn(this.state.chatPerson,this.state.uid, (message: any) => {
+        FirebaseServices.refOn(this.state.RoomID, (message: any) => {
             this.setState(previousState => ({
                 messages: GiftedChat.append(previousState.messages, message),
             })
@@ -53,9 +49,9 @@ export default class Chat extends React.Component<Props, State> {
     get user() {
         return {
             name: this.state.name,
-            email: this.state.email,
             avatar: this.state.avatar,
-            id: this.state.chatPerson,
+            email: this.state.email,
+            id: this.state.RoomID,
             _id: this.state.uid
         };
     }

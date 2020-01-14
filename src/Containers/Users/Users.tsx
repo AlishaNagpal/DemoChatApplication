@@ -62,12 +62,22 @@ export default class Users extends React.Component<Props, State> {
 
     oneOnOneChat(uid: string){
         //going for one on one chat
+        var chatRoomId : string
+        if (uid > this.state.uid){
+            chatRoomId = uid.concat(this.state.uid)
+        }else{
+            chatRoomId = this.state.uid.concat(uid)
+        }
+        // console.warn('roomId ',chatRoomId)
+        // FirebaseServices.addRoom(chatRoomId)
+        // this.props.navigation.navigate('ChatMain',{roomID: chatRoomId+'/'})
+
         this.props.navigation.navigate('Chat', {
             name: this.state.name,
             email: this.state.email,
             avatar: this.state.avatar,
             userId: this.state.uid,
-            sendingChat: uid
+            sendingChat: chatRoomId
         });
     }
 
