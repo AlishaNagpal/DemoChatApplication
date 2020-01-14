@@ -14,12 +14,12 @@ interface State {
     messages: any,
     avatar: string,
     name: string,
-    chatPerson:string
+    chatPerson: string
 }
 
 export default class Chat extends React.Component<Props, State> {
 
-    static navigationOptions =({ navigation }) => {
+    static navigationOptions = ({ navigation }) => {
         title: navigation.getParam('name')
     };
 
@@ -30,14 +30,14 @@ export default class Chat extends React.Component<Props, State> {
             email: this.props.navigation.getParam('email'),
             name: this.props.navigation.getParam('name'),
             avatar: this.props.navigation.getParam('avatar'),
-            chatPerson:this.props.navigation.getParam('sendingChat'),
+            chatPerson: this.props.navigation.getParam('sendingChat'),
             messages: [],
         };
     }
 
     componentDidMount() {
         let id = this.state.uid + '-' + this.state.chatPerson
-        FirebaseServices.refOn(id,(message: any) => {
+        FirebaseServices.refOn(id, (message: any) => {
             this.setState(previousState => ({
                 messages: GiftedChat.append(previousState.messages, message),
             })
@@ -50,6 +50,16 @@ export default class Chat extends React.Component<Props, State> {
         FirebaseServices.refOff()
     }
 
+    get user() {
+        return {
+            name: this.state.name,
+            email: this.state.email,
+            avatar: this.state.avatar,
+            id: this.state.chatPerson,
+            _id: this.state.uid
+        };
+    }
+
     render() {
         return (
             <GiftedChat
@@ -57,11 +67,7 @@ export default class Chat extends React.Component<Props, State> {
                 onSend={FirebaseServices.send}
                 showUserAvatar={true}
                 loadEarlier={true}
-                user={{
-                    _id: this.state.uid + '-' + this.state.chatPerson,
-                    name: this.state.name,
-                    avatar: this.state.avatar,
-                }}
+                user={this.user}
             />
         );
     }

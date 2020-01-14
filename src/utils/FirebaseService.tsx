@@ -125,7 +125,7 @@ class FirebaseSDK {
             const { text, user } = messages[i];
             const message = { text, user, createdAt: new Date().getTime() };
             console.log('msg sended ', message)
-            firebase.database().ref('ChatRooms/' + user._id).push(message)
+            firebase.database().ref('ChatRooms/').push(message)
             firebase.database().ref('GroupChats/').push(message)
         }
     };
@@ -147,7 +147,7 @@ class FirebaseSDK {
 
     // Load msgs from Database to Chat
     refOn = (id: string, callback: Function) => {
-        firebase.database().ref('ChatRooms/' + id) //good for personal ones 
+        firebase.database().ref('ChatRooms/') //good for personal ones 
             .limitToLast(20)
             .on('child_added', (snapshot: any) => { callback(this.parse(snapshot)) });
     }
