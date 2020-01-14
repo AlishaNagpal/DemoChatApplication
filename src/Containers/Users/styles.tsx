@@ -16,10 +16,11 @@ const Styles = StyleSheet.create({
         borderWidth: vh(1),
         alignSelf: 'center',
         marginTop: vh(20),
-        borderRadius: vh(20)
+        borderRadius: vh(20),
+        flexDirection:'row'
     },
     buttonText: {
-        fontSize: vh(22),
+        fontSize: vh(14),
         color: Colors.black
     },
     root: {

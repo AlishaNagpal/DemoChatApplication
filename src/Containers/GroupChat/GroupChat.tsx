@@ -13,11 +13,10 @@ interface State {
     email: string,
     messages: any,
     avatar: string,
-    name: string,
-    chatPerson:string
+    name: string
 }
 
-export default class Chat extends React.Component<Props, State> {
+export default class GroupChat extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
@@ -25,13 +24,12 @@ export default class Chat extends React.Component<Props, State> {
             email: this.props.navigation.getParam('email'),
             name: this.props.navigation.getParam('name'),
             avatar: this.props.navigation.getParam('avatar'),
-            chatPerson:this.props.navigation.getParam('sendingChat'),
             messages: [],
         };
     }
 
     componentDidMount() {
-        FirebaseServices.refOn(this.state.chatPerson,(message: any) => {
+        FirebaseServices.GroupChatRefOn((message: any) => {
             this.setState(previousState => ({
                 messages: GiftedChat.append(previousState.messages, message),
             })
@@ -49,12 +47,10 @@ export default class Chat extends React.Component<Props, State> {
             <GiftedChat
                 messages={this.state.messages}
                 onSend={FirebaseServices.send}
-                showUserAvatar={true}
-                renderBubble={()=>}
                 user={{
                     _id: this.state.uid,
                     name: this.state.name,
-                    avatar: this.state.avatar,
+                    avatar: this.state.avatar
                 }}
             />
         );

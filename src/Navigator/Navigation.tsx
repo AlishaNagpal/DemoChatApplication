@@ -6,6 +6,7 @@ import Chat from '../Containers/Chat/Chat'
 import Login from '../Containers/Login/Login'
 import SignUp from '../Containers/SignUp/SignUp'
 import Users from '../Containers/Users/Users'
+import GroupChat from '../Containers/GroupChat/GroupChat'
 
 
 const MainStack = createStackNavigator(
@@ -13,7 +14,8 @@ const MainStack = createStackNavigator(
         Login: Login,
         Chat: Chat,
         SignUp:SignUp,
-        Users: Users
+        Users: Users,
+        GroupChat:GroupChat
     },
     {
         initialRouteName: 'Login',

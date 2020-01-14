@@ -25,18 +25,18 @@ export default class Login extends React.Component<Props, State> {
         super(props);
         this.state = {
             data: null,
-            name: 'Alice',
-            email: 'test@live.com',
-            password: '123456',
-            avatar: 'https://qph.fs.quoracdn.net/main-raw-17018785-wbnnjvopvxaqndwovgqjtmovtvzrpvpv.jpeg'
+            name: '',
+            email: '',
+            password: '',
+            avatar: '',
         };
     }
 
     componentDidMount() {
-        FirebaseService.readUserData(this.getMsg)
+        FirebaseService.readUserData(this.getData)
     }
 
-    getMsg = (data: any) => {
+    getData = (data: any) => {
         var result = Object.keys(data).map(function (key) {
             return [String(key), data[key]];
         })
@@ -61,15 +61,21 @@ export default class Login extends React.Component<Props, State> {
         );
     };
 
-    loginSuccess = (data: any) => {
-        console.log(data)
-        console.log('data over here ', data.user._user.uid, this.state.avatar, data.user.email, data.user.displayName)
-       
-        this.props.navigation.navigate('Chat', {
+    findingImage = (id: string) => {
+        let tempArray = this.state.data
+        let indexToFind = tempArray.findIndex((item: any) => item[0] === id)
+        this.setState({
+            avatar: tempArray[indexToFind][1].image
+        })
+    }
+    //@ts-ignore
+    loginSuccess = async (data: any) => {
+        await this.findingImage(data.user._user.uid)
+        this.props.navigation.navigate('Users', {
             name: data.user.displayName,
             email: data.user.email,
             avatar: this.state.avatar,
-            userId: data.user._user.uid
+            userId: data.user._user.uid,
         });
     };
 
@@ -87,12 +93,13 @@ export default class Login extends React.Component<Props, State> {
                 <Text style={styles.title}>Email:</Text>
                 <TextInput
                     style={styles.nameInput}
-                    placeholder="test3@gmail.com"
+                    placeholder="test@live.com"
                     onChangeText={this.onChangeTextEmail}
                     value={this.state.email}
                 />
                 <Text style={styles.title}>Password:</Text>
                 <TextInput
+                    placeholder="123456"
                     style={styles.nameInput}
                     onChangeText={this.onChangeTextPassword}
                     value={this.state.password}

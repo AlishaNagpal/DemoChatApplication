@@ -1,8 +1,6 @@
 import firebase from 'react-native-firebase';
 import { Platform } from 'react-native';
 
-let imageURL = ''
-
 class FirebaseSDK {
 
     constructor() {
@@ -55,7 +53,9 @@ class FirebaseSDK {
                 function () {
                     console.log('created user successfully. User email:' + user.email + ' name:' + user.name);
                     var userf = firebase.auth().currentUser
+                    //@ts-ignore
                     callback(userf._user.uid),
+                        //@ts-ignore
                         userf.updateProfile({ displayName: user.name }).then(
                             function () {
                                 console.log('Updated displayName successfully. name:' + user.name, user);
@@ -124,7 +124,8 @@ class FirebaseSDK {
             const { text, user } = messages[i];
             const message = { text, user, createdAt: new Date().getTime() };
             console.log('msg sended ', message)
-            firebase.database().ref('Users/').push(message)
+            firebase.database().ref('ChatRooms/' + user._id).push(message)
+            firebase.database().ref('GroupChats/').push(message)
         }
     };
 
@@ -137,13 +138,17 @@ class FirebaseSDK {
         return message;
     };
 
-    // Load msgs from Database to Chat
-    refOn = (callback: Function) => {
-        // console.warn('inside refon')
-        firebase.database().ref('Users/')
+    GroupChatRefOn = (callback: Function) => {
+        firebase.database().ref('GroupChats/') //good for group chats 
             .limitToLast(20)
             .on('child_added', (snapshot: any) => { callback(this.parse(snapshot)) });
-        // console.warn('leaving refon')
+    }
+
+    // Load msgs from Database to Chat
+    refOn = (id: string, callback: Function) => {
+        firebase.database().ref('ChatRooms/' + id) //good for personal ones 
+            .limitToLast(20)
+            .on('child_added', (snapshot: any) => { callback(this.parse(snapshot)) });
     }
 
     refOff() {

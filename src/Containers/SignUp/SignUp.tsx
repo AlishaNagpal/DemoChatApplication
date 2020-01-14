@@ -42,7 +42,7 @@ export default class SignUp extends React.Component<Props, State> {
     //@ts-ignore
     onPressCreate = async () => {
         try {
-            let returnedData = await firebaseSDK.uploadImage(this.state.imageURI,this.state.email);
+            let returnedData = await firebaseSDK.uploadImage(this.state.imageURI, this.state.email);
             this.setState({
                 imageURI: returnedData
             })
@@ -61,11 +61,8 @@ export default class SignUp extends React.Component<Props, State> {
 
     userUid = (data: any) => {
         setTimeout(() => {
-            console.log('getting userId', data)
-        }, 1000);
-        setTimeout(() => {
             firebaseSDK.writeTheUserToDatabase(this.state.name, this.state.email, data, this.state.imageURI)
-        }, 2000);
+        }, 1000);
     }
 
     onChangeTextEmail = (email: string) => this.setState({ email });
