@@ -18,6 +18,11 @@ interface State {
 }
 
 export default class Chat extends React.Component<Props, State> {
+
+    static navigationOptions =({ navigation }) => {
+        title: navigation.getParam('name')
+    };
+
     constructor(props: Props) {
         super(props);
         this.state = {
@@ -31,7 +36,8 @@ export default class Chat extends React.Component<Props, State> {
     }
 
     componentDidMount() {
-        FirebaseServices.refOn(this.state.chatPerson,(message: any) => {
+        let id = this.state.uid + '-' + this.state.chatPerson
+        FirebaseServices.refOn(id,(message: any) => {
             this.setState(previousState => ({
                 messages: GiftedChat.append(previousState.messages, message),
             })
@@ -50,9 +56,9 @@ export default class Chat extends React.Component<Props, State> {
                 messages={this.state.messages}
                 onSend={FirebaseServices.send}
                 showUserAvatar={true}
-                renderBubble={()=>}
+                loadEarlier={true}
                 user={{
-                    _id: this.state.uid,
+                    _id: this.state.uid + '-' + this.state.chatPerson,
                     name: this.state.name,
                     avatar: this.state.avatar,
                 }}
