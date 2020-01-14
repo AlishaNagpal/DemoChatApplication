@@ -1,0 +1,155 @@
+import firebase from 'react-native-firebase';
+import { Platform } from 'react-native';
+
+let imageURL = ''
+
+class FirebaseSDK {
+
+    constructor() {
+        if (!firebase.apps.length) {
+            //avoid re-initializing
+            firebase.initializeApp({
+                apiKey: 'AIzaSyAzN0TF3b-4Puv48Q8HPxBcgelXfX0fk7k',
+                appId: Platform.OS === 'ios'
+                    ? '1:987349181654:ios:ea6f10d7cc8f43e9731577'
+                    : '1:987349181654:android:358a731f4aadec3e731577',
+                databaseURL: 'https://chatapp-8f75b.firebaseio.com',
+                messagingSenderId: '987349181654',
+                projectId: 'chatapp-8f75b',
+                storageBucket: 'chatapp-8f75b.appspot.com',
+            },
+                'chatapp');
+        }
+    }
+    login = (user: any, success_callback: any, failed_callback: any) => {
+        firebase
+            .auth()
+            .signInWithEmailAndPassword(user.email, user.password)
+            .then(success_callback, failed_callback);
+    };
+
+    readUserData(callback: Function) {
+        firebase.database().ref('Users/').once('value', function (snapshot: any) {
+            callback(snapshot.val())
+        })
+    }
+
+    writeTheUserToDatabase = (name: string, email: string, uid: string, image: string) => {
+        firebase.database().ref('Users/' + uid).set({
+            email,
+            name,
+            uid,
+            image
+        }).then((data) => {
+            console.log('data ', data)
+        }).catch((error) => {
+            console.log('error ', error)
+        })
+    }
+
+    createAccount = (user: any, callback: Function) => {
+        firebase
+            .auth()
+            .createUserWithEmailAndPassword(user.email, user.password)
+            .then(
+                function () {
+                    console.log('created user successfully. User email:' + user.email + ' name:' + user.name);
+                    var userf = firebase.auth().currentUser
+                    callback(userf._user.uid),
+                        userf.updateProfile({ displayName: user.name }).then(
+                            function () {
+                                console.log('Updated displayName successfully. name:' + user.name, user);
+                                alert(
+                                    'User ' + user.name + ' was created successfully. Please login.'
+                                );
+                            },
+                            function (error) {
+                                console.warn('Error update displayName.');
+                            }
+                        );
+                },
+                function (error) {
+                    console.error('got error:' + typeof error + ' string:' + error.message);
+                    alert('Create account failed. Error: ' + error.message);
+                }
+            )
+    };
+
+    uploadImage = async (uri: string, email: string) => {
+        try {
+            const ref = firebase
+                .storage()
+                .ref('Images')
+                .child(email);
+            const task = ref.putFile(uri);
+            console.log("Here Task=>", task)
+            //@ts-ignore
+            let imageURL = await new Promise((resolve, reject) => {
+                task.then((snap) => {
+                    ref.getDownloadURL().then((data) => {
+                        resolve(data);
+                    })
+                })
+            })
+            return (imageURL)
+        } catch (err) {
+            console.log('uploadImage try/catch error: ' + err.message);
+        }
+    };
+
+    updateAvatar = (url: string) => {
+
+        var userf = firebase.auth().currentUser;
+        if (userf != null) {
+            userf.updateProfile({ avatar: url }).then(
+                function () {
+                    console.log('Updated avatar successfully. url:' + url);
+                    alert('Avatar image is saved successfully.');
+                },
+                function (error: any) {
+                    console.warn('Error update avatar.');
+                    alert('Error update avatar. Error:' + error.message);
+                }
+            );
+        } else {
+            console.log("can't update avatar, user is not login.");
+            alert('Unable to update avatar. You must login first.');
+        }
+    };
+
+
+    // Storing msgs on Firebase Database
+    send = (messages: any) => {
+        for (let i = 0; i < messages.length; i++) {
+            const { text, user } = messages[i];
+            const message = { text, user, createdAt: new Date().getTime() };
+            console.log('msg sended ', message)
+            firebase.database().ref('Users/').push(message)
+        }
+    };
+
+    parse = (snapshot: any) => {
+        const { timestamp: numberStamp, text, user } = snapshot.val();
+        const { key: id } = snapshot;
+        const { key: _id } = snapshot;
+        const timestamp = new Date(numberStamp);
+        const message = { id, _id, timestamp, text, user };
+        return message;
+    };
+
+    // Load msgs from Database to Chat
+    refOn = (callback: Function) => {
+        // console.warn('inside refon')
+        firebase.database().ref('Users/')
+            .limitToLast(20)
+            .on('child_added', (snapshot: any) => { callback(this.parse(snapshot)) });
+        // console.warn('leaving refon')
+    }
+
+    refOff() {
+        firebase.database().ref('Users/').off();
+    }
+
+}
+const firebaseSDK = new FirebaseSDK();
+export default firebaseSDK;

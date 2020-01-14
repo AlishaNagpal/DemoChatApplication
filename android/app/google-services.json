@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "987349181654",
+    "firebase_url": "https://chatapp-8f75b.firebaseio.com",
+    "project_id": "chatapp-8f75b",
+    "storage_bucket": "chatapp-8f75b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:987349181654:android:358a731f4aadec3e731577",
+        "android_client_info": {
+          "package_name": "com.demochatapplication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "987349181654-mvtqqr82kl0qfkq1f5enpbedkrm1gtsi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAzN0TF3b-4Puv48Q8HPxBcgelXfX0fk7k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "987349181654-mvtqqr82kl0qfkq1f5enpbedkrm1gtsi.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "987349181654-q5jc83t4np50k4onf7r4uu3i08504vgr.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.reactjs.native.example.DemoChatApplication"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
