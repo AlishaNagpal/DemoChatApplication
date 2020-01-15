@@ -17,10 +17,10 @@ const Styles = StyleSheet.create({
         alignSelf: 'center',
         marginTop: vh(20),
         borderRadius: vh(20),
-        flexDirection:'row'
+        flexDirection: 'row'
     },
     buttonText: {
-        fontSize: vh(14),
+        fontSize: vh(18),
         color: Colors.black
     },
     root: {
@@ -28,8 +28,8 @@ const Styles = StyleSheet.create({
         borderBottomWidth: vh(1),
         borderBottomColor: Colors.profileGrey,
         flexDirection: 'row',
-        width: vw(380),
-        alignSelf:"center"
+        width: vw(400),
+        alignSelf: "center"
     },
     image: {
         height: vw(50),
@@ -37,9 +37,22 @@ const Styles = StyleSheet.create({
         borderRadius: vw(25),
         margin: vw(20),
     },
-    nameSet:{
+    nameSet: {
         color: Colors.chatBlue,
-        fontSize:vh(18)
+        fontSize: vh(18),
+    },
+    lastMessage: {
+        flexDirection: 'column',
+        flex: 1,
+        margin: vh(15)
+    },
+    time:{
+        flexDirection: 'column',
+        alignItems:'center'
+    },
+    message: {
+        color: Colors.fadedGray,
+        fontSize: vh(12)
     }
 })
 export default Styles;

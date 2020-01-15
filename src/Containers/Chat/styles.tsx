@@ -21,5 +21,9 @@ const Styles = StyleSheet.create({
         color: '#999',
         fontWeight: 'bold',
     },
+    messageStyle:{
+        backgroundColor:Colors.white,
+        // height:300
+    }
 })
 export default Styles;

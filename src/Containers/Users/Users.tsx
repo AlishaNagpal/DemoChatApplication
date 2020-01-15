@@ -2,6 +2,9 @@ import React from 'react';
 import { Text, View, FlatList, TouchableOpacity, Image } from 'react-native';
 import FirebaseService from '../../utils/FirebaseService';
 import styles from './styles'
+import Ionicons from 'react-native-vector-icons/Ionicons'
+import { Colors, vh } from '../../Constants';
+Ionicons.loadFont()
 
 export interface Props {
     navigation: any
@@ -12,7 +15,9 @@ interface State {
     name: string,
     email: string,
     avatar: string,
-    uid: string
+    uid: string,
+    lastMessageSearch: any,
+    lastMessage: string
 }
 
 export default class Users extends React.Component<Props, State> {
@@ -25,18 +30,22 @@ export default class Users extends React.Component<Props, State> {
         super(props);
         this.state = {
             data: null,
+            lastMessageSearch: null,
             name: this.props.navigation.getParam('name'),
             email: this.props.navigation.getParam('email'),
             uid: this.props.navigation.getParam('userId'),
             avatar: this.props.navigation.getParam('avatar'),
+            lastMessage: 'No chat has occured yet'
         };
     }
 
     componentDidMount() {
-        FirebaseService.readUserData(this.getMsg)
+        FirebaseService.readUserData(this.getUsersData)
+        FirebaseService.readInboxData(this.getLastMessages)
+        this.forceUpdate()
     }
 
-    getMsg = (data: any) => {
+    getUsersData = (data: any) => {
         var result = Object.keys(data).map(function (key) {
             return [String(key), data[key]];
         })
@@ -44,11 +53,36 @@ export default class Users extends React.Component<Props, State> {
         this.setState({
             data: result
         })
-
         let tempArray = this.state.data
         let indexToFind = tempArray.findIndex((item: any) => item[0] === this.state.uid)
         tempArray.splice(indexToFind, 1)
-        // console.log("getting the result and data", this.state.data, arr, tempArray)
+    }
+
+    getLastMessages = (data: any) => {
+        var result = Object.keys(data).map(function (key) {
+            return [String(key), data[key]];
+        })
+        this.setState({
+            lastMessageSearch: result
+        })
+        let tempArray = this.state.lastMessageSearch
+        let indexToFind = tempArray.findIndex((item: any) => item[0] === this.state.uid)
+        let chatRoomToFind = tempArray[indexToFind]
+        this.setState({
+            lastMessageSearch: chatRoomToFind[1]
+        })
+        for (let i = 0; i < this.state.data.length; i++) {
+            let message = this.state.lastMessageSearch
+            let keys = Object.keys(message)
+            let uidTocheck = keys[i]
+            // FirebaseService.changeLastSeenMessage(message[uidTocheck].text, uidTocheck, message[uidTocheck].createdAt)
+            for (let j = 0; j < this.state.data.length; j++) {
+                if (keys[i] === this.state.data[j][0]) {
+                    this.state.data[j][1].message = message[uidTocheck].text
+                    this.state.data[j][1].time = message[uidTocheck].createdAt
+                }
+            }
+        }
     }
 
     groupChat = () => {
@@ -60,36 +94,41 @@ export default class Users extends React.Component<Props, State> {
         });
     }
 
-    oneOnOneChat(uid: string){
+    oneOnOneChat(uid: string) {
         //going for one on one chat
-        var chatRoomId : string
-        if (uid > this.state.uid){
+        var chatRoomId: string
+        if (uid > this.state.uid) {
             chatRoomId = uid.concat(this.state.uid)
-        }else{
+        } else {
             chatRoomId = this.state.uid.concat(uid)
         }
-        // console.warn('roomId ',chatRoomId)
-        // FirebaseServices.addRoom(chatRoomId)
-        // this.props.navigation.navigate('ChatMain',{roomID: chatRoomId+'/'})
-
+        let otherperson = uid
         this.props.navigation.navigate('Chat', {
             name: this.state.name,
             email: this.state.email,
             avatar: this.state.avatar,
             userId: this.state.uid,
-            sendingChat: chatRoomId
+            sendingChat: chatRoomId,
+            theOtherPerson: otherperson,
         });
     }
 
     renderData = (rowData: any) => {
         const { item } = rowData
         return (
-            <TouchableOpacity style={styles.root} onPress={()=>this.oneOnOneChat(item[1].uid)} activeOpacity={1} >
-                <Image
+            <TouchableOpacity style={styles.root} onPress={() => this.oneOnOneChat(item[1].uid)} activeOpacity={1} >
+                {/* <Image
                     style={styles.image}
                     source={{ uri: item[1].image }}
-                />
-                <Text style={styles.nameSet} >{item[1].name}</Text>
+                /> */}
+                <View style={styles.lastMessage} >
+                    <Text style={styles.nameSet} >{item[1].name}</Text>
+                    <Text style={styles.message} >{item[1].message}</Text>
+                </View>
+                <View style={styles.time} >
+                    <Ionicons name='ios-chatbubbles' color={Colors.chatBlue} size={vh(30)} />
+                    <Text style={styles.message} >{item[1].time}</Text>
+                </View>
             </TouchableOpacity>
         )
     }
@@ -98,10 +137,10 @@ export default class Users extends React.Component<Props, State> {
         return (
             <View style={styles.main} >
                 <TouchableOpacity style={styles.button} onPress={this.groupChat} activeOpacity={1} >
-                    <Image
+                    {/* <Image
                         style={styles.image}
                         source={{ uri: this.state.avatar }}
-                    />
+                    /> */}
                     <Text ellipsizeMode={'tail'} style={styles.buttonText} > Group Chat {this.state.name}? </Text>
                 </TouchableOpacity>
                 <FlatList

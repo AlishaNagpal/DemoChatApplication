@@ -32,12 +32,22 @@ class FirebaseSDK {
         })
     }
 
+    readInboxData(callback: Function) {
+        firebase.database().ref('Inbox/').once('value', function (snapshot: any) {
+            callback(snapshot.val())
+        })
+    }
+
     writeTheUserToDatabase = (name: string, email: string, uid: string, image: string) => {
+        let message = 'No chat has occured yet!'
+        let time = 'time'
         firebase.database().ref('Users/' + uid).set({
             email,
             name,
             uid,
-            image
+            image,
+            message,
+            time
         }).then((data) => {
             console.log('data ', data)
         }).catch((error) => {
@@ -120,20 +130,37 @@ class FirebaseSDK {
 
     // Storing msgs on Firebase Database
     send = (messages: any) => {
-        console.log('gettin the messages', messages)
+        // console.log('gettin the messages', messages)
         for (let i = 0; i < messages.length; i++) {
             const { text, user } = messages[i];
-            const message = { text, user, createdAt: new Date().getTime() };
+            let date = new Date()
+            let Hours = date.getHours()
+            let minutes = date.getMinutes()
+            let AMPM = 'AM'
+            if (Hours >= 12) {
+                AMPM = 'PM'
+            }
+            const message = { text, user, createdAt: Hours + ':' + minutes + ' ' + AMPM };
             console.log('msg sended ', message)
-            firebase.database().ref('ChatRooms/'+ user.id).push(message)
+            firebase.database().ref('ChatRooms/' + user.idRoom).push(message)
             firebase.database().ref('GroupChats/').push(message)
+            firebase.database().ref('Inbox/' + user._id + '/' + user.otherID).set(message)
+            firebase.database().ref('Inbox/' + user.otherID + '/' + user._id).set(message)
         }
     };
+
+    // changeLastSeenMessage = (message: string, uid: string, time: string) => {
+    //     if (message !== '') {
+    //         let toUpdate = firebase.database().ref('Users/' + uid)
+    //         toUpdate.update({ message: message, time: time })
+    //     }
+    //     console.log('oh my goodness', message, uid)
+    // }
 
     // Load msgs from Database to Chat
     refOn = (chatPerson: string, callback: Function) => {
         firebase.database().ref('ChatRooms/' + chatPerson) //good for personal ones 
-            .limitToLast(20)
+            .limitToLast(200)
             .on('child_added', (snapshot: any) => { callback(this.parse(snapshot)) });
     }
 
@@ -155,7 +182,6 @@ class FirebaseSDK {
     refOff() {
         firebase.database().ref('Users/').off();
     }
-
 }
 const firebaseSDK = new FirebaseSDK();
 export default firebaseSDK;

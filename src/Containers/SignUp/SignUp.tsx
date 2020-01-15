@@ -53,7 +53,6 @@ export default class SignUp extends React.Component<Props, State> {
                 imageURI: this.state.imageURI
             };
             firebaseSDK.createAccount(user, this.userUid);
-            console.log('returnedData')
         } catch ({ message }) {
             console.log('create account failed. catch error:' + message);
         }
@@ -71,8 +70,7 @@ export default class SignUp extends React.Component<Props, State> {
 
     onImageUpload = () => {
         ImagePicker.showImagePicker(options, (response) => {
-            console.log('Response = ', response);
-
+            // console.log('Response = ', response);
             if (response.didCancel) {
                 console.log('User cancelled image picker');
             } else if (response.error) {

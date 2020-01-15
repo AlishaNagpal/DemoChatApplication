@@ -1,7 +1,7 @@
 import React from 'react';
 import { GiftedChat } from 'react-native-gifted-chat';
 import FirebaseServices from '../../utils/FirebaseService'
-import { Button, Text, View } from 'react-native';
+import { Clipboard, View, Text } from 'react-native';
 import styles from './styles'
 
 export interface Props {
@@ -14,7 +14,8 @@ interface State {
     messages: any,
     avatar: string,
     name: string,
-    RoomID: string
+    RoomID: string,
+    theOtherPerson:string,
 }
 
 export default class Chat extends React.Component<Props, State> {
@@ -27,6 +28,7 @@ export default class Chat extends React.Component<Props, State> {
             name: this.props.navigation.getParam('name'),
             avatar: this.props.navigation.getParam('avatar'),
             RoomID: this.props.navigation.getParam('sendingChat'),
+            theOtherPerson:this.props.navigation.getParam('theOtherPerson'),
             messages: [],
         };
     }
@@ -51,19 +53,45 @@ export default class Chat extends React.Component<Props, State> {
             name: this.state.name,
             avatar: this.state.avatar,
             email: this.state.email,
-            id: this.state.RoomID,
-            _id: this.state.uid
+            idRoom: this.state.RoomID,
+            _id: this.state.uid,
+            otherID: this.state.theOtherPerson
         };
     }
 
+    onLongPress = (context: any, message: any) => {
+        const options = ['Copy', 'Delete Message', 'Cancel'];
+        const cancelButtonIndex = options.length - 1;
+        context.actionSheet().showActionSheetWithOptions({
+            options,
+            cancelButtonIndex
+        }, (buttonIndex: any) => {
+            switch (buttonIndex) {
+                case 0:
+                    Clipboard.setString(message.text);
+                    break;
+                case 1:
+                    //code to delete
+                    break;
+            }
+        });
+    }
     render() {
         return (
             <GiftedChat
                 messages={this.state.messages}
                 onSend={FirebaseServices.send}
-                showUserAvatar={true}
                 loadEarlier={true}
                 user={this.user}
+                renderUsernameOnMessage={true}
+                alwaysShowSend={true}
+                minComposerHeight={30}
+                minInputToolbarHeight={60}
+                messagesContainerStyle={styles.messageStyle}
+                scrollToBottom={true}
+                placeholder={'Enter your message'}
+                onLongPress={this.onLongPress}
+                
             />
         );
     }

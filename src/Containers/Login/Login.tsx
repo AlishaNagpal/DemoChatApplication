@@ -43,7 +43,6 @@ export default class Login extends React.Component<Props, State> {
         this.setState({
             data: result
         })
-        console.log("getting the result and data", this.state.data)
     }
 
     onPressLogin = () => {
@@ -64,13 +63,15 @@ export default class Login extends React.Component<Props, State> {
     findingImage = (id: string) => {
         let tempArray = this.state.data
         let indexToFind = tempArray.findIndex((item: any) => item[0] === id)
+
         this.setState({
             avatar: tempArray[indexToFind][1].image
         })
     }
-    //@ts-ignore
-    loginSuccess = async (data: any) => {
-        await this.findingImage(data.user._user.uid)
+
+    loginSuccess = (data: any) => {
+        console.log(data.user.displayName, data.user.email, this.state.avatar, data.user._user.uid)
+        this.findingImage(data.user._user.uid)
         this.props.navigation.navigate('Users', {
             name: data.user.displayName,
             email: data.user.email,
@@ -80,7 +81,7 @@ export default class Login extends React.Component<Props, State> {
     };
 
     loginFailed = () => {
-        alert('Login failure. Please tried again.');
+        this.props.navigation.navigate('SignUp')
     };
 
     onChangeTextEmail = (email: string) => this.setState({ email });
@@ -106,10 +107,6 @@ export default class Login extends React.Component<Props, State> {
                 />
                 <TouchableOpacity style={styles.button} onPress={this.onPressLogin} >
                     <Text style={styles.buttonText} >Login</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.button} onPress={() => this.props.navigation.navigate('SignUp')} >
-                    <Text style={styles.buttonText} >Signup</Text>
                 </TouchableOpacity>
             </View>
         );
