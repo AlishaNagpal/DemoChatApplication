@@ -40,14 +40,16 @@ class FirebaseSDK {
 
     writeTheUserToDatabase = (name: string, email: string, uid: string, image: string) => {
         let message = 'No chat has occured yet!'
-        let time = 'time'
+        let time = ''
+        let selected = false
         firebase.database().ref('Users/' + uid).set({
             email,
             name,
             uid,
             image,
             message,
-            time
+            time,
+            selected
         }).then((data) => {
             console.log('data ', data)
         }).catch((error) => {

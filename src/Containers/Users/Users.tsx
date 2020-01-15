@@ -17,7 +17,9 @@ interface State {
     avatar: string,
     uid: string,
     lastMessageSearch: any,
-    lastMessage: string
+    lastMessage: string,
+    showSelected: boolean,
+    arr: any,
 }
 
 export default class Users extends React.Component<Props, State> {
@@ -35,7 +37,9 @@ export default class Users extends React.Component<Props, State> {
             email: this.props.navigation.getParam('email'),
             uid: this.props.navigation.getParam('userId'),
             avatar: this.props.navigation.getParam('avatar'),
-            lastMessage: 'No chat has occured yet'
+            lastMessage: 'No chat has occured yet',
+            showSelected: false,
+            arr: []
         };
     }
 
@@ -113,14 +117,48 @@ export default class Users extends React.Component<Props, State> {
         });
     }
 
+    getUnique = (array: any) => {
+        var uniqueArray = [];
+
+        // Loop through array values
+        for (let i = 0; i < array.length; i++) {
+            if (uniqueArray.indexOf(array[i]) === -1) {
+                uniqueArray.push(array[i]);
+            }
+        }
+        return uniqueArray;
+    }
+
+    longPress = (uid: string, value: boolean) => {
+        for (let i = 0; i < this.state.data.length; i++) {
+            if (uid === this.state.data[i][0]) {
+                this.state.data[i][1].selected = !value
+                this.setState({
+                    showSelected: !value
+                })
+            }
+        }
+        this.state.arr.push(uid)
+        let values = this.getUnique(this.state.arr)
+        console.log(values)
+        if (value === false) {
+            this.setState({
+                arr: []
+            })
+        } //logic issue
+    }
+
     renderData = (rowData: any) => {
         const { item } = rowData
         return (
-            <TouchableOpacity style={styles.root} onPress={() => this.oneOnOneChat(item[1].uid)} activeOpacity={1} >
+            <TouchableOpacity onLongPress={() => this.longPress(item[1].uid, item[1].selected)} style={styles.root} onPress={() => this.oneOnOneChat(item[1].uid)} activeOpacity={1} >
                 {/* <Image
                     style={styles.image}
                     source={{ uri: item[1].image }}
                 /> */}
+                {item[1].selected && this.state.showSelected &&
+                    <Ionicons name='md-checkbox-outline' color={Colors.rosa} size={vh(30)} />
+                }
                 <View style={styles.lastMessage} >
                     <Text style={styles.nameSet} >{item[1].name}</Text>
                     <Text style={styles.message} >{item[1].message}</Text>

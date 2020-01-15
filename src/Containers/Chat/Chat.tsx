@@ -15,7 +15,7 @@ interface State {
     avatar: string,
     name: string,
     RoomID: string,
-    theOtherPerson:string,
+    theOtherPerson: string,
 }
 
 export default class Chat extends React.Component<Props, State> {
@@ -28,7 +28,7 @@ export default class Chat extends React.Component<Props, State> {
             name: this.props.navigation.getParam('name'),
             avatar: this.props.navigation.getParam('avatar'),
             RoomID: this.props.navigation.getParam('sendingChat'),
-            theOtherPerson:this.props.navigation.getParam('theOtherPerson'),
+            theOtherPerson: this.props.navigation.getParam('theOtherPerson'),
             messages: [],
         };
     }
@@ -91,7 +91,6 @@ export default class Chat extends React.Component<Props, State> {
                 scrollToBottom={true}
                 placeholder={'Enter your message'}
                 onLongPress={this.onLongPress}
-                
             />
         );
     }
