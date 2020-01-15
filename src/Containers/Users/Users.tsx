@@ -1,10 +1,13 @@
 import React from 'react';
-import { Text, View, FlatList, TouchableOpacity, Image } from 'react-native';
+import { Text, View, FlatList, TouchableOpacity } from 'react-native';
 import FirebaseService from '../../utils/FirebaseService';
 import styles from './styles'
 import Ionicons from 'react-native-vector-icons/Ionicons'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { Colors, vh } from '../../Constants';
 Ionicons.loadFont()
+MaterialCommunityIcons.loadFont()
+import { CheckBox } from '../../Components'
 
 export interface Props {
     navigation: any
@@ -25,7 +28,7 @@ interface State {
 export default class Users extends React.Component<Props, State> {
 
     static navigationOptions = {
-        title: 'Users'
+        title: 'Users',
     };
 
     constructor(props: Props) {
@@ -117,6 +120,14 @@ export default class Users extends React.Component<Props, State> {
         });
     }
 
+    createGroup = () => {
+        console.log('lets create a group')
+        // this.props.navigation.navigate('MultipleChat',{
+        //     selectedID: this.state.arr,
+        //     personalID: this.state.uid
+        // })
+    }
+
     getUnique = (array: any) => {
         var uniqueArray = [];
 
@@ -130,41 +141,41 @@ export default class Users extends React.Component<Props, State> {
     }
 
     longPress = (uid: string, value: boolean) => {
-        for (let i = 0; i < this.state.data.length; i++) {
-            if (uid === this.state.data[i][0]) {
-                this.state.data[i][1].selected = !value
-                this.setState({
-                    showSelected: !value
-                })
-            }
-        }
-        this.state.arr.push(uid)
-        let values = this.getUnique(this.state.arr)
-        console.log(values)
         if (value === false) {
+            let tempArray = this.state.arr
+            let indexToFind = tempArray.findIndex((item: any) => item === uid)
+            tempArray.splice(indexToFind, 1)
             this.setState({
-                arr: []
+                arr: tempArray
             })
-        } //logic issue
+        } else {
+            this.state.arr.push(uid)
+        }
+    }
+
+    multipleToSelect = () => {
+        this.setState({
+            showSelected: true
+        })
     }
 
     renderData = (rowData: any) => {
         const { item } = rowData
         return (
-            <TouchableOpacity onLongPress={() => this.longPress(item[1].uid, item[1].selected)} style={styles.root} onPress={() => this.oneOnOneChat(item[1].uid)} activeOpacity={1} >
+            <TouchableOpacity style={styles.root} onPress={() => this.oneOnOneChat(item[1].uid)} activeOpacity={1} >
                 {/* <Image
                     style={styles.image}
                     source={{ uri: item[1].image }}
                 /> */}
-                {item[1].selected && this.state.showSelected &&
-                    <Ionicons name='md-checkbox-outline' color={Colors.rosa} size={vh(30)} />
+                {this.state.showSelected &&
+                    <CheckBox id={item[1].uid} style={styles.checkbox} outerSize={vh(20)} innerSize={vh(16)} innerColor={Colors.rosa} outerColor={Colors.fadedGray} isCheck={item[1].selected} clicked={(id: string, value: boolean) => this.longPress(id, value)} />
                 }
                 <View style={styles.lastMessage} >
                     <Text style={styles.nameSet} >{item[1].name}</Text>
                     <Text style={styles.message} >{item[1].message}</Text>
                 </View>
                 <View style={styles.time} >
-                    <Ionicons name='ios-chatbubbles' color={Colors.chatBlue} size={vh(30)} />
+                    <Ionicons name='ios-chatbubbles' color={Colors.chatBlue} size={vh(30)} style={styles.icon} />
                     <Text style={styles.message} >{item[1].time}</Text>
                 </View>
             </TouchableOpacity>
@@ -174,18 +185,29 @@ export default class Users extends React.Component<Props, State> {
     render() {
         return (
             <View style={styles.main} >
-                <TouchableOpacity style={styles.button} onPress={this.groupChat} activeOpacity={1} >
-                    {/* <Image
+                <View style={styles.row} >
+                    <TouchableOpacity style={styles.button} onPress={this.groupChat} activeOpacity={1} >
+                        {/* <Image
                         style={styles.image}
                         source={{ uri: this.state.avatar }}
                     /> */}
-                    <Text ellipsizeMode={'tail'} style={styles.buttonText} > Group Chat {this.state.name}? </Text>
-                </TouchableOpacity>
+                        <Text ellipsizeMode={'tail'} style={styles.buttonText} > Group Chat {this.state.name}? </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.multipleAccount} onPress={this.multipleToSelect} >
+                        <MaterialCommunityIcons name='account-group-outline' color={Colors.darkishViolet} size={vh(35)} />
+                    </TouchableOpacity>
+                </View>
+
                 <FlatList
                     data={this.state.data}
                     renderItem={this.renderData}
                     keyExtractor={(item, index) => index.toString()}
                 />
+                {this.state.showSelected &&
+                    <TouchableOpacity style={styles.buttonText2} onPress={this.createGroup} activeOpacity={1} >
+                        <Text ellipsizeMode={'tail'} style={styles.buttonText} > Create a groupChat! </Text>
+                    </TouchableOpacity>
+                }
             </View>
         )
     }

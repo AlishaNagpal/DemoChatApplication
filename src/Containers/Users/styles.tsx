@@ -7,9 +7,18 @@ const Styles = StyleSheet.create({
         flex: 1
 
     },
+    row: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    multipleAccount: {
+        marginLeft: vw(30),
+        alignSelf: 'center',
+        marginTop: vw(20)
+    },
     button: {
         height: vh(60),
-        width: vw(350),
+        width: vw(300),
         alignItems: 'center',
         justifyContent: 'center',
         borderColor: Colors.redShadow,
@@ -17,11 +26,26 @@ const Styles = StyleSheet.create({
         alignSelf: 'center',
         marginTop: vh(20),
         borderRadius: vh(20),
-        flexDirection: 'row'
+        flexDirection: 'row',
+        marginLeft: vw(15),
     },
     buttonText: {
         fontSize: vh(18),
         color: Colors.black
+    },
+    buttonText2: {
+        height: vh(60),
+        width: vw(300),
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderColor: Colors.redShadow,
+        borderWidth: vh(1),
+        alignSelf: 'center',
+        marginTop: vh(20),
+        borderRadius: vh(20),
+        flexDirection: 'row',
+        marginLeft: vw(15),
+        marginBottom: vh(20)
     },
     root: {
         alignItems: 'center',
@@ -46,13 +70,19 @@ const Styles = StyleSheet.create({
         flex: 1,
         margin: vh(15)
     },
-    time:{
+    time: {
         flexDirection: 'column',
-        alignItems:'center'
     },
     message: {
         color: Colors.fadedGray,
-        fontSize: vh(12)
+        fontSize: vh(12),
+    },
+    checkbox: {
+
+    },
+    icon:{
+        marginRight:vw(15),
+        alignSelf:'center'
     }
 })
 export default Styles;
