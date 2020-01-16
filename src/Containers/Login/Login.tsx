@@ -1,7 +1,11 @@
 import React from 'react';
-import { Text, View, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { Text, View, TextInput, TouchableOpacity, Alert, Image } from 'react-native';
 import FirebaseService from '../../utils/FirebaseService';
 import styles from './styles'
+import { Images, Colors } from "../../Constants";
+import LinearGradient from 'react-native-linear-gradient'
+const colors = [Colors.shembe, Colors.weirdGreen]
+const disableColor = [Colors.textInput, Colors.textInput]
 
 export interface Props {
     navigation: any
@@ -13,13 +17,11 @@ interface State {
     password: string,
     avatar: string,
     data: any,
+    showPassword: boolean,
+    submitDisabled: boolean
 }
 
 export default class Login extends React.Component<Props, State> {
-
-    static navigationOptions = {
-        title: 'RN + Firebase Chat App'
-    };
 
     constructor(props: Props) {
         super(props);
@@ -29,6 +31,8 @@ export default class Login extends React.Component<Props, State> {
             email: '',
             password: '',
             avatar: '',
+            showPassword: false,
+            submitDisabled: true
         };
     }
 
@@ -45,6 +49,24 @@ export default class Login extends React.Component<Props, State> {
         })
     }
 
+    showPassword = (value: boolean) => {
+        this.setState({
+            showPassword: value
+        })
+    }
+
+    buttonDisabled = () => {
+        if (this.state.email === '' || this.state.password === '') {
+            this.setState({
+                submitDisabled: true
+            })
+        } else {
+            this.setState({
+                submitDisabled: false
+            })
+        }
+    }
+
     onPressLogin = () => {
         const user = {
             name: this.state.name,
@@ -53,17 +75,17 @@ export default class Login extends React.Component<Props, State> {
             avatar: this.state.avatar
         };
 
-        if(this.state.email !== '' && this.state.password !== ''){
+        if (this.state.email !== '' && this.state.password !== '') {
             FirebaseService.login(
                 user,
                 this.loginSuccess,
                 this.loginFailed
             );
-        }else{
+        } else {
             Alert.alert('Fill all the details please!')
         }
 
-        
+
     };
 
     findingImage = (id: string) => {
@@ -97,13 +119,60 @@ export default class Login extends React.Component<Props, State> {
     render() {
         return (
             <View style={styles.main} >
-                <Text style={styles.title}>Email:</Text>
+                <View style={styles.header} >
+                    <Text style={styles.headerText} >Chat</Text>
+                </View>
+                <Image
+                    source={Images.SignUpGraphic}
+                    style={styles.imageStyle}
+                />
+                <TouchableOpacity style={styles.signUP} >
+                    <Text style={styles.signUpText} >Sign Up</Text>
+                </TouchableOpacity>
+
+                <Text style={styles.signIn} > Sign In </Text>
+                <Image
+                    source={Images.icSlection}
+                    style={styles.icSlection}
+                />
+
+                <Text style={styles.welcome} > Welcome to Chat! </Text>
                 <TextInput
                     style={styles.nameInput}
-                    placeholder="test@live.com"
+                    placeholder="Email Address"
                     onChangeText={this.onChangeTextEmail}
                     value={this.state.email}
+                    ref={(ref) => { this.input1 = ref }}
+                // onSubmitEditing={() => this.input2.focus()}
+                // onSubmitEditing
                 />
+                <View>
+                    <TextInput
+                        placeholder="Password"
+                        style={styles.nameInput}
+                        onChangeText={this.onChangeTextPassword}
+                        value={this.state.password}
+                        secureTextEntry={!this.state.showPassword}
+                        ref={(ref) => { this.input2 = ref }}
+                    // onSubmitEditing={() => this.nameValidation(this.state.firstName, this.state.lastName)}
+                    />
+                    <TouchableOpacity style={styles.eye} onPress={() => this.showPassword(!this.state.showPassword)} >
+                        <Image
+                            source={this.state.showPassword ? Images.eyeEnabled : Images.eyeDisabled}
+                            style={styles.eyeOpen}
+                        />
+                    </TouchableOpacity>
+                </View>
+                <LinearGradient style={styles.submitButton} colors={this.state.submitDisabled ? disableColor : colors} start={{ x: 0, y: 1 }} end={{ x: 1, y: 0 }}>
+                    <TouchableOpacity onPress={this.onPressLogin} disabled={this.state.submitDisabled} >
+                        <Text style={styles.submit} >Submit</Text>
+                    </TouchableOpacity>
+                </LinearGradient>
+
+
+
+                {/* <Text style={styles.title}>Email:</Text>
+               
                 <Text style={styles.title}>Password:</Text>
                 <TextInput
                     placeholder="123456"
@@ -111,9 +180,7 @@ export default class Login extends React.Component<Props, State> {
                     onChangeText={this.onChangeTextPassword}
                     value={this.state.password}
                 />
-                <TouchableOpacity style={styles.button} onPress={this.onPressLogin} >
-                    <Text style={styles.buttonText} >Login</Text>
-                </TouchableOpacity>
+                */}
             </View>
         );
     }

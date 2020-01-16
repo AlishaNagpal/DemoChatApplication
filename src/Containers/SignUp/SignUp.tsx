@@ -1,6 +1,5 @@
 import React from 'react';
-// import { ImagePicker, Permissions } from 'expo';
-import ImagePicker from 'react-native-image-picker';
+import ImagePicker from 'react-native-image-crop-picker';
 import {
     Text,
     TextInput,
@@ -22,15 +21,6 @@ interface State {
     password: string,
     imageURI: string,
 }
-
-const options = {
-    title: 'Select Avatar',
-    customButtons: [{ name: 'fb', title: 'Choose Photo from Facebook' }],
-    storageOptions: {
-        skipBackup: true,
-        path: 'images',
-    },
-};
 
 export default class SignUp extends React.Component<Props, State> {
     state = {
@@ -69,17 +59,10 @@ export default class SignUp extends React.Component<Props, State> {
     onChangeTextName = (name: string) => this.setState({ name });
 
     onImageUpload = () => {
-        ImagePicker.showImagePicker(options, (response) => {
-            // console.log('Response = ', response);
-            if (response.didCancel) {
-                console.log('User cancelled image picker');
-            } else if (response.error) {
-                console.log('ImagePicker Error: ', response.error);
-            } else if (response.customButton) {
-                console.log('User tapped custom button: ', response.customButton);
-            } else {
-                this.setState({ imageURI: response.uri })
-            }
+        ImagePicker.openPicker({
+            cropping: true
+        }).then(image => {
+            console.log(image);
         });
     };
 
@@ -122,5 +105,3 @@ export default class SignUp extends React.Component<Props, State> {
         );
     }
 }
-
-const offset = 16;

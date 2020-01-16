@@ -57,7 +57,6 @@ export default class Users extends React.Component<Props, State> {
     gettingData = () => {
         FirebaseService.readUserData(this.getUsersData)
         FirebaseService.readInboxData(this.getLastMessages)
-        // this.forceUpdate()
     }
 
     getUsersData = (data: any) => {

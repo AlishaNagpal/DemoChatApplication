@@ -13,7 +13,7 @@ console.disableYellowBox = true
 
 const MainStack = createStackNavigator(
     {
-        Login: Login,
+        Login: {screen: Login, navigationOptions:{headerShown: false}},
         Chat:{screen:Chat},
         SignUp: SignUp,
         Users: Users,

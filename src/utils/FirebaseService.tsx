@@ -33,7 +33,7 @@ class FirebaseSDK {
     }
 
     readInboxData(callback: Function) {
-        firebase.database().ref('Inbox/').once('value', function (snapshot: any) {
+        firebase.database().ref('Inbox/').on('value', function (snapshot: any) {
             callback(snapshot.val())
         })
     }
