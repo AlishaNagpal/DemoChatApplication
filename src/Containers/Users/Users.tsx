@@ -48,15 +48,16 @@ export default class Users extends React.Component<Props, State> {
 
     componentDidMount() {
         this.gettingData()
-        // FirebaseService.readUserData(this.getUsersData)
-        // FirebaseService.readInboxData(this.getLastMessages)
-        // this.forceUpdate()
+    }
+
+    refresh = () => {
+        this.gettingData()
     }
 
     gettingData = () => {
         FirebaseService.readUserData(this.getUsersData)
         FirebaseService.readInboxData(this.getLastMessages)
-        this.forceUpdate()
+        // this.forceUpdate()
     }
 
     getUsersData = (data: any) => {
@@ -215,6 +216,11 @@ export default class Users extends React.Component<Props, State> {
                 {this.state.showSelected &&
                     <TouchableOpacity style={styles.buttonText2} onPress={this.createGroup} activeOpacity={1} >
                         <Text ellipsizeMode={'tail'} style={styles.buttonText} > Finish Creating Your Group > </Text>
+                    </TouchableOpacity>
+                }
+                {!this.state.showSelected &&
+                    <TouchableOpacity style={styles.buttonText2} onPress={this.refresh} activeOpacity={1} >
+                        <Text ellipsizeMode={'tail'} style={styles.buttonText} > Refresh </Text>
                     </TouchableOpacity>
                 }
             </View>
