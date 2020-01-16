@@ -1,4 +1,3 @@
-import React from 'react';
 import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 
@@ -7,15 +6,20 @@ import Login from '../Containers/Login/Login'
 import SignUp from '../Containers/SignUp/SignUp'
 import Users from '../Containers/Users/Users'
 import GroupChat from '../Containers/GroupChat/GroupChat'
+import MultipleChat from '../Containers/MultipleChat/MultipleChat';
+import MultiChat from '../Containers/MultiChat/MultiChat'
 
+console.disableYellowBox = true
 
 const MainStack = createStackNavigator(
     {
         Login: Login,
-        Chat: Chat,
-        SignUp:SignUp,
+        Chat:{screen:Chat},
+        SignUp: SignUp,
         Users: Users,
-        GroupChat:GroupChat
+        GroupChat: GroupChat,
+        MultipleChat: MultipleChat,
+        MultiChat: MultiChat
     },
     {
         initialRouteName: 'Login',

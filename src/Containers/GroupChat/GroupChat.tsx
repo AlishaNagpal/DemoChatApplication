@@ -1,8 +1,6 @@
 import React from 'react';
 import { GiftedChat } from 'react-native-gifted-chat';
 import FirebaseServices from '../../utils/FirebaseService'
-import { Button, Text, View } from 'react-native';
-import styles from './styles'
 
 export interface Props {
     navigation?: any,

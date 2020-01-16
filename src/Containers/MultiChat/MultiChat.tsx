@@ -1,10 +1,7 @@
 import React from 'react';
 import { GiftedChat } from 'react-native-gifted-chat';
 import FirebaseServices from '../../utils/FirebaseService'
-import { Clipboard, View, TouchableOpacity } from 'react-native';
-import styles from './styles'
-import Icon from 'react-native-vector-icons/Ionicons'
-Icon.loadFont()
+import { Clipboard, View, Text } from 'react-native';
 
 export interface Props {
     navigation?: any,
@@ -20,10 +17,7 @@ interface State {
     theOtherPerson: string,
 }
 
-export default class Chat extends React.Component<Props, State> {
-    static navigationOptions = {
-        title: 'Chat',
-    };
+export default class MultiChat extends React.Component<Props, State> {
 
     constructor(props: Props) {
         super(props);
@@ -84,19 +78,19 @@ export default class Chat extends React.Component<Props, State> {
     render() {
         return (
             <GiftedChat
-                    messages={this.state.messages}
-                    onSend={FirebaseServices.send}
-                    loadEarlier={true}
-                    user={this.user}
-                    renderUsernameOnMessage={true}
-                    alwaysShowSend={true}
-                    minComposerHeight={30}
-                    minInputToolbarHeight={60}
-                    messagesContainerStyle={styles.messageStyle}
-                    scrollToBottom={true}
-                    placeholder={'Enter your message'}
-                    onLongPress={this.onLongPress}
-                />
+                messages={this.state.messages}
+                onSend={FirebaseServices.sendMultiChat}
+                loadEarlier={true}
+                user={this.user}
+                renderUsernameOnMessage={true}
+                alwaysShowSend={true}
+                minComposerHeight={30}
+                minInputToolbarHeight={60}
+                messagesContainerStyle={{backgroundColor:'white'}}
+                scrollToBottom={true}
+                placeholder={'Enter your message'}
+                onLongPress={this.onLongPress}
+            />
         );
     }
 }

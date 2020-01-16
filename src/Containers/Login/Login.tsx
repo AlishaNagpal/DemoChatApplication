@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, TextInput, TouchableOpacity } from 'react-native';
+import { Text, View, TextInput, TouchableOpacity, Alert } from 'react-native';
 import FirebaseService from '../../utils/FirebaseService';
 import styles from './styles'
 
@@ -53,11 +53,17 @@ export default class Login extends React.Component<Props, State> {
             avatar: this.state.avatar
         };
 
-        FirebaseService.login(
-            user,
-            this.loginSuccess,
-            this.loginFailed
-        );
+        if(this.state.email !== '' && this.state.password !== ''){
+            FirebaseService.login(
+                user,
+                this.loginSuccess,
+                this.loginFailed
+            );
+        }else{
+            Alert.alert('Fill all the details please!')
+        }
+
+        
     };
 
     findingImage = (id: string) => {

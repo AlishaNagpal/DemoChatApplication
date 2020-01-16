@@ -7,9 +7,23 @@ const Styles = StyleSheet.create({
         flex: 1
 
     },
+    separator: {
+        height: vh(2),
+        width: vw(400),
+        alignSelf: 'center',
+        backgroundColor: Colors.profileGrey
+    },
     row: {
         flexDirection: 'row',
         alignItems: 'center',
+    },
+    row2: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent:'space-between',
+        flex:1,
+        marginTop:vh(15),
+        marginLeft: vw(20)
     },
     multipleAccount: {
         marginLeft: vw(30),
@@ -48,12 +62,8 @@ const Styles = StyleSheet.create({
         marginBottom: vh(20)
     },
     root: {
-        alignItems: 'center',
-        borderBottomWidth: vh(1),
-        borderBottomColor: Colors.profileGrey,
-        flexDirection: 'row',
-        width: vw(400),
-        alignSelf: "center"
+        flexDirection: 'column',
+        flex:1
     },
     image: {
         height: vw(50),
@@ -65,24 +75,26 @@ const Styles = StyleSheet.create({
         color: Colors.chatBlue,
         fontSize: vh(18),
     },
-    lastMessage: {
-        flexDirection: 'column',
-        flex: 1,
-        margin: vh(15)
-    },
     time: {
-        flexDirection: 'column',
+        marginLeft: vw(20),
+        flexDirection:'row'
     },
     message: {
         color: Colors.fadedGray,
         fontSize: vh(12),
+        flex:1,
+    },
+    message2: {
+        color: Colors.fadedGray,
+        fontSize: vh(12),
+        marginRight:vw(10)
     },
     checkbox: {
-
+        marginLeft: vw(10)
     },
-    icon:{
-        marginRight:vw(15),
-        alignSelf:'center'
+    icon: {
+        marginRight: vw(20),
+        alignSelf: 'center'
     }
 })
 export default Styles;

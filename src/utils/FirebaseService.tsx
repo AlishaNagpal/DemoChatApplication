@@ -151,6 +151,22 @@ class FirebaseSDK {
         }
     };
 
+    sendMultiChat = (messages: any) => {
+        for (let i = 0; i < messages.length; i++) {
+            const { text, user } = messages[i];
+            let date = new Date()
+            let Hours = date.getHours()
+            let minutes = date.getMinutes()
+            let AMPM = 'AM'
+            if (Hours >= 12) {
+                AMPM = 'PM'
+            }
+            const message = { text, user, createdAt: Hours + ':' + minutes + ' ' + AMPM };
+            console.log('msg sended ', message)
+            firebase.database().ref('SelectedGroupChat/' + user.idRoom).push(message)
+        }
+    };
+
     // changeLastSeenMessage = (message: string, uid: string, time: string) => {
     //     if (message !== '') {
     //         let toUpdate = firebase.database().ref('Users/' + uid)
