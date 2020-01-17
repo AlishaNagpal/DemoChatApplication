@@ -33,7 +33,7 @@ export default class CheckBox extends React.Component<Props, State> {
             isCheck: !prevState.isCheck,
         }))
         this.props.clicked && this.props.clicked(this.props.id, !this.state.isCheck);
-        // console.log(this.state.isCheck)
+        // console.log('this.state.isCheck in checkbox',this.state.isCheck)
     }
 
     render() {

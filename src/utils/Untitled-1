@@ -1,9 +1,0 @@
- var firebaseConfig = {
-    apiKey: "AIzaSyAx_w2wrnFg4r6jGY3YUIsdaZ4GH0ybI2o",
-    authDomain: "chatapp-6d622.firebaseapp.com",
-    databaseURL: "https://chatapp-6d622.firebaseio.com",
-    projectId: "chatapp-6d622",
-    storageBucket: "chatapp-6d622.appspot.com",
-    messagingSenderId: "457875480362",
-    appId: "1:457875480362:web:f31b8a1a7d335162f4c853"
-  };

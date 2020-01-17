@@ -32,8 +32,8 @@ class FirebaseSDK {
         })
     }
 
-    readInboxData(callback: Function) {
-        firebase.database().ref('Inbox/').on('value', function (snapshot: any) {
+    readInboxData(uid: string, callback: Function) {
+        firebase.database().ref('Inbox/').child(uid).on('value', function (snapshot: any) {
             callback(snapshot.val())
         })
     }
@@ -71,9 +71,6 @@ class FirebaseSDK {
                         userf.updateProfile({ displayName: user.name }).then(
                             function () {
                                 console.log('Updated displayName successfully. name:' + user.name, user);
-                                alert(
-                                    'User ' + user.name + ' was created successfully. Please login.'
-                                );
                             },
                             function (error) {
                                 console.warn('Error update displayName.');
@@ -136,13 +133,19 @@ class FirebaseSDK {
         for (let i = 0; i < messages.length; i++) {
             const { text, user } = messages[i];
             let date = new Date()
+            let day = date.getDate()
             let Hours = date.getHours()
             let minutes = date.getMinutes()
             let AMPM = 'AM'
             if (Hours >= 12) {
                 AMPM = 'PM'
             }
-            const message = { text, user, createdAt: Hours + ':' + minutes + ' ' + AMPM };
+            var months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+            var monthName = months[date.getMonth()];
+            console.log(day,monthName)
+           
+           
+            const message = { text, user, createdAt: Hours + ':' + minutes + ' ' + AMPM, onDay: day + ' ' + monthName };
             console.log('msg sended ', message)
             firebase.database().ref('ChatRooms/' + user.idRoom).push(message)
             firebase.database().ref('GroupChats/').push(message)
@@ -178,7 +181,7 @@ class FirebaseSDK {
     // Load msgs from Database to Chat
     refOn = (chatPerson: string, callback: Function) => {
         firebase.database().ref('ChatRooms/' + chatPerson) //good for personal ones 
-            .limitToLast(200)
+            .limitToLast(20)
             .on('child_added', (snapshot: any) => { callback(this.parse(snapshot)) });
     }
 

@@ -6,42 +6,89 @@ const Styles = StyleSheet.create({
         backgroundColor: Colors.white,
         flex: 1
     },
-    title: {
-        // marginTop: vh(16),
-        marginLeft: vw(16),
-        fontSize: vh(18),
-        color: Colors.black
+    Conditions: {
+        flexDirection: 'row',
+        marginTop: vh(25),
+        alignItems: 'center'
+    },
+    backView: {
+        marginTop: vh(40),
+        left: vw(15),
+        flexDirection: 'row',
+        alignItems: 'center'
+    },
+    signIn: {
+        fontSize: vh(22),
+        color: Colors.fadedGray,
+        left: vw(15),
+        fontWeight: '500'
+    },
+    signUP: {
+        marginTop: vh(44),
+        left: vw(30)
+    },
+    signUpText: {
+        fontWeight: 'bold',
+        fontSize: vh(28)
+    },
+    icSlection: {
+        width: vw(30)
+    },
+    detailsText: {
+        marginTop: vh(25),
+        fontSize: vh(17)
     },
     nameInput: {
-        height: vh(50),
-        margin: vw(16),
-        paddingHorizontal: vw(16),
-        borderColor: Colors.gray,
-        borderWidth: vh(1),
+        width: vw(345),
+        height: vh(55),
+        backgroundColor: Colors.textInput,
+        marginTop: vh(25),
+        padding: vw(10),
+        borderRadius: vh(10),
         fontSize: vh(16),
-        borderRadius: vh(20)
+        borderWidth: vw(1),
+        // marginLeft: vw(20)
     },
-    button: {
-        height: vh(60),
-        width: vw(350),
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderColor: Colors.redShadow,
-        borderWidth: vh(1),
-        alignSelf: 'center',
-        marginTop: vh(20),
-        borderRadius: vh(20)
+    eye: {
+        position: 'absolute',
+        top: vh(47),
+        right: vw(95)
     },
-    buttonText: {
-        fontSize: vh(22),
-        color: Colors.black
+    eyeOpen: {
+        height: vw(15),
+        width: vw(25)
     },
-    imageStyle: {
-        height: vh(100),
-        width: vh(100),
-        borderRadius: vh(100),
-        margin: vw(10),
-        alignSelf:'center'
+    checkbox: {
+        marginLeft: vw(8),
+        borderRadius: vh(20),
+        marginRight: vw(10)
+    },
+    conditionText: {
+        fontSize: vh(13),
+        color: Colors.fadedGray
+    },
+    conditionText2: {
+        fontSize: vh(13),
+        color: Colors.shembe,
+        marginLeft: vw(-7)
+    },
+    submitButton: {
+        position: 'absolute',
+        right: vw(30),
+        bottom: vw(70),
+    },
+    submitButtonInner: {
+        height: vh(56),
+        width: vh(56),
+        borderRadius: vh(30),
+        alignItems:'center',
+        justifyContent:'center'
+    },
+    indicator:{
+        position:'absolute',
+        top: vw(300),
+        left:vw(150)
     }
+
 })
 export default Styles;

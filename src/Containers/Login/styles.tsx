@@ -58,7 +58,8 @@ const Styles = StyleSheet.create({
         marginTop: vh(25),
         padding: vw(10),
         borderRadius: vh(10),
-        fontSize: vh(16)
+        fontSize: vh(16),
+        borderWidth:vw(1)
     },
     eye: {
         position: 'absolute',

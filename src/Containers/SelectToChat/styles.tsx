@@ -22,23 +22,6 @@ const Styles = StyleSheet.create({
         marginLeft: vw(15),
         marginTop: vh(20)
     },
-    noChatImage: {
-        height: vh(180),
-        width: vh(220),
-        alignSelf: 'center',
-        marginTop: vh(120),
-    },
-    noChat: {
-        alignSelf: 'center',
-        marginTop: vh(30),
-        fontWeight: '700',
-        fontSize: vh(25),
-        color: Colors.pinkishGrey,
-        marginLeft: vw(25)
-    },
-    centerNoChats: {
-        marginLeft: vw(-40)
-    },
     messageView: {
         flexDirection: 'row'
     },
@@ -47,7 +30,7 @@ const Styles = StyleSheet.create({
         width: vw(400),
         alignSelf: 'center',
         backgroundColor: Colors.textInput,
-        margin:vw(5)
+        marginBottom:vh(10)
     },
     row: {
         flexDirection: 'row',
@@ -61,27 +44,40 @@ const Styles = StyleSheet.create({
         marginTop: vh(15),
         marginLeft: vw(20)
     },
-    root: {
-        flexDirection: 'column',
-        flex: 1
+    multipleAccount: {
+        marginLeft: vw(30),
+        alignSelf: 'center',
+        marginTop: vw(20)
+    },
+    submitButton: {
+        position: 'absolute',
+        right: vw(30),
+        bottom: vw(70),
+    },
+    submitButtonInner: {
+        height: vh(56),
+        width: vh(56),
+        borderRadius: vh(30),
+        alignItems:'center',
+        justifyContent:'center'
+    },
+    image: {
+        height: vw(50),
+        width: vw(50),
+        borderRadius: vw(25),
+        margin: vw(20),
     },
     nameSet: {
         fontSize: vh(18),
     },
-    time: {
-        marginLeft: vw(20),
-        flexDirection: 'row',
+    checkbox: {
+        marginLeft: vw(10),
+        marginTop:vh(18),
+        borderRadius:vh(10)
     },
-    message: {
-        color: Colors.fadedGray,
-        fontSize: vh(12),
-        flex: 1,
-        marginTop:vw(10)
-    },
-    message2: {
-        color: Colors.shembe,
-        fontSize: vh(12),
-        marginRight: vw(10)
-    },
+    icon: {
+        marginRight: vw(20),
+        alignSelf: 'center'
+    }
 })
 export default Styles;

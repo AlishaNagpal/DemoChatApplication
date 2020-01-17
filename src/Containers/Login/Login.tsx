@@ -5,7 +5,6 @@ import styles from './styles'
 import { Images, Colors } from "../../Constants";
 import LinearGradient from 'react-native-linear-gradient'
 const colors = [Colors.shembe, Colors.weirdGreen]
-const disableColor = [Colors.textInput, Colors.textInput]
 
 export interface Props {
     navigation: any
@@ -16,7 +15,6 @@ interface State {
     email: string,
     password: string,
     avatar: string,
-    data: any,
     showPassword: boolean,
     submitDisabled: boolean
 }
@@ -26,27 +24,13 @@ export default class Login extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            data: null,
             name: '',
             email: '',
             password: '',
-            avatar: '',
+            avatar: Images.ProfileImage,
             showPassword: false,
             submitDisabled: true
         };
-    }
-
-    componentDidMount() {
-        FirebaseService.readUserData(this.getData)
-    }
-
-    getData = (data: any) => {
-        var result = Object.keys(data).map(function (key) {
-            return [String(key), data[key]];
-        })
-        this.setState({
-            data: result
-        })
     }
 
     showPassword = (value: boolean) => {
@@ -66,7 +50,6 @@ export default class Login extends React.Component<Props, State> {
             })
         }
     }
-
     onPressLogin = () => {
         const user = {
             name: this.state.name,
@@ -88,18 +71,7 @@ export default class Login extends React.Component<Props, State> {
 
     };
 
-    findingImage = (id: string) => {
-        let tempArray = this.state.data
-        let indexToFind = tempArray.findIndex((item: any) => item[0] === id)
-
-        this.setState({
-            avatar: tempArray[indexToFind][1].image
-        })
-    }
-
     loginSuccess = (data: any) => {
-        console.log(data.user.displayName, data.user.email, this.state.avatar, data.user._user.uid)
-        this.findingImage(data.user._user.uid)
         this.props.navigation.navigate('Users', {
             name: data.user.displayName,
             email: data.user.email,
@@ -109,11 +81,8 @@ export default class Login extends React.Component<Props, State> {
     };
 
     loginFailed = () => {
-        this.props.navigation.navigate('SignUp')
+        Alert.alert('Invalid Details!')
     };
-
-    onChangeTextEmail = (email: string) => this.setState({ email });
-    onChangeTextPassword = (password: string) => this.setState({ password });
 
 
     render() {
@@ -126,7 +95,7 @@ export default class Login extends React.Component<Props, State> {
                     source={Images.SignUpGraphic}
                     style={styles.imageStyle}
                 />
-                <TouchableOpacity style={styles.signUP} >
+                <TouchableOpacity style={styles.signUP} onPress={() => this.props.navigation.navigate('SignUp')} >
                     <Text style={styles.signUpText} >Sign Up</Text>
                 </TouchableOpacity>
 
@@ -138,23 +107,29 @@ export default class Login extends React.Component<Props, State> {
 
                 <Text style={styles.welcome} > Welcome to Chat! </Text>
                 <TextInput
-                    style={styles.nameInput}
+                     style={[styles.nameInput,{borderColor: this.state.email === '' ? Colors.white: Colors.shembe}]}
                     placeholder="Email Address"
-                    onChangeText={this.onChangeTextEmail}
+                    onChangeText={(text) => { this.setState({ email: text }), this.buttonDisabled() }}
                     value={this.state.email}
-                    ref={(ref) => { this.input1 = ref }}
-                // onSubmitEditing={() => this.input2.focus()}
-                // onSubmitEditing
+                    onSubmitEditing={() => this.input.focus()}
+                    returnKeyLabel='Next'
+                    returnKeyType='next'
+                    keyboardType='email-address'
+                    keyboardAppearance='light'
                 />
                 <View>
                     <TextInput
                         placeholder="Password"
-                        style={styles.nameInput}
-                        onChangeText={this.onChangeTextPassword}
+                        style={[styles.nameInput,{borderColor: this.state.password === '' ? Colors.white: Colors.shembe}]}
+                        onChangeText={(text) => { this.setState({ password: text }), this.buttonDisabled() }}
                         value={this.state.password}
                         secureTextEntry={!this.state.showPassword}
-                        ref={(ref) => { this.input2 = ref }}
-                    // onSubmitEditing={() => this.nameValidation(this.state.firstName, this.state.lastName)}
+                        ref={(ref) => { this.input = ref }}
+                        onSubmitEditing={() => this.onPressLogin()}
+                        returnKeyType='done'
+                        returnKeyLabel='Submit'
+                        keyboardType='default'
+                        keyboardAppearance='light'
                     />
                     <TouchableOpacity style={styles.eye} onPress={() => this.showPassword(!this.state.showPassword)} >
                         <Image
@@ -163,24 +138,11 @@ export default class Login extends React.Component<Props, State> {
                         />
                     </TouchableOpacity>
                 </View>
-                <LinearGradient style={styles.submitButton} colors={this.state.submitDisabled ? disableColor : colors} start={{ x: 0, y: 1 }} end={{ x: 1, y: 0 }}>
-                    <TouchableOpacity onPress={this.onPressLogin} disabled={this.state.submitDisabled} >
+                <TouchableOpacity onPress={this.onPressLogin} disabled={this.state.submitDisabled} >
+                    <LinearGradient style={[styles.submitButton, { opacity: this.state.submitDisabled ? 0.2 : 1 }]} colors={colors} start={{ x: 0, y: 1 }} end={{ x: 1, y: 0 }}>
                         <Text style={styles.submit} >Submit</Text>
-                    </TouchableOpacity>
-                </LinearGradient>
-
-
-
-                {/* <Text style={styles.title}>Email:</Text>
-               
-                <Text style={styles.title}>Password:</Text>
-                <TextInput
-                    placeholder="123456"
-                    style={styles.nameInput}
-                    onChangeText={this.onChangeTextPassword}
-                    value={this.state.password}
-                />
-                */}
+                    </LinearGradient>
+                </TouchableOpacity>
             </View>
         );
     }

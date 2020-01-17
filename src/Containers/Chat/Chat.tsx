@@ -18,6 +18,7 @@ interface State {
     name: string,
     RoomID: string,
     theOtherPerson: string,
+    otherPersonName:string
 }
 
 export default class Chat extends React.Component<Props, State> {
@@ -35,18 +36,30 @@ export default class Chat extends React.Component<Props, State> {
             RoomID: this.props.navigation.getParam('sendingChat'),
             theOtherPerson: this.props.navigation.getParam('theOtherPerson'),
             messages: [],
+            otherPersonName:'',
         };
     }
 
     componentDidMount() {
-        // let id = this.state.uid + '-' + this.state.chatPerson
+        FirebaseServices.readUserData(this.getUsersData)
         FirebaseServices.refOn(this.state.RoomID, (message: any) => {
             this.setState(previousState => ({
                 messages: GiftedChat.append(previousState.messages, message),
             })
             )
-        }
-        );
+        })
+
+    }
+
+    getUsersData = (data: any) => {
+        var result = Object.keys(data).map(function (key) {
+            return [String(key), data[key]];
+        })
+        let tempArray = result
+        let indexToFind = tempArray.findIndex((item: any) => item[0] === this.state.theOtherPerson)
+        this.setState({
+            otherPersonName:tempArray[indexToFind][1].name
+        })
     }
 
     componentWillUnmount() {
@@ -60,7 +73,8 @@ export default class Chat extends React.Component<Props, State> {
             email: this.state.email,
             idRoom: this.state.RoomID,
             _id: this.state.uid,
-            otherID: this.state.theOtherPerson
+            otherID: this.state.theOtherPerson,
+            otherPersonName: this.state.otherPersonName
         };
     }
 
@@ -84,19 +98,19 @@ export default class Chat extends React.Component<Props, State> {
     render() {
         return (
             <GiftedChat
-                    messages={this.state.messages}
-                    onSend={FirebaseServices.send}
-                    loadEarlier={true}
-                    user={this.user}
-                    renderUsernameOnMessage={true}
-                    alwaysShowSend={true}
-                    minComposerHeight={30}
-                    minInputToolbarHeight={60}
-                    messagesContainerStyle={styles.messageStyle}
-                    scrollToBottom={true}
-                    placeholder={'Enter your message'}
-                    onLongPress={this.onLongPress}
-                />
+                messages={this.state.messages}
+                onSend={FirebaseServices.send}
+                loadEarlier={true}
+                user={this.user}
+                renderUsernameOnMessage={true}
+                alwaysShowSend={true}
+                minComposerHeight={30}
+                minInputToolbarHeight={60}
+                messagesContainerStyle={styles.messageStyle}
+                scrollToBottom={true}
+                placeholder={'Enter your message'}
+                onLongPress={this.onLongPress}
+            />
         );
     }
 }
