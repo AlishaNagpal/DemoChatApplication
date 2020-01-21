@@ -1,5 +1,5 @@
 import React from 'react';
-import { GiftedChat, Bubble, Composer } from 'react-native-gifted-chat';
+import { GiftedChat, Bubble, Composer, Day } from 'react-native-gifted-chat';
 import FirebaseServices from '../../utils/FirebaseService'
 import { Clipboard, TouchableOpacity, View, Text, Image } from 'react-native';
 import styles from './styles'
@@ -187,6 +187,21 @@ export default class Chat extends React.Component<Props, State> {
         )
     }
 
+    renderDay = (props: any) => {
+        console.log('props',props)
+        return (
+            <Day
+            {...props}
+            wrapperStyle={styles.Day}
+            //@ts-ignore
+            currentMessage={{
+                createdAt: props.currentMessage.createdAt
+            }}
+            textStyle={styles.dayText}
+            />
+        )
+    }
+
     get user() {
         return {
             name: this.state.name,
@@ -198,7 +213,7 @@ export default class Chat extends React.Component<Props, State> {
             otherPersonName: this.state.otherPersonName
         };
     }
-    
+
     render() {
         return (
             <View style={{ flex: 1 }} >
@@ -224,7 +239,8 @@ export default class Chat extends React.Component<Props, State> {
                     renderSend={this.renderSend}
                     renderComposer={this.renderComposer}
                     messagesContainerStyle={styles.messagesContainerStyle}
-                    ref={(ref)=> this.inputText = ref}
+                    ref={(ref) => this.inputText = ref}
+                    renderDay={this.renderDay}
                 />
             </View>
         );

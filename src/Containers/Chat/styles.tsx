@@ -42,6 +42,15 @@ const Styles = StyleSheet.create({
     },
     messagesContainerStyle:{
         paddingBottom: vh(30)
+    },
+    Day:{
+        backgroundColor:Colors.day,
+        paddingVertical:vh(8),
+        paddingHorizontal:vw(13),
+        borderRadius:vh(5)
+    },
+    dayText:{
+        color: Colors.dayText
     }
 })
 export default Styles;
