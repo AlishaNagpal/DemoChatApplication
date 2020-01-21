@@ -142,10 +142,7 @@ class FirebaseSDK {
             }
             var months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
             var monthName = months[date.getMonth()];
-            console.log(day,monthName)
-           
-           
-            const message = { text, user, createdAt: Hours + ':' + minutes + ' ' + AMPM, onDay: day + ' ' + monthName };
+            const message = { text, user, gettingTime: Hours + ':' + minutes + ' ' + AMPM, createdAt: new Date().getTime(), onDay: day + ' ' + monthName };
             console.log('msg sended ', message)
             firebase.database().ref('ChatRooms/' + user.idRoom).push(message)
             firebase.database().ref('GroupChats/').push(message)
@@ -181,16 +178,24 @@ class FirebaseSDK {
     // Load msgs from Database to Chat
     refOn = (chatPerson: string, callback: Function) => {
         firebase.database().ref('ChatRooms/' + chatPerson) //good for personal ones 
-            .limitToLast(20)
+            .limitToLast(10)
             .on('child_added', (snapshot: any) => { callback(this.parse(snapshot)) });
     }
 
+    getPreviousMessages = (chatPerson: string, callback: Function) => {
+        const onReceive = (data: any) => {
+            const message = data.val();
+            callback(message);
+        };
+        firebase.database().ref('ChatRooms/').child(chatPerson).on('child_added', onReceive);
+    }
+
     parse = (snapshot: any) => {
-        const { timestamp: numberStamp, text, user } = snapshot.val();
+        const { createdAt: numberStamp, text, user } = snapshot.val();
         const { key: id } = snapshot;
         const { key: _id } = snapshot;
-        const timestamp = new Date(numberStamp);
-        const message = { id, _id, timestamp, text, user };
+        const createdAt = new Date(numberStamp);
+        const message = { id, _id, createdAt, text, user };
         return message;
     };
 

@@ -39,37 +39,70 @@ export default class Users extends React.PureComponent<Props, State> {
 
     componentDidMount() {
         FirebaseService.readUserData(this.getUsersData)
-        FirebaseService.readInboxData(this.state.uid, this.getLastMessages)
-        this.gettingDateMatch()
+        // this.gettingDateMatch()
+        // this.props.navigation.addListener(
+        //     'didFocus',
+        //     (payload: any) => {
+        //         FirebaseService.readUserData(this.getUsersData)
+        //         this.forceUpdate()
+        //     }
+        // );
+
     }
 
     getUsersData = (data: any) => {
-        var result = Object.keys(data).map(function (key) {
-            return [String(key), data[key]];
-        })
+        if (data) {
+            var result = Object.keys(data).map(function (key) {
+                return [String(key), data[key]];
+            })
 
-        this.setState({
-            data: result
-        })
-        let tempArray = this.state.data
-        let indexToFind = tempArray.findIndex((item: any) => item[0] === this.state.uid)
-        tempArray.splice(indexToFind, 1)
+            this.setState({
+                data: result
+            })
+            let tempArray = this.state.data
+            let indexToFind = tempArray.findIndex((item: any) => item[0] === this.state.uid)
+            tempArray.splice(indexToFind, 1)
+            this.setState({
+                data: tempArray.splice(0)
+            })
+            setTimeout(() => {
+                FirebaseService.readInboxData(this.state.uid, this.getLastMessages)
+            }, 50);
+        }
     }
 
     getLastMessages = (data: any) => {
-        var result: Array<any> = Object.keys(data).map(function (key) {
-            return [String(key), data[key]];
-        })
-        if (result) {
+        if (data) {
+            var result: Array<any> = Object.keys(data).map(function (key) {
+                return [String(key), data[key]];
+            })
             this.setState({
                 lastMessageSearch: result,
                 chatsDone: true
             })
-            console.log(this.state.lastMessageSearch)
+            for (let i = 0; i < this.state.data.length; i++) {
+                for (let j = 0; j < this.state.lastMessageSearch.length; j++) {
+                    if (this.state.lastMessageSearch[j][0] === this.state.data[i][0]) {
+                        this.getUpdatedData(this.state.data[i], this.state.lastMessageSearch[j])
+                    }
+                }
+            }
         }
     }
 
-
+    getUpdatedData = (data: any, lastMessage: any) => {
+        let tempArr = this.state.updatedData
+        let indexToFind = tempArr.findIndex((item: any) => item[0] === data[0])
+        if (indexToFind === -1) {
+            data[1].message = lastMessage[1].text
+            data[1].time = lastMessage[1].gettingTime
+            // console.log('lastMessage[1].textß', lastMessage[1].text)
+            setTimeout(() => {
+                this.state.updatedData.push(data)
+                this.forceUpdate()
+            }, 10);
+        }
+    }
 
     oneOnOneChat(uid: string) {
         //going for one on one chat
@@ -87,6 +120,7 @@ export default class Users extends React.PureComponent<Props, State> {
             userId: this.state.uid,
             sendingChat: chatRoomId,
             theOtherPerson: otherperson,
+            // refresh: this.refresh.bind(this)
         });
     }
 
@@ -100,26 +134,25 @@ export default class Users extends React.PureComponent<Props, State> {
         })
     }
 
-    gettingDateMatch = () => {
-        let date = new Date()
-        let getDay = date.getDate()
-        var months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-        let getMonth =  months[date.getMonth()];
-        console.log(date, getDay, getMonth)
-    }
+    // gettingDateMatch = () => {
+    //     let date = new Date()
+    //     let getDay = date.getDate()
+    //     var months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+    //     let getMonth = months[date.getMonth()];
+    // }
 
     renderData = (rowData: any) => {
         const { item } = rowData
         return (
             <View>
                 <View style={styles.row} >
-                    <TouchableOpacity style={styles.root} onPress={() => this.oneOnOneChat(item[1].otherID)} activeOpacity={1} >
+                    <TouchableOpacity style={styles.root} onPress={() => this.oneOnOneChat(item[1].uid)} activeOpacity={1} >
                         <View style={styles.row2} >
-                            <Text style={styles.nameSet} >{item[1].user.otherPersonName}</Text>
-                            <Text style={styles.message2} >{item[1].createdAt}</Text>
+                            <Text style={styles.nameSet} >{item[1].name}</Text>
+                            <Text style={styles.message2} >{item[1].time}</Text>
                         </View>
                         <View style={styles.time} >
-                            <Text style={styles.message} >{item[1].text}</Text>
+                            <Text style={styles.message} >{item[1].message}</Text>
                         </View>
                     </TouchableOpacity>
                 </View>
@@ -130,11 +163,10 @@ export default class Users extends React.PureComponent<Props, State> {
     }
 
     verifying = () => {
-        if (this.state.chatsDone) {
-            console.log('this.state.updatedData', this.state.updatedData)
+        if (this.state.chatsDone && this.state.updatedData.length !== 0) {
             return (
                 <FlatList
-                    data={this.state.lastMessageSearch}
+                    data={this.state.updatedData}
                     renderItem={this.renderData}
                     keyExtractor={(item, index) => index.toString()}
                 />
@@ -164,9 +196,7 @@ export default class Users extends React.PureComponent<Props, State> {
                     </TouchableOpacity>
                 </View>
                 <Text style={styles.chats} >Chats</Text>
-                {this.state.lastMessageSearch &&
-                    this.verifying()
-                }
+                {this.verifying()}
             </View>
         )
     }

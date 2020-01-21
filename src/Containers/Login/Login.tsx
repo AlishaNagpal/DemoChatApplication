@@ -107,7 +107,7 @@ export default class Login extends React.Component<Props, State> {
 
                 <Text style={styles.welcome} > Welcome to Chat! </Text>
                 <TextInput
-                     style={[styles.nameInput,{borderColor: this.state.email === '' ? Colors.white: Colors.shembe}]}
+                    style={[styles.nameInput, { borderColor: this.state.email === '' ? Colors.white : Colors.shembe }]}
                     placeholder="Email Address"
                     onChangeText={(text) => { this.setState({ email: text }), this.buttonDisabled() }}
                     value={this.state.email}
@@ -120,7 +120,7 @@ export default class Login extends React.Component<Props, State> {
                 <View>
                     <TextInput
                         placeholder="Password"
-                        style={[styles.nameInput,{borderColor: this.state.password === '' ? Colors.white: Colors.shembe}]}
+                        style={[styles.nameInput, { borderColor: this.state.password === '' ? Colors.white : Colors.shembe }]}
                         onChangeText={(text) => { this.setState({ password: text }), this.buttonDisabled() }}
                         value={this.state.password}
                         secureTextEntry={!this.state.showPassword}

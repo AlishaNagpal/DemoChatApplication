@@ -1,10 +1,10 @@
 import React from 'react';
-import { GiftedChat } from 'react-native-gifted-chat';
+import { GiftedChat, Bubble, Composer } from 'react-native-gifted-chat';
 import FirebaseServices from '../../utils/FirebaseService'
-import { Clipboard, View, TouchableOpacity } from 'react-native';
+import { Clipboard, TouchableOpacity, View, Text, Image } from 'react-native';
 import styles from './styles'
-import Icon from 'react-native-vector-icons/Ionicons'
-Icon.loadFont()
+import { Colors, vh, vw, VectorIcons, Strings, Images } from "../../Constants";
+
 
 export interface Props {
     navigation?: any,
@@ -18,7 +18,10 @@ interface State {
     name: string,
     RoomID: string,
     theOtherPerson: string,
-    otherPersonName:string
+    otherPersonName: string,
+    loadEarlier: boolean,
+    typingText: any,
+    isLoadingEarlier: boolean,
 }
 
 export default class Chat extends React.Component<Props, State> {
@@ -36,11 +39,17 @@ export default class Chat extends React.Component<Props, State> {
             RoomID: this.props.navigation.getParam('sendingChat'),
             theOtherPerson: this.props.navigation.getParam('theOtherPerson'),
             messages: [],
-            otherPersonName:'',
+            otherPersonName: '',
+            loadEarlier: true,
+            typingText: null,
+            isLoadingEarlier: false,
         };
     }
 
+    _isMounted = false
+
     componentDidMount() {
+        this._isMounted = true
         FirebaseServices.readUserData(this.getUsersData)
         FirebaseServices.refOn(this.state.RoomID, (message: any) => {
             this.setState(previousState => ({
@@ -58,25 +67,16 @@ export default class Chat extends React.Component<Props, State> {
         let tempArray = result
         let indexToFind = tempArray.findIndex((item: any) => item[0] === this.state.theOtherPerson)
         this.setState({
-            otherPersonName:tempArray[indexToFind][1].name
+            otherPersonName: tempArray[indexToFind][1].name
         })
     }
 
     componentWillUnmount() {
         FirebaseServices.refOff()
+        this._isMounted = false
     }
 
-    get user() {
-        return {
-            name: this.state.name,
-            avatar: this.state.avatar,
-            email: this.state.email,
-            idRoom: this.state.RoomID,
-            _id: this.state.uid,
-            otherID: this.state.theOtherPerson,
-            otherPersonName: this.state.otherPersonName
-        };
-    }
+
 
     onLongPress = (context: any, message: any) => {
         const options = ['Copy', 'Delete Message', 'Cancel'];
@@ -95,22 +95,138 @@ export default class Chat extends React.Component<Props, State> {
             }
         });
     }
+
+    renderBubble = (props: any) => {
+        return (
+            <Bubble
+                {...props}
+                //@ts-ignore
+                wrapperStyle={{
+                    left: {
+                        backgroundColor: Colors.white,
+                        borderRadius: vw(0),
+                        borderBottomEndRadius: vw(10),
+                        borderBottomLeftRadius: vw(10),
+                        borderTopRightRadius: vw(10)
+                    },
+                    right: {
+                        backgroundColor: Colors.chatBubble,
+                        borderRadius: vw(0),
+                        borderBottomEndRadius: vw(10),
+                        borderBottomLeftRadius: vw(10),
+                        borderTopLeftRadius: vw(10)
+                    }
+                }}
+            />
+        );
+    }
+
+    goBack = () => {
+        // this.props.navigation.state.params.refresh()
+        this.props.navigation.navigate('Users')
+    }
+
+    onLoadEarlier = () => {
+        this.setState(() => {
+            return {
+                isLoadingEarlier: true,
+            }
+        })
+
+        // setTimeout(() => {
+        //     if (this._isMounted === true) {
+        //         FirebaseServices.getPreviousMessages(this.state.RoomID, (message: any) => {
+        //             console.log(message)
+        //             this.setState(previousState => ({
+        //                 messages: GiftedChat.prepend(previousState.messages, message),
+        //                 loadEarlier: false,
+        //                 isLoadingEarlier: false,
+        //             })
+        //             )
+        //         })
+        //     }
+        // }, 1000) // simulating network //simply repeating things over here 
+    }
+
+    renderSend = (props: any) => {
+        const message = this.inputText.state.text || '';
+        return (
+            // <View style={styles.sendView}>
+            //     <TouchableOpacity style={styles.sendBtn} activeOpacity={1} onPress={FirebaseServices.send}>
+            //         <Image source={Images.send} />
+            //     </TouchableOpacity>
+            // </View>
+            <View style={styles.sendView}>
+                <TouchableOpacity style={styles.sendBtn} activeOpacity={1} onPress={() => {
+                    if (message.trim().length > 0) {
+                        this.inputText.onSend(
+                            {
+                                text: message.trim()
+                            },
+                            true
+                        );
+                    } else {
+                        return;
+                    }
+                }}>
+                    <Image source={Images.send} />
+                </TouchableOpacity>
+            </View>
+        )
+    }
+
+    renderComposer = (props: any) => {
+        return (
+            <Composer
+                {...props}
+                composerHeight={vh(30)}
+                placeholder={Strings.typeMsg}
+                textInputStyle={styles.inputText}
+                multiline={true}
+            />
+        )
+    }
+
+    get user() {
+        return {
+            name: this.state.name,
+            avatar: this.state.avatar,
+            email: this.state.email,
+            idRoom: this.state.RoomID,
+            _id: this.state.uid,
+            otherID: this.state.theOtherPerson,
+            otherPersonName: this.state.otherPersonName
+        };
+    }
+    
     render() {
         return (
-            <GiftedChat
-                messages={this.state.messages}
-                onSend={FirebaseServices.send}
-                loadEarlier={true}
-                user={this.user}
-                renderUsernameOnMessage={true}
-                alwaysShowSend={true}
-                minComposerHeight={30}
-                minInputToolbarHeight={60}
-                messagesContainerStyle={styles.messageStyle}
-                scrollToBottom={true}
-                placeholder={'Enter your message'}
-                onLongPress={this.onLongPress}
-            />
+            <View style={{ flex: 1 }} >
+                <TouchableOpacity style={styles.headerView} activeOpacity={1} onPress={this.goBack} >
+                    <VectorIcons.Ionicons name={'md-arrow-back'} size={vh(30)} style={styles.icon} />
+                    <Text style={styles.nameText} >{this.state.otherPersonName}</Text>
+                </TouchableOpacity>
+                <GiftedChat
+                    messages={this.state.messages}
+                    onSend={FirebaseServices.send}
+                    user={this.user}
+                    loadEarlier={this.state.loadEarlier}
+                    onLoadEarlier={this.onLoadEarlier}
+                    isLoadingEarlier={this.state.isLoadingEarlier}
+                    renderAvatarOnTop={true}
+                    alwaysShowSend={true}
+                    showAvatarForEveryMessage={false}
+                    showUserAvatar={true}
+                    placeholder={'Enter your message'}
+                    onLongPress={this.onLongPress}
+                    renderBubble={this.renderBubble}
+                    timeTextStyle={{ left: { color: Colors.leftTimeText }, right: { color: Colors.white } }}
+                    renderSend={this.renderSend}
+                    renderComposer={this.renderComposer}
+                    messagesContainerStyle={styles.messagesContainerStyle}
+                    ref={(ref)=> this.inputText = ref}
+                />
+            </View>
         );
     }
 }

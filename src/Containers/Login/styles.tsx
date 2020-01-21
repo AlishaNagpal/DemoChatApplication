@@ -59,7 +59,8 @@ const Styles = StyleSheet.create({
         padding: vw(10),
         borderRadius: vh(10),
         fontSize: vh(16),
-        borderWidth:vw(1)
+        borderWidth:vw(1),
+        // textTransform: 'lowercase'
     },
     eye: {
         position: 'absolute',

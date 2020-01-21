@@ -5,6 +5,7 @@ const Images = {
     SignUpGraphic: require('../Assets/Images/icSignUpGraphic.png'),
     ProfileImage: require('../Assets/Images/icShembePhoto.png'),
     noChat: require('../Assets/Images/icGraphicNoChat.png'),
+    send: require('../Assets/Images/icSend.png')
 
 }
 
