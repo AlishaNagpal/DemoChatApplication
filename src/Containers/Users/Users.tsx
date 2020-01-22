@@ -19,7 +19,8 @@ interface State {
     chatsDone: boolean,
     updatedData: any,
     isFetching: boolean,
-    runLoader: boolean
+    runLoader: boolean,
+    groupArray: Array<any>
 }
 
 export default class Users extends React.PureComponent<Props, State> {
@@ -35,7 +36,8 @@ export default class Users extends React.PureComponent<Props, State> {
             chatsDone: false,
             updatedData: [],
             isFetching: false,
-            runLoader: true
+            runLoader: true,
+            groupArray: []
         };
     }
 
@@ -49,6 +51,29 @@ export default class Users extends React.PureComponent<Props, State> {
         //         this.forceUpdate()
         //     }
         // );
+        FirebaseService.readGroupChatData(this.getGroupChatData)
+    }
+
+    getGroupChatData = (data: any) => {
+        if (data) {
+            var result = Object.keys(data).map(function (key) {
+                return [String(key), data[key]];
+            })
+            // console.log('getGroupChatData', result)
+            for (let z = 0; z < result.length; z++) {
+                let idTocheck = result[z][1]
+                let keys = Object.keys(idTocheck)
+                // console.log(keys)
+                for (let i = 0; i < keys.length; i++) {
+                    let n = keys[i].includes(this.state.uid)
+                    if (n){
+                        //if you find the key, then what?
+                        this.state.groupArray.push(result[z])
+                    }
+                }
+            }
+            console.log(this.state.groupArray)
+        }
     }
 
     onRefresh = () => {

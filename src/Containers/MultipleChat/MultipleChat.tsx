@@ -2,7 +2,9 @@ import React from 'react';
 import { Text, View, FlatList, TouchableOpacity, TextInput, Image } from 'react-native';
 import FirebaseService from '../../utils/FirebaseService';
 import styles from './styles'
-import { Colors } from "../../Constants";
+import { Colors, VectorIcons, vh, Images } from "../../Constants";
+import LinearGradient from 'react-native-linear-gradient';
+const colors = [Colors.shembe, Colors.weirdGreen, '#7DEAAB']
 
 export interface Props {
     navigation: any,
@@ -60,9 +62,8 @@ export default class MultipleChat extends React.Component<Props, State> {
     }
 
     participantsArray = (data: any) => {
-        console.log('data', this.state.participants)
         let tempArr = this.state.participants
-        let indexToFind = tempArr.findIndex((item: any) => console.log(item[0], data[0]))
+        let indexToFind = tempArr.findIndex((item: any) => item[0] === data[0])
         if (indexToFind === -1) {
             this.state.participants.push(data)
             this.forceUpdate()
@@ -73,35 +74,64 @@ export default class MultipleChat extends React.Component<Props, State> {
         const { item } = rowData
         return (
             <View style={styles.root} >
-                {/* <Image
+                <Image
                     style={styles.image}
-                    source={{ uri: item[1].image }}
-                /> */}
-                <View style={styles.lastMessage} >
-                    <Text style={styles.nameSet} >{item[1].name}</Text>
-                </View>
+                    source={Images.ProfileImage}
+                />
+                <Text style={styles.nameSet} >{item[1].name}</Text>
             </View>
         )
     }
-    multiChat = () => {
-        let roomID = this.state.textInputValue + this.state.personalId
-        let otherId = ''
-        for (let i = 0; i < this.state.selectedArray.length; i++) {
-            otherId += this.state.selectedArray[i]
-        }
-        roomID += otherId
 
-        console.log(roomID)
+    getUnique = (array: any) => {
+        var uniqueArray = [];
+
+        // Loop through array values
+        for (let i = 0; i < array.length; i++) {
+            if (uniqueArray.indexOf(array[i]) === -1) {
+                uniqueArray.push(array[i]);
+            }
+        }
+        return uniqueArray;
+    }
+
+    multiChat = () => {
+        let otherId = ''
+        for (let i = 0; i < this.state.participants.length; i++) {
+            otherId += this.state.participants[i][0]
+        }
+        // console.log(otherId, allParticipants)
+
+        this.props.navigation.navigate('MultiChat', {
+            uid: this.state.personalId,
+            chatRoomId: otherId,
+            chatRoomName: this.state.textInputValue,
+        })
     }
 
     render() {
         return (
             <View style={styles.main} >
+                <TouchableOpacity activeOpacity={1} style={styles.cross} onPress={() => this.props.navigation.goBack()} >
+                    <VectorIcons.Entypo name='cross' size={vh(30)} />
+                </TouchableOpacity>
+                <Text style={styles.group} >Complete your Group!</Text>
+                <View>
+                    <LinearGradient style={styles.groupButton} colors={colors} start={{ x: 1, y: 0 }} end={{ x: 1, y: 1 }}>
+                        <VectorIcons.MaterialCommunityIcons name='account-group' color={Colors.white} size={vh(100)} />
+                    </LinearGradient>
+                    <TouchableOpacity style={styles.editIcon}>
+                        <VectorIcons.Feather name='edit' size={vh(40)} />
+                    </TouchableOpacity>
+                </View>
+
                 <TextInput
                     style={styles.textInput}
-                    placeholder={'Your group name...'}
+                    placeholder={'Enter Your Group Name'}
                     value={this.state.textInputValue}
                     onChangeText={(text) => this.setState({ textInputValue: text })}
+                    clearButtonMode={'while-editing'}
+                    onSubmitEditing={this.multiChat}
                 />
                 <Text style={styles.participants} >Participants</Text>
                 <FlatList
@@ -109,7 +139,7 @@ export default class MultipleChat extends React.Component<Props, State> {
                     renderItem={this.renderData}
                     keyExtractor={(item, index) => index.toString()}
                 />
-                <TouchableOpacity style={[styles.buttonText2, { backgroundColor: this.state.textInputValue === '' ? Colors.profileGrey : Colors.white, borderColor: this.state.textInputValue === '' ? Colors.profileGrey : Colors.redShadow, }]} disabled={this.state.textInputValue === '' ? true : false} onPress={this.multiChat} >
+                <TouchableOpacity style={[styles.buttonText2, { backgroundColor: this.state.textInputValue === '' ? Colors.textInput : Colors.white, borderColor: this.state.textInputValue === '' ? Colors.white : Colors.shembe, }]} disabled={this.state.textInputValue === '' ? true : false} onPress={this.multiChat} >
                     <Text style={styles.buttonText} >Create Group!</Text>
                 </TouchableOpacity>
             </View>

@@ -9,12 +9,9 @@ export interface Props {
 
 interface State {
     uid: string,
-    email: string,
+    chatRoomId: string,
+    chatRoomName: string,
     messages: any,
-    avatar: string,
-    name: string,
-    RoomID: string,
-    theOtherPerson: string,
 }
 
 export default class MultiChat extends React.Component<Props, State> {
@@ -22,19 +19,17 @@ export default class MultiChat extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            uid: this.props.navigation.getParam('userId'),
-            email: this.props.navigation.getParam('email'),
-            name: this.props.navigation.getParam('name'),
-            avatar: this.props.navigation.getParam('avatar'),
-            RoomID: this.props.navigation.getParam('sendingChat'),
-            theOtherPerson: this.props.navigation.getParam('theOtherPerson'),
+            uid: this.props.navigation.getParam('uid'),
+            chatRoomId: this.props.navigation.getParam('chatRoomId'),
+            chatRoomName: this.props.navigation.getParam('chatRoomName'),
             messages: [],
+
         };
     }
 
     componentDidMount() {
         // let id = this.state.uid + '-' + this.state.chatPerson
-        FirebaseServices.refOn(this.state.RoomID, (message: any) => {
+        FirebaseServices.getGroupMessages(this.state.chatRoomName,this.state.chatRoomId, (message: any) => {
             this.setState(previousState => ({
                 messages: GiftedChat.append(previousState.messages, message),
             })
@@ -49,12 +44,9 @@ export default class MultiChat extends React.Component<Props, State> {
 
     get user() {
         return {
-            name: this.state.name,
-            avatar: this.state.avatar,
-            email: this.state.email,
-            idRoom: this.state.RoomID,
+            name: this.state.chatRoomName,
+            idRoom: this.state.chatRoomId,
             _id: this.state.uid,
-            otherID: this.state.theOtherPerson
         };
     }
 
@@ -86,7 +78,7 @@ export default class MultiChat extends React.Component<Props, State> {
                 alwaysShowSend={true}
                 minComposerHeight={30}
                 minInputToolbarHeight={60}
-                messagesContainerStyle={{backgroundColor:'white'}}
+                messagesContainerStyle={{ backgroundColor: 'white' }}
                 scrollToBottom={true}
                 placeholder={'Enter your message'}
                 onLongPress={this.onLongPress}

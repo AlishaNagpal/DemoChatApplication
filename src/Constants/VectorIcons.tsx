@@ -10,6 +10,7 @@ import SimpleLineIconsI from 'react-native-vector-icons/SimpleLineIcons';
 import EvilIconsI from 'react-native-vector-icons/EvilIcons';
 import FontAwesome5I from 'react-native-vector-icons/FontAwesome5';
 import FoundationI from 'react-native-vector-icons/Foundation';
+import FeatherI from "react-native-vector-icons/Feather";
 
 export const MaterialCommunityIcons = (props: any) => (
     <MaterialCommunityIconsI {...props} />
@@ -25,6 +26,7 @@ const FontAwesome5 = (props: any) => <FontAwesome5I {...props} />
 const SimpleLineIcons = (props: any) => <SimpleLineIconsI {...props} />
 const EvilIcons = (props: any) => <EvilIconsI {...props} />
 const Foundation = (props: any) => <FoundationI {...props} />
+const Feather = (props: any) => <FeatherI {...props} />
 
 export default {
     Octicons,
@@ -38,5 +40,5 @@ export default {
     SimpleLineIcons,
     EvilIcons,
     Foundation,
-
+    Feather
 }
