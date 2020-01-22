@@ -53,8 +53,19 @@ export default class MultipleChat extends React.Component<Props, State> {
         for (let i = 0; i < this.state.selectedArray.length; i++) {
             let index = tempArray.findIndex((item: any) => item[0] === this.state.selectedArray[i])
             if (index !== -1) {
-                this.state.participants.push(tempArray[index])
+                this.participantsArray(tempArray[index])
+                // this.state.participants.push(tempArray[index])
             }
+        }
+    }
+
+    participantsArray = (data: any) => {
+        console.log('data', this.state.participants)
+        let tempArr = this.state.participants
+        let indexToFind = tempArr.findIndex((item: any) => console.log(item[0], data[0]))
+        if (indexToFind === -1) {
+            this.state.participants.push(data)
+            this.forceUpdate()
         }
     }
 

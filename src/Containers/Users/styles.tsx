@@ -47,7 +47,7 @@ const Styles = StyleSheet.create({
         width: vw(400),
         alignSelf: 'center',
         backgroundColor: Colors.textInput,
-        margin:vw(5)
+        margin: vw(5)
     },
     row: {
         flexDirection: 'row',
@@ -76,12 +76,19 @@ const Styles = StyleSheet.create({
         color: Colors.fadedGray,
         fontSize: vh(12),
         flex: 1,
-        marginTop:vw(10)
+        marginTop: vw(10)
     },
     message2: {
         color: Colors.shembe,
         fontSize: vh(12),
         marginRight: vw(10)
     },
+    loader: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'absolute',
+        marginTop: vw(280),
+        marginLeft: vw(80)
+    }
 })
 export default Styles;

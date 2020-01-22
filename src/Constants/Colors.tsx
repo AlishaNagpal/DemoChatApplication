@@ -10,7 +10,8 @@ const Colors = {
     leftTimeText: 'rgb(140,140,140)',
     tealBlue: 'rgb(1, 167, 163)',
     day:'rgb(214,231,230)',
-    dayText: 'rgb(89,89,89)'
+    dayText: 'rgb(89,89,89)',
+    transparentBG: 'rgba(0,0,0,0.001)',
 }
 
 export default Colors;

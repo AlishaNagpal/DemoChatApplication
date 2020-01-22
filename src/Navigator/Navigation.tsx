@@ -1,5 +1,6 @@
 import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
+import { Colors } from "../Constants";
 
 import Chat from '../Containers/Chat/Chat'
 import Login from '../Containers/Login/Login'
@@ -20,20 +21,38 @@ const MainStack = createStackNavigator(
         Users: { screen: Users, navigationOptions: { headerShown: false } },
         SelectToChat: { screen: SelectToChat, navigationOptions: { headerShown: false } },
         GroupChat: GroupChat,
-        MultipleChat: MultipleChat,
-        MultiChat: MultiChat
+        MultiChat: MultiChat,
     },
     {
         initialRouteName: 'Login',
     }
 );
 
-export default createAppContainer(createSwitchNavigator(
+const ModalStack = createStackNavigator(
     {
-        MainStack: MainStack,
+        Main: MainStack,
+        MultipleChat: { screen: MultipleChat, navigationOptions: { headerShown: false } },
     },
     {
-        initialRouteName: 'MainStack',
+        mode: 'modal',
+        headerMode: 'none',
+        // style: {
+        //     opacity: 1,
+        //     backgroundColor: Colors.transparentBG
+        // }
+    },
+);
+
+
+
+
+
+export default createAppContainer(createSwitchNavigator(
+    {
+        ModalStack: ModalStack,
+    },
+    {
+        initialRouteName: 'ModalStack',
         defaultNavigationOptions: ({ navigation }) => ({
             headerBackTitle: null,
             header: null,

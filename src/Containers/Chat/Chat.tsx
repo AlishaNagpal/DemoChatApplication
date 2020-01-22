@@ -151,11 +151,6 @@ export default class Chat extends React.Component<Props, State> {
     renderSend = (props: any) => {
         const message = this.inputText.state.text || '';
         return (
-            // <View style={styles.sendView}>
-            //     <TouchableOpacity style={styles.sendBtn} activeOpacity={1} onPress={FirebaseServices.send}>
-            //         <Image source={Images.send} />
-            //     </TouchableOpacity>
-            // </View>
             <View style={styles.sendView}>
                 <TouchableOpacity style={styles.sendBtn} activeOpacity={1} onPress={() => {
                     if (message.trim().length > 0) {
@@ -188,16 +183,16 @@ export default class Chat extends React.Component<Props, State> {
     }
 
     renderDay = (props: any) => {
-        console.log('props',props)
+        // console.log('props', props)
         return (
             <Day
-            {...props}
-            wrapperStyle={styles.Day}
-            //@ts-ignore
-            currentMessage={{
-                createdAt: props.currentMessage.createdAt
-            }}
-            textStyle={styles.dayText}
+                {...props}
+                wrapperStyle={styles.Day}
+                //@ts-ignore
+                currentMessage={{
+                    createdAt: props.currentMessage.createdAt
+                }}
+                textStyle={styles.dayText}
             />
         )
     }

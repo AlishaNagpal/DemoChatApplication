@@ -1,9 +1,9 @@
 import React from 'react';
-import { PureComponent } from 'react'
 import { Text, View, FlatList, TouchableOpacity, Image } from 'react-native';
 import FirebaseService from '../../utils/FirebaseService';
 import styles from './styles'
 import { Colors, vh, VectorIcons, Images } from '../../Constants';
+import { Circle } from 'react-native-animated-spinkit'
 
 export interface Props {
     navigation: any
@@ -16,9 +16,9 @@ interface State {
     avatar: string,
     uid: string,
     lastMessageSearch: Array<any>,
-    lastMessage: string,
     chatsDone: boolean,
     updatedData: any,
+    isFetching: boolean,
 }
 
 export default class Users extends React.PureComponent<Props, State> {
@@ -30,10 +30,10 @@ export default class Users extends React.PureComponent<Props, State> {
             email: this.props.navigation.getParam('email'),
             uid: this.props.navigation.getParam('userId'),
             avatar: this.props.navigation.getParam('avatar'),
-            lastMessage: 'No chat has occured yet',
             lastMessageSearch: [],
             chatsDone: false,
-            updatedData: []
+            updatedData: [],
+            isFetching: false
         };
     }
 
@@ -50,6 +50,13 @@ export default class Users extends React.PureComponent<Props, State> {
 
     }
 
+    onRefresh = () => {
+        this.setState({ isFetching: true })
+        FirebaseService.readUserData(this.getUsersData)
+    }
+
+
+
     getUsersData = (data: any) => {
         if (data) {
             var result = Object.keys(data).map(function (key) {
@@ -57,7 +64,7 @@ export default class Users extends React.PureComponent<Props, State> {
             })
 
             this.setState({
-                data: result
+                data: result,
             })
             let tempArray = this.state.data
             let indexToFind = tempArray.findIndex((item: any) => item[0] === this.state.uid)
@@ -78,7 +85,8 @@ export default class Users extends React.PureComponent<Props, State> {
             })
             this.setState({
                 lastMessageSearch: result,
-                chatsDone: true
+                chatsDone: true,
+                isFetching: false
             })
             for (let i = 0; i < this.state.data.length; i++) {
                 for (let j = 0; j < this.state.lastMessageSearch.length; j++) {
@@ -169,6 +177,8 @@ export default class Users extends React.PureComponent<Props, State> {
                     data={this.state.updatedData}
                     renderItem={this.renderData}
                     keyExtractor={(item, index) => index.toString()}
+                    onRefresh={() => this.onRefresh()}
+                    refreshing={this.state.isFetching}
                 />
             )
         } else {
@@ -187,6 +197,8 @@ export default class Users extends React.PureComponent<Props, State> {
     render() {
         return (
             <View style={styles.main} >
+
+
                 <View style={styles.iconView} >
                     <TouchableOpacity onPress={() => this.props.navigation.navigate('Login')} >
                         <VectorIcons.Ionicons name='md-arrow-back' size={vh(30)} />
@@ -197,6 +209,11 @@ export default class Users extends React.PureComponent<Props, State> {
                 </View>
                 <Text style={styles.chats} >Chats</Text>
                 {this.verifying()}
+                {!this.state.chatsDone && this.state.updatedData.length === 0 &&
+                    <View style={styles.loader} >
+                        <Circle size={250} color={Colors.shembe} />
+                    </View>
+                }
             </View>
         )
     }

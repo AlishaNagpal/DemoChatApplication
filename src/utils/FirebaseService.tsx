@@ -27,7 +27,7 @@ class FirebaseSDK {
     };
 
     readUserData(callback: Function) {
-        firebase.database().ref('Users/').once('value', function (snapshot: any) {
+        firebase.database().ref('Users/').on('value', function (snapshot: any) {
             callback(snapshot.val())
         })
     }
