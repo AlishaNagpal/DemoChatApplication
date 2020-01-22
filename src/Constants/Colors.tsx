@@ -11,7 +11,7 @@ const Colors = {
     tealBlue: 'rgb(1, 167, 163)',
     day:'rgb(214,231,230)',
     dayText: 'rgb(89,89,89)',
-    transparentBG: 'rgba(0,0,0,0.001)',
+    transparentBG: 'rgba(0,0,0,0)',
 }
 
 export default Colors;

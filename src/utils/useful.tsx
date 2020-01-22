@@ -63,3 +63,15 @@
         //         }, 500);
         //     }
         // }
+
+
+        // let date = new Date()
+        //     let day = date.getDate()
+        //     let Hours = date.getHours()
+        //     let minutes = date.getMinutes()
+        //     let AMPM = 'AM'
+        //     if (Hours >= 12) {
+        //         AMPM = 'PM'
+        //     }
+        //     var months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+        //     var monthName = months[date.getMonth()];

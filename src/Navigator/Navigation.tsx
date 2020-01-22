@@ -36,10 +36,6 @@ const ModalStack = createStackNavigator(
     {
         mode: 'modal',
         headerMode: 'none',
-        // style: {
-        //     opacity: 1,
-        //     backgroundColor: Colors.transparentBG
-        // }
     },
 );
 

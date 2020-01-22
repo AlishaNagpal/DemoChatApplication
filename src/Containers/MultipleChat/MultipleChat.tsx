@@ -73,10 +73,10 @@ export default class MultipleChat extends React.Component<Props, State> {
         const { item } = rowData
         return (
             <View style={styles.root} >
-                <Image
+                {/* <Image
                     style={styles.image}
                     source={{ uri: item[1].image }}
-                />
+                /> */}
                 <View style={styles.lastMessage} >
                     <Text style={styles.nameSet} >{item[1].name}</Text>
                 </View>

@@ -4,8 +4,8 @@ import { vh, vw, Colors } from "../../Constants";
 const Styles = StyleSheet.create({
     main: {
         backgroundColor: Colors.white,
-        flex: 1
-
+        flex: 1,
+        // zIndex: 1
     },
     iconView: {
         marginTop: vh(45),

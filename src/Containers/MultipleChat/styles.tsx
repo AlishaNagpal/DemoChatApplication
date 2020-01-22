@@ -1,11 +1,12 @@
 import { StyleSheet } from 'react-native';
-import { vh, vw, Colors } from "../../Constants";
+import { vh, vw, Colors, DesignHeight } from "../../Constants";
 
 const Styles = StyleSheet.create({
     main: {
-        backgroundColor: Colors.white,
-        flex: 1
-
+        backgroundColor: Colors.transparentBG,
+        height: vh(DesignHeight - 100),
+        // flex:1,
+        justifyContent: 'flex-start'
     },
     textInput: {
         height: vh(60),
@@ -23,7 +24,7 @@ const Styles = StyleSheet.create({
         color: Colors.rosa,
         alignSelf: 'center',
         marginTop: vh(30),
-        marginBottom:vh(20)
+        marginBottom: vh(20)
     },
     root: {
         alignItems: 'center',

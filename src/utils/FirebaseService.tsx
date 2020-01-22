@@ -1,5 +1,6 @@
 import firebase from 'react-native-firebase';
 import { Platform } from 'react-native';
+import moment from 'moment';
 
 class FirebaseSDK {
 
@@ -132,18 +133,17 @@ class FirebaseSDK {
         // console.log('gettin the messages', messages)
         for (let i = 0; i < messages.length; i++) {
             const { text, user } = messages[i];
-            let date = new Date()
-            let day = date.getDate()
-            let Hours = date.getHours()
-            let minutes = date.getMinutes()
-            let AMPM = 'AM'
-            if (Hours >= 12) {
-                AMPM = 'PM'
-            }
-            var months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
-            var monthName = months[date.getMonth()];
-            const message = { text, user, gettingTime: Hours + ':' + minutes + ' ' + AMPM, createdAt: new Date().getTime(), onDay: day + ' ' + monthName };
-            console.log('msg sended ', message)
+
+            var dated = moment()
+                .utcOffset('+05:30')
+                .format(' hh:mm a');
+
+            var DayTime = moment()
+                .utcOffset('+05:30')
+                .format('DD MMM,YYYY');
+                
+            const message = { text, user, gettingTime: dated, createdAt: new Date().getTime(), onDay: DayTime };
+            // console.log('msg sended ', message)
             firebase.database().ref('ChatRooms/' + user.idRoom).push(message)
             firebase.database().ref('GroupChats/').push(message)
             firebase.database().ref('Inbox/' + user._id + '/' + user.otherID).set(message)
@@ -178,7 +178,7 @@ class FirebaseSDK {
     // Load msgs from Database to Chat
     refOn = (chatPerson: string, callback: Function) => {
         firebase.database().ref('ChatRooms/' + chatPerson) //good for personal ones 
-            .limitToLast(10)
+            .limitToLast(20)
             .on('child_added', (snapshot: any) => { callback(this.parse(snapshot)) });
     }
 
@@ -201,7 +201,7 @@ class FirebaseSDK {
 
     GroupChatRefOn = (callback: Function) => {
         firebase.database().ref('GroupChats/') //good for group chats 
-            .limitToLast(20)
+            // .limitToLast(20)
             .on('child_added', (snapshot: any) => { callback(this.parse(snapshot)) });
     }
 

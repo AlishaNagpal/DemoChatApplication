@@ -19,6 +19,7 @@ interface State {
     chatsDone: boolean,
     updatedData: any,
     isFetching: boolean,
+    runLoader: boolean
 }
 
 export default class Users extends React.PureComponent<Props, State> {
@@ -33,7 +34,8 @@ export default class Users extends React.PureComponent<Props, State> {
             lastMessageSearch: [],
             chatsDone: false,
             updatedData: [],
-            isFetching: false
+            isFetching: false,
+            runLoader: true
         };
     }
 
@@ -47,7 +49,6 @@ export default class Users extends React.PureComponent<Props, State> {
         //         this.forceUpdate()
         //     }
         // );
-
     }
 
     onRefresh = () => {
@@ -171,6 +172,9 @@ export default class Users extends React.PureComponent<Props, State> {
     }
 
     verifying = () => {
+        setTimeout(() => {
+            this.setState({ runLoader: false })
+        }, 500);
         if (this.state.chatsDone && this.state.updatedData.length !== 0) {
             return (
                 <FlatList
@@ -209,7 +213,7 @@ export default class Users extends React.PureComponent<Props, State> {
                 </View>
                 <Text style={styles.chats} >Chats</Text>
                 {this.verifying()}
-                {!this.state.chatsDone && this.state.updatedData.length === 0 &&
+                {this.state.runLoader &&
                     <View style={styles.loader} >
                         <Circle size={250} color={Colors.shembe} />
                     </View>
