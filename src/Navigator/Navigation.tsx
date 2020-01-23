@@ -21,7 +21,7 @@ const MainStack = createStackNavigator(
         Users: { screen: Users, navigationOptions: { headerShown: false } },
         SelectToChat: { screen: SelectToChat, navigationOptions: { headerShown: false } },
         GroupChat: GroupChat,
-        MultiChat: MultiChat,
+        MultiChat: { screen: MultiChat, navigationOptions: { headerShown: false } },
     },
     {
         initialRouteName: 'Login',

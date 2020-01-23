@@ -55,7 +55,6 @@ export default class SelectToChat extends React.Component<Props, State> {
     }
 
     createGroup = () => {
-        console.log('lets create a group')
         this.props.navigation.navigate('MultipleChat', {
             selectedID: this.state.arr,
             personalID: this.state.uid
@@ -95,7 +94,7 @@ export default class SelectToChat extends React.Component<Props, State> {
 
     renderData = (rowData: any) => {
         const { item } = rowData
-        console.log(item)
+        // console.log(item)
         return (
             <View>
                 <View style={styles.row} >

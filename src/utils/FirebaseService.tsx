@@ -27,28 +27,11 @@ class FirebaseSDK {
             .then(success_callback, failed_callback);
     };
 
-    readUserData(callback: Function) {
-        firebase.database().ref('Users/').on('value', function (snapshot: any) {
-            callback(snapshot.val())
-        })
-    }
-
-    readInboxData(uid: string, callback: Function) {
-        firebase.database().ref('Inbox/').child(uid).on('value', function (snapshot: any) {
-            callback(snapshot.val())
-        })
-    }
-
-    readGroupChatData(callback:Function){
-        firebase.database().ref('SelectedGroupChat/').on('value', function (snapshot: any) {
-            callback(snapshot.val())
-        })
-    }
-
     writeTheUserToDatabase = (name: string, email: string, uid: string, image: string) => {
         let message = 'No chat has occured yet!'
         let time = ''
         let selected = false
+        let typing = false
         firebase.database().ref('Users/' + uid).set({
             email,
             name,
@@ -56,7 +39,8 @@ class FirebaseSDK {
             image,
             message,
             time,
-            selected
+            selected,
+            typing
         }).then((data) => {
             console.log('data ', data)
         }).catch((error) => {
@@ -133,6 +117,13 @@ class FirebaseSDK {
         }
     };
 
+    // changeLastSeenMessage = (message: string, uid: string, time: string) => {
+    //     if (message !== '') {
+    //         let toUpdate = firebase.database().ref('Users/' + uid)
+    //         toUpdate.update({ message: message, time: time })
+    //     }
+    //     console.log('oh my goodness', message, uid)
+    // }
 
     // Storing msgs on Firebase Database
     send = (messages: any) => {
@@ -148,8 +139,8 @@ class FirebaseSDK {
                 .utcOffset('+05:30')
                 .format('DD MMM,YYYY');
 
-            const message = { text, user, gettingTime: dated, createdAt: new Date().getTime(), onDay: DayTime };
-            // console.log('msg sended ', message)
+            const message = { text, user, gettingTime: dated, createdAt: new Date().getTime(), onDay: DayTime};
+            console.log('msg sended ', message)
             firebase.database().ref('ChatRooms/' + user.idRoom).push(message)
             firebase.database().ref('GroupChats/').push(message)
             firebase.database().ref('Inbox/' + user._id + '/' + user.otherID).set(message)
@@ -160,7 +151,7 @@ class FirebaseSDK {
     sendMultiChat = (messages: any) => {
         for (let i = 0; i < messages.length; i++) {
             const { text, user } = messages[i];
-            console.log(user)
+            // console.log(user)
             var dated = moment()
                 .utcOffset('+05:30')
                 .format(' hh:mm a');
@@ -169,19 +160,39 @@ class FirebaseSDK {
                 .utcOffset('+05:30')
                 .format('DD MMM,YYYY');
             const message = { text, user, gettingTime: dated, createdAt: new Date().getTime(), onDay: DayTime };
-            console.log('msg sended ', message)
+            // console.log('msg sended ', message)
             firebase.database().ref('SelectedGroupChat/' + user.name + '/' + user.idRoom).push(message)
-            firebase.database().ref('Inbox/' + user.name).set(message)
+            firebase.database().ref('GroupInbox/' + user.name).set(message)
         }
     };
 
-    // changeLastSeenMessage = (message: string, uid: string, time: string) => {
-    //     if (message !== '') {
-    //         let toUpdate = firebase.database().ref('Users/' + uid)
-    //         toUpdate.update({ message: message, time: time })
-    //     }
-    //     console.log('oh my goodness', message, uid)
-    // }
+    //reading entire users
+    readUserData(callback: Function) {
+        firebase.database().ref('Users/').on('value', function (snapshot: any) {
+            callback(snapshot.val())
+        })
+    }
+
+    //reading last messages
+    readInboxData(uid: string, callback: Function) {
+        firebase.database().ref('Inbox/').child(uid).on('value', function (snapshot: any) {
+            callback(snapshot.val())
+        })
+    }
+
+    //reading the group data
+    readGroupChatData(callback: Function) {
+        firebase.database().ref('SelectedGroupChat/').on('value', function (snapshot: any) {
+            callback(snapshot.val())
+        })
+    }
+
+    //reading the last messages in a group
+    readLastMessageGroup(callback: Function) {
+        firebase.database().ref('GroupInbox/').on('value', function (snapshot: any) {
+            callback(snapshot.val())
+        })
+    }
 
     // Load msgs from Database to Chat
     refOn = (chatPerson: string, callback: Function) => {
@@ -190,20 +201,21 @@ class FirebaseSDK {
             .on('child_added', (snapshot: any) => { callback(this.parse(snapshot)) });
     }
 
-    getGroupMessages = (chatRoomName: string,chatPerson: string, callback: Function) => {
-        firebase.database().ref('SelectedGroupChat/'+ chatRoomName  + '/' + chatPerson) //good for personal ones 
+    //For group messages
+    getGroupMessages = (chatRoomName: string, chatPerson: string, callback: Function) => {
+        firebase.database().ref('SelectedGroupChat/' + chatRoomName + '/' + chatPerson) //good for personal ones 
             .limitToLast(20)
             .on('child_added', (snapshot: any) => { callback(this.parse(snapshot)) });
     }
 
-    getPreviousMessages = (chatPerson: string, callback: Function) => {
-        const onReceive = (data: any) => {
-            const message = data.val();
-            callback(message);
-        };
-        firebase.database().ref('ChatRooms/').child(chatPerson).on('child_added', onReceive);
+    //For one group for all users and things
+    GroupChatRefOn = (callback: Function) => {
+        firebase.database().ref('GroupChats/') //good for group chats 
+            .limitToLast(20)
+            .on('child_added', (snapshot: any) => { callback(this.parse(snapshot)) });
     }
 
+    //parsing my data
     parse = (snapshot: any) => {
         const { createdAt: numberStamp, text, user } = snapshot.val();
         const { key: id } = snapshot;
@@ -213,12 +225,22 @@ class FirebaseSDK {
         return message;
     };
 
-    GroupChatRefOn = (callback: Function) => {
-        firebase.database().ref('GroupChats/') //good for group chats 
+    //Trying to get the previous data
+    getPreviousMessages = (chatPerson: string, lastMessageKey: string, callback: Function) => {
+        const onReceive = (data: any) => {
+            const message = data.val();
+            callback(message);
+        };
+        console.log('onReceive', onReceive)
+        firebase.database().ref('ChatRooms/')
+            .child(chatPerson)
+            .orderByKey()
             .limitToLast(20)
-            .on('child_added', (snapshot: any) => { callback(this.parse(snapshot)) });
+            .endAt(lastMessageKey)
+        // .on('child_added', onReceive);
     }
 
+    //refOff for only users though
     refOff() {
         firebase.database().ref('Users/').off();
     }

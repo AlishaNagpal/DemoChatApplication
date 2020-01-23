@@ -1,5 +1,5 @@
 import React from 'react';
-import { GiftedChat, Bubble, Composer, Day } from 'react-native-gifted-chat';
+import { GiftedChat, Bubble, Composer, Day, InputToolbar } from 'react-native-gifted-chat';
 import FirebaseServices from '../../utils/FirebaseService'
 import { Clipboard, TouchableOpacity, View, Text, Image } from 'react-native';
 import styles from './styles'
@@ -20,8 +20,9 @@ interface State {
     theOtherPerson: string,
     otherPersonName: string,
     loadEarlier: boolean,
-    typingText: any,
     isLoadingEarlier: boolean,
+    typingText: any,
+    lastMessageKey: string
 }
 
 export default class Chat extends React.Component<Props, State> {
@@ -40,9 +41,10 @@ export default class Chat extends React.Component<Props, State> {
             theOtherPerson: this.props.navigation.getParam('theOtherPerson'),
             messages: [],
             otherPersonName: '',
-            loadEarlier: true,
             typingText: null,
+            loadEarlier: true,
             isLoadingEarlier: false,
+            lastMessageKey: ''
         };
     }
 
@@ -56,8 +58,13 @@ export default class Chat extends React.Component<Props, State> {
                 messages: GiftedChat.append(previousState.messages, message),
             })
             )
+            // console.log(this.state.messages)
+            let lenght = this.state.messages.length
+            let getLastMessageKey = this.state.messages[lenght-1].id
+            this.setState({
+                lastMessageKey: getLastMessageKey
+            })
         })
-
     }
 
     getUsersData = (data: any) => {
@@ -76,7 +83,10 @@ export default class Chat extends React.Component<Props, State> {
         this._isMounted = false
     }
 
-
+    goBack = () => {
+        // this.props.navigation.state.params.refresh()
+        this.props.navigation.navigate('Users')
+    }
 
     onLongPress = (context: any, message: any) => {
         const options = ['Copy', 'Delete Message', 'Cancel'];
@@ -94,6 +104,29 @@ export default class Chat extends React.Component<Props, State> {
                     break;
             }
         });
+    }
+
+    onLoadEarlier = () => {
+        this.setState(() => {
+            return {
+                isLoadingEarlier: true,
+            }
+        })
+        // console.log(this.state.lastMessageKey)
+
+        setTimeout(() => {
+            if (this._isMounted === true) {
+                FirebaseServices.getPreviousMessages(this.state.RoomID, this.state.lastMessageKey, (message: any) => {
+                    // console.log(message)
+                    this.setState(previousState => ({
+                        messages: GiftedChat.prepend(previousState.messages, message),
+                        loadEarlier: false,
+                        isLoadingEarlier: false,
+                    })
+                    )
+                })
+            }
+        }, 1000) // simulating network //simply repeating things over here 
     }
 
     renderBubble = (props: any) => {
@@ -121,33 +154,7 @@ export default class Chat extends React.Component<Props, State> {
         );
     }
 
-    goBack = () => {
-        // this.props.navigation.state.params.refresh()
-        this.props.navigation.navigate('Users')
-    }
-
-    onLoadEarlier = () => {
-        this.setState(() => {
-            return {
-                isLoadingEarlier: true,
-            }
-        })
-
-        // setTimeout(() => {
-        //     if (this._isMounted === true) {
-        //         FirebaseServices.getPreviousMessages(this.state.RoomID, (message: any) => {
-        //             console.log(message)
-        //             this.setState(previousState => ({
-        //                 messages: GiftedChat.prepend(previousState.messages, message),
-        //                 loadEarlier: false,
-        //                 isLoadingEarlier: false,
-        //             })
-        //             )
-        //         })
-        //     }
-        // }, 1000) // simulating network //simply repeating things over here 
-    }
-
+    
     renderSend = (props: any) => {
         const message = this.inputText.state.text || '';
         return (
@@ -174,10 +181,9 @@ export default class Chat extends React.Component<Props, State> {
         return (
             <Composer
                 {...props}
-                composerHeight={vh(30)}
                 placeholder={Strings.typeMsg}
                 textInputStyle={styles.inputText}
-                multiline={true}
+
             />
         )
     }
@@ -193,6 +199,16 @@ export default class Chat extends React.Component<Props, State> {
                     createdAt: props.currentMessage.createdAt
                 }}
                 textStyle={styles.dayText}
+            />
+        )
+    }
+
+    renderInputToolbar = (props: any) => {
+        return (
+            <InputToolbar
+                {...props}
+                containerStyle={styles.footerStyle}
+                primaryStyle={styles.primaryStyle}
             />
         )
     }
@@ -236,6 +252,9 @@ export default class Chat extends React.Component<Props, State> {
                     messagesContainerStyle={styles.messagesContainerStyle}
                     ref={(ref) => this.inputText = ref}
                     renderDay={this.renderDay}
+                    renderInputToolbar={this.renderInputToolbar}
+                    minComposerHeight={vh(45)}
+                    maxComposerHeight={vh(80)}
                 />
             </View>
         );

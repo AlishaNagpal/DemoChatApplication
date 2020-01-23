@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, FlatList, TouchableOpacity, TextInput, Image } from 'react-native';
+import { Text, View, FlatList, TouchableOpacity, TextInput, Image, Alert } from 'react-native';
 import FirebaseService from '../../utils/FirebaseService';
 import styles from './styles'
 import { Colors, VectorIcons, vh, Images } from "../../Constants";
@@ -9,7 +9,7 @@ const colors = [Colors.shembe, Colors.weirdGreen, '#7DEAAB']
 export interface Props {
     navigation: any,
     selectedID: any,
-    personalID: string
+    personalID: string,
 }
 
 interface State {
@@ -18,6 +18,7 @@ interface State {
     textInputValue: string,
     userData: any,
     participants: any,
+    GroupMessagesArray: Array<any>
 }
 
 export default class MultipleChat extends React.Component<Props, State> {
@@ -34,11 +35,13 @@ export default class MultipleChat extends React.Component<Props, State> {
             textInputValue: '',
             userData: [],
             participants: [],
+            GroupMessagesArray: []
         };
     }
 
     componentDidMount() {
         FirebaseService.readUserData(this.getUsersData)
+        FirebaseService.readLastMessageGroup(this.getGroupMessages)
     }
 
     getUsersData = (data: any) => {
@@ -68,6 +71,18 @@ export default class MultipleChat extends React.Component<Props, State> {
             this.state.participants.push(data)
             this.forceUpdate()
         }
+    }
+
+    getGroupMessages = (data: any) => {
+        if (data) {
+            var result: Array<any> = Object.keys(data).map(function (key) {
+                return [String(key), data[key]];
+            })
+            this.setState({
+                GroupMessagesArray: result
+            })
+        }
+
     }
 
     renderData = (rowData: any) => {
@@ -100,13 +115,18 @@ export default class MultipleChat extends React.Component<Props, State> {
         for (let i = 0; i < this.state.participants.length; i++) {
             otherId += this.state.participants[i][0]
         }
-        // console.log(otherId, allParticipants)
 
-        this.props.navigation.navigate('MultiChat', {
-            uid: this.state.personalId,
-            chatRoomId: otherId,
-            chatRoomName: this.state.textInputValue,
-        })
+        let index = this.state.GroupMessagesArray.findIndex((item: any) => item[0] === this.state.textInputValue)
+        if (index === -1) {
+            this.props.navigation.navigate('MultiChat', {
+                uid: this.state.personalId,
+                chatRoomId: otherId,
+                chatRoomName: this.state.textInputValue,
+            })
+        } else {
+            Alert.alert('This Group Name is Already Taken!')
+        }
+
     }
 
     render() {
