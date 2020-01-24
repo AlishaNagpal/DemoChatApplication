@@ -1,9 +1,10 @@
 import React from 'react';
-import { GiftedChat, Bubble, Composer, Day, InputToolbar } from 'react-native-gifted-chat';
+import { GiftedChat } from 'react-native-gifted-chat';
 import FirebaseServices from '../../utils/FirebaseService'
 import { Clipboard, TouchableOpacity, View, Text, Image } from 'react-native';
 import styles from './styles'
-import { Colors, vh, vw, VectorIcons, Strings, Images } from "../../Constants";
+import { Colors, vh, VectorIcons, Images } from "../../Constants";
+import { Bubble, Composer, Day, InputToolbar } from '../../Components'
 
 
 export interface Props {
@@ -60,7 +61,7 @@ export default class Chat extends React.Component<Props, State> {
             )
             // console.log(this.state.messages)
             let lenght = this.state.messages.length
-            let getLastMessageKey = this.state.messages[lenght-1].id
+            let getLastMessageKey = this.state.messages[lenght - 1].id
             this.setState({
                 lastMessageKey: getLastMessageKey
             })
@@ -112,49 +113,23 @@ export default class Chat extends React.Component<Props, State> {
                 isLoadingEarlier: true,
             }
         })
-        // console.log(this.state.lastMessageKey)
+        console.log(this.state.lastMessageKey)
 
         setTimeout(() => {
             if (this._isMounted === true) {
-                FirebaseServices.getPreviousMessages(this.state.RoomID, this.state.lastMessageKey, (message: any) => {
-                    // console.log(message)
+                FirebaseServices.getPreviousMessages(this.state.RoomID, this.state.lastMessageKey, (message: Array<any>) => {
+                    console.log('setTimeoutal', message)
                     this.setState(previousState => ({
-                        messages: GiftedChat.prepend(previousState.messages, message),
+                        messages: [...this.state.messages, ...message],
                         loadEarlier: false,
                         isLoadingEarlier: false,
                     })
                     )
                 })
             }
-        }, 1000) // simulating network //simply repeating things over here 
+        }, 1000)
     }
 
-    renderBubble = (props: any) => {
-        return (
-            <Bubble
-                {...props}
-                //@ts-ignore
-                wrapperStyle={{
-                    left: {
-                        backgroundColor: Colors.white,
-                        borderRadius: vw(0),
-                        borderBottomEndRadius: vw(10),
-                        borderBottomLeftRadius: vw(10),
-                        borderTopRightRadius: vw(10)
-                    },
-                    right: {
-                        backgroundColor: Colors.chatBubble,
-                        borderRadius: vw(0),
-                        borderBottomEndRadius: vw(10),
-                        borderBottomLeftRadius: vw(10),
-                        borderTopLeftRadius: vw(10)
-                    }
-                }}
-            />
-        );
-    }
-
-    
     renderSend = (props: any) => {
         const message = this.inputText.state.text || '';
         return (
@@ -177,39 +152,27 @@ export default class Chat extends React.Component<Props, State> {
         )
     }
 
+    renderBubble = (props: any) => {
+        return (
+            <Bubble {...props} />
+        );
+    }
+
     renderComposer = (props: any) => {
         return (
-            <Composer
-                {...props}
-                placeholder={Strings.typeMsg}
-                textInputStyle={styles.inputText}
-
-            />
+            <Composer {...props} />
         )
     }
 
     renderDay = (props: any) => {
-        // console.log('props', props)
         return (
-            <Day
-                {...props}
-                wrapperStyle={styles.Day}
-                //@ts-ignore
-                currentMessage={{
-                    createdAt: props.currentMessage.createdAt
-                }}
-                textStyle={styles.dayText}
-            />
+            <Day {...props} />
         )
     }
 
     renderInputToolbar = (props: any) => {
         return (
-            <InputToolbar
-                {...props}
-                containerStyle={styles.footerStyle}
-                primaryStyle={styles.primaryStyle}
-            />
+            <InputToolbar {...props} />
         )
     }
 
@@ -227,7 +190,7 @@ export default class Chat extends React.Component<Props, State> {
 
     render() {
         return (
-            <View style={{ flex: 1 }} >
+            <View style={styles.main} >
                 <TouchableOpacity style={styles.headerView} activeOpacity={1} onPress={this.goBack} >
                     <VectorIcons.Ionicons name={'md-arrow-back'} size={vh(30)} style={styles.icon} />
                     <Text style={styles.nameText} >{this.state.otherPersonName}</Text>
@@ -235,20 +198,22 @@ export default class Chat extends React.Component<Props, State> {
                 <GiftedChat
                     messages={this.state.messages}
                     onSend={FirebaseServices.send}
-                    user={this.user}
                     loadEarlier={this.state.loadEarlier}
                     onLoadEarlier={this.onLoadEarlier}
                     isLoadingEarlier={this.state.isLoadingEarlier}
+                    user={this.user}
                     renderAvatarOnTop={true}
                     alwaysShowSend={true}
                     showAvatarForEveryMessage={false}
                     showUserAvatar={true}
                     placeholder={'Enter your message'}
+                    scrollToBottom={true}
                     onLongPress={this.onLongPress}
                     renderBubble={this.renderBubble}
                     timeTextStyle={{ left: { color: Colors.leftTimeText }, right: { color: Colors.white } }}
                     renderSend={this.renderSend}
                     renderComposer={this.renderComposer}
+                    onInputTextChanged={(val) => console.log(val)} //changes over here
                     messagesContainerStyle={styles.messagesContainerStyle}
                     ref={(ref) => this.inputText = ref}
                     renderDay={this.renderDay}

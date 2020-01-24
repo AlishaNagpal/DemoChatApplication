@@ -139,7 +139,7 @@ class FirebaseSDK {
                 .utcOffset('+05:30')
                 .format('DD MMM,YYYY');
 
-            const message = { text, user, gettingTime: dated, createdAt: new Date().getTime(), onDay: DayTime};
+            const message = { text, user, gettingTime: dated, createdAt: new Date().getTime(), onDay: DayTime };
             console.log('msg sended ', message)
             firebase.database().ref('ChatRooms/' + user.idRoom).push(message)
             firebase.database().ref('GroupChats/').push(message)
@@ -229,15 +229,44 @@ class FirebaseSDK {
     getPreviousMessages = (chatPerson: string, lastMessageKey: string, callback: Function) => {
         const onReceive = (data: any) => {
             const message = data.val();
-            callback(message);
+            let keys = Object.keys(message)
+            let messages = [];
+            for (let i = 0; i < keys.length; i++) {
+                let a = keys[i]
+                messages.push(message[a])
+                // callback(this.parse(msg));
+            }
+            callback(messages)
+
+
         };
-        console.log('onReceive', onReceive)
         firebase.database().ref('ChatRooms/')
             .child(chatPerson)
             .orderByKey()
             .limitToLast(20)
             .endAt(lastMessageKey)
-        // .on('child_added', onReceive);
+            .on('value', onReceive);
+    }
+    // Getting group messages
+    getPreviousGroupMessages = ( chatRoomName: string, chatID: string, lastMessageKey: string, callback: Function) => {
+        const onReceive = (data: any) => {
+            const message = data.val();
+            let keys = Object.keys(message)
+            let messages = [];
+            for (let i = 0; i < keys.length; i++) {
+                let a = keys[i]
+                messages.push(message[a])
+            }
+            callback(messages)
+            // debugger
+        };
+        firebase.database().ref('SelectedGroupChat/')
+            .child(chatRoomName)
+            .child(chatID)
+            .orderByKey()
+            .limitToLast(20)
+            .endAt(lastMessageKey)
+            .on('value', onReceive);
     }
 
     //refOff for only users though

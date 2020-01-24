@@ -1,9 +1,10 @@
 import React from 'react';
-import { GiftedChat, Bubble, Composer, Day } from 'react-native-gifted-chat';
+import { GiftedChat } from 'react-native-gifted-chat';
 import FirebaseServices from '../../utils/FirebaseService'
 import { Clipboard, TouchableOpacity, View, Text, Image } from 'react-native';
-import { Colors, vh, vw, VectorIcons, Strings, Images } from "../../Constants";
+import { Colors, vh, VectorIcons, Images } from "../../Constants";
 import styles from './styles'
+import { Bubble, Composer, Day, InputToolbar } from '../../Components'
 
 export interface Props {
     navigation?: any,
@@ -16,6 +17,7 @@ interface State {
     messages: any,
     loadEarlier: boolean,
     isLoadingEarlier: boolean,
+    lastMessageKey: string,
 }
 
 export default class MultiChat extends React.Component<Props, State> {
@@ -29,6 +31,7 @@ export default class MultiChat extends React.Component<Props, State> {
             messages: [],
             loadEarlier: true,
             isLoadingEarlier: false,
+            lastMessageKey: ''
         };
     }
 
@@ -42,6 +45,11 @@ export default class MultiChat extends React.Component<Props, State> {
                 messages: GiftedChat.append(previousState.messages, message),
             })
             )
+            let lenght = this.state.messages.length
+            let getLastMessageKey = this.state.messages[lenght - 1].id
+            this.setState({
+                lastMessageKey: getLastMessageKey
+            })
         }
         );
     }
@@ -76,30 +84,6 @@ export default class MultiChat extends React.Component<Props, State> {
             }
         });
     }
-    renderBubble = (props: any) => {
-        return (
-            <Bubble
-                {...props}
-                //@ts-ignore
-                wrapperStyle={{
-                    left: {
-                        backgroundColor: Colors.white,
-                        borderRadius: vw(0),
-                        borderBottomEndRadius: vw(10),
-                        borderBottomLeftRadius: vw(10),
-                        borderTopRightRadius: vw(10)
-                    },
-                    right: {
-                        backgroundColor: Colors.chatBubble,
-                        borderRadius: vw(0),
-                        borderBottomEndRadius: vw(10),
-                        borderBottomLeftRadius: vw(10),
-                        borderTopLeftRadius: vw(10)
-                    }
-                }}
-            />
-        );
-    }
 
     goBack = () => {
         // this.props.navigation.state.params.refresh()
@@ -111,19 +95,18 @@ export default class MultiChat extends React.Component<Props, State> {
             isLoadingEarlier: true,
         })
 
-        // setTimeout(() => {
-        //     if (this._isMounted === true) {
-        //         FirebaseServices.getPreviousMessages(this.state.RoomID, (message: any) => {
-        //             console.log(message)
-        //             this.setState(previousState => ({
-        //                 messages: GiftedChat.prepend(previousState.messages, message),
-        //                 loadEarlier: false,
-        //                 isLoadingEarlier: false,
-        //             })
-        //             )
-        //         })
-        //     }
-        // }, 1000) // simulating network //simply repeating things over here 
+        setTimeout(() => {
+            if (this._isMounted === true) {
+                FirebaseServices.getPreviousGroupMessages(this.state.chatRoomName, this.state.chatRoomId, this.state.lastMessageKey, (message: Array<any>) => {
+                    this.setState(previousState => ({
+                        messages: [...this.state.messages, ...message],
+                        loadEarlier: false,
+                        isLoadingEarlier: false,
+                    })
+                    )
+                })
+            }
+        }, 1000)
     }
 
     renderSend = (props: any) => {
@@ -148,30 +131,27 @@ export default class MultiChat extends React.Component<Props, State> {
         )
     }
 
+    renderBubble = (props: any) => {
+        return (
+            <Bubble {...props} />
+        );
+    }
+
     renderComposer = (props: any) => {
         return (
-            <Composer
-                {...props}
-                composerHeight={vh(30)}
-                placeholder={Strings.typeMsg}
-                textInputStyle={styles.inputText}
-                multiline={true}
-            />
+            <Composer {...props} />
         )
     }
 
     renderDay = (props: any) => {
-        // console.log('props', props)
         return (
-            <Day
-                {...props}
-                wrapperStyle={styles.Day}
-                //@ts-ignore
-                currentMessage={{
-                    createdAt: props.currentMessage.createdAt
-                }}
-                textStyle={styles.dayText}
-            />
+            <Day {...props} />
+        )
+    }
+
+    renderInputToolbar = (props: any) => {
+        return (
+            <InputToolbar {...props} />
         )
     }
 
@@ -185,22 +165,29 @@ export default class MultiChat extends React.Component<Props, State> {
                 <GiftedChat
                     messages={this.state.messages}
                     onSend={FirebaseServices.sendMultiChat}
-                    loadEarlier={true}
+                    loadEarlier={this.state.loadEarlier}
+                    onLoadEarlier={this.onLoadEarlier}
+                    isLoadingEarlier={this.state.isLoadingEarlier}
                     user={this.user}
-                    renderUsernameOnMessage={true}
+                    renderAvatarOnTop={true}
                     alwaysShowSend={true}
-                    minComposerHeight={30}
-                    minInputToolbarHeight={60}
-                    scrollToBottom={true}
+                    renderUsernameOnMessage={true}
+                    showAvatarForEveryMessage={false}
+                    showUserAvatar={true}
                     placeholder={'Enter your message'}
+                    scrollToBottom={true}
                     onLongPress={this.onLongPress}
                     renderBubble={this.renderBubble}
                     timeTextStyle={{ left: { color: Colors.leftTimeText }, right: { color: Colors.white } }}
                     renderSend={this.renderSend}
                     renderComposer={this.renderComposer}
+                    onInputTextChanged={(val) => console.log(val)} //changes over here
                     messagesContainerStyle={styles.messagesContainerStyle}
                     ref={(ref) => this.inputText = ref}
                     renderDay={this.renderDay}
+                    renderInputToolbar={this.renderInputToolbar}
+                    minComposerHeight={vh(45)}
+                    maxComposerHeight={vh(80)}
                 />
             </View>
         );
