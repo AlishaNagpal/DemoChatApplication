@@ -10,20 +10,25 @@ const Styles = StyleSheet.create({
         width: vw(DesignWidth),
         backgroundColor: Colors.white,
         flexDirection: 'row',
-        paddingTop: vh(30),
+        paddingTop: vh(20),
         alignItems: 'center'
     },
     icon: {
-        marginLeft: vw(15)
+        marginLeft: vw(20)
     },
     nameText: {
         fontSize: vh(18),
         marginLeft: vw(10),
-        marginBottom: Platform.OS === 'ios' ? vh(3) : 0
+        marginTop: vh(15),
+        // marginBottom: Platform.OS === 'ios' ? vw(8) : 0
+    },
+    typingText: {
+        color: Colors.dayText,
+        fontSize: vh(11),
+        marginLeft:vw(10),
+        marginBottom:vw(5)
     },
     sendView: {
-        // padding: vh(7.5),
-        // paddingLeft: 0
         backgroundColor: Colors.tealBlue,
         height: vh(45),
         width: vh(45),
@@ -43,5 +48,11 @@ const Styles = StyleSheet.create({
     messagesContainerStyle: {
         paddingBottom: vh(30)
     },
+    imageStyle:{
+        resizeMode:'contain',
+        height: vh(30),
+        width:vh(30),
+        marginLeft:vw(10)
+    }
 })
 export default Styles;

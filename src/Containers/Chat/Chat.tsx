@@ -22,8 +22,8 @@ interface State {
     otherPersonName: string,
     loadEarlier: boolean,
     isLoadingEarlier: boolean,
-    typingText: any,
-    lastMessageKey: string
+    typingText: boolean,
+    lastMessageKey: string,
 }
 
 export default class Chat extends React.Component<Props, State> {
@@ -42,10 +42,10 @@ export default class Chat extends React.Component<Props, State> {
             theOtherPerson: this.props.navigation.getParam('theOtherPerson'),
             messages: [],
             otherPersonName: '',
-            typingText: null,
+            typingText: false,
             loadEarlier: true,
             isLoadingEarlier: false,
-            lastMessageKey: ''
+            lastMessageKey: '',
         };
     }
 
@@ -77,6 +77,17 @@ export default class Chat extends React.Component<Props, State> {
         this.setState({
             otherPersonName: tempArray[indexToFind][1].name
         })
+
+        console.log(tempArray[indexToFind][1].typing)
+        if (tempArray[indexToFind][1].typing) {
+            this.setState({
+                typingText: true
+            })
+        } else {
+            this.setState({
+                typingText: false
+            })
+        }
     }
 
     componentWillUnmount() {
@@ -152,6 +163,14 @@ export default class Chat extends React.Component<Props, State> {
         )
     }
 
+    ontextChanged = (val: string) => {
+        if (val !== '') {
+            FirebaseServices.ChangeTypingText(this.state.uid, true)
+        }else{
+            FirebaseServices.ChangeTypingText(this.state.uid, false)
+        }
+    }
+
     renderBubble = (props: any) => {
         return (
             <Bubble {...props} />
@@ -193,7 +212,14 @@ export default class Chat extends React.Component<Props, State> {
             <View style={styles.main} >
                 <TouchableOpacity style={styles.headerView} activeOpacity={1} onPress={this.goBack} >
                     <VectorIcons.Ionicons name={'md-arrow-back'} size={vh(30)} style={styles.icon} />
-                    <Text style={styles.nameText} >{this.state.otherPersonName}</Text>
+                    <Image
+                        source={Images.ProfileImage}
+                        style={styles.imageStyle}
+                    />
+                    <View>
+                        <Text style={styles.nameText} >{this.state.otherPersonName}</Text>
+                        <Text style={styles.typingText} >{this.state.typingText ? 'Typing...' : ''}</Text>
+                    </View>
                 </TouchableOpacity>
                 <GiftedChat
                     messages={this.state.messages}
@@ -213,7 +239,7 @@ export default class Chat extends React.Component<Props, State> {
                     timeTextStyle={{ left: { color: Colors.leftTimeText }, right: { color: Colors.white } }}
                     renderSend={this.renderSend}
                     renderComposer={this.renderComposer}
-                    onInputTextChanged={(val) => console.log(val)} //changes over here
+                    onInputTextChanged={(val) => this.ontextChanged(val)} //changes over here
                     messagesContainerStyle={styles.messagesContainerStyle}
                     ref={(ref) => this.inputText = ref}
                     renderDay={this.renderDay}

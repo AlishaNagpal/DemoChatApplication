@@ -18,7 +18,9 @@ interface State {
     textInputValue: string,
     userData: any,
     participants: any,
-    GroupMessagesArray: Array<any>
+    GroupMessagesArray: Array<any>,
+    userName: string,
+    userImage: string,
 }
 
 export default class MultipleChat extends React.Component<Props, State> {
@@ -32,6 +34,8 @@ export default class MultipleChat extends React.Component<Props, State> {
         this.state = {
             selectedArray: this.props.navigation.getParam('selectedID'),
             personalId: this.props.navigation.getParam('personalID'),
+            userName: this.props.navigation.getParam('userName'),
+            userImage: this.props.navigation.getParam('userImage'),
             textInputValue: '',
             userData: [],
             participants: [],
@@ -122,6 +126,8 @@ export default class MultipleChat extends React.Component<Props, State> {
                 uid: this.state.personalId,
                 chatRoomId: otherId,
                 chatRoomName: this.state.textInputValue,
+                userName: this.state.userName,
+                userImage: this.state.userImage,
             })
         } else {
             Alert.alert('This Group Name is Already Taken!')

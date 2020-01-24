@@ -24,9 +24,9 @@ const Styles = StyleSheet.create({
     inputText: {
         fontSize: vh(14),
         // marginBottom:vw(15),
-        height:vh(40),
-        margin:vw(10),
-        alignSelf:'center',
+        height: vh(40),
+        margin: vw(10),
+        alignSelf: 'center',
     },
     sendView: {
         padding: vh(7.5),
@@ -40,17 +40,31 @@ const Styles = StyleSheet.create({
         justifyContent: 'center',
         borderRadius: vh(5)
     },
-    messagesContainerStyle:{
+    messagesContainerStyle: {
         paddingBottom: vh(30)
     },
-    Day:{
-        backgroundColor:Colors.day,
-        paddingVertical:vh(8),
-        paddingHorizontal:vw(13),
-        borderRadius:vh(5)
+    Day: {
+        backgroundColor: Colors.day,
+        paddingVertical: vh(8),
+        paddingHorizontal: vw(13),
+        borderRadius: vh(5)
     },
-    dayText:{
+    dayText: {
         color: Colors.dayText
-    }
+    },
+    imageStyle: {
+        resizeMode: 'contain',
+        height: vh(30),
+        width: vh(30),
+        marginLeft: vw(10),
+        borderRadius:vh(20),
+        marginBottom: Platform.OS === 'ios' ? vh(3) :0
+    },
+    typingText: {
+        color: Colors.dayText,
+        fontSize: vh(11),
+        marginLeft: vw(10),
+        marginBottom: vw(5)
+    },
 })
 export default Styles;

@@ -151,7 +151,7 @@ export default class Users extends React.PureComponent<Props, State> {
             }, 10);
         }
     }
-    
+
     getGroupMessages = (data: any) => {
         if (data) {
             var result: Array<any> = Object.keys(data).map(function (key) {
@@ -198,6 +198,8 @@ export default class Users extends React.PureComponent<Props, State> {
             uid: this.state.uid,
             chatRoomId: chatRoomId,
             chatRoomName: chatRoomName,
+            userName:this.state.name,
+            userImage:this.state.avatar,
         })
     }
 
@@ -231,7 +233,7 @@ export default class Users extends React.PureComponent<Props, State> {
             return (
                 <View>
                     <View style={styles.row} >
-                        <TouchableOpacity style={styles.root} onPress={() => this.goForMultiChat(user.idRoom, user.name)} activeOpacity={1} >
+                        <TouchableOpacity style={styles.root} onPress={() => this.goForMultiChat(user.idRoom, user.GroupName)} activeOpacity={1} >
                             <View style={styles.row2} >
                                 <Text style={styles.nameSet} >{item[0]}</Text>
                                 <Text style={styles.message2} >{this.state.GroupMessagesArray[indexToFind][1].gettingTime}</Text>

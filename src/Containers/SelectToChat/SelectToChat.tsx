@@ -57,7 +57,9 @@ export default class SelectToChat extends React.Component<Props, State> {
     createGroup = () => {
         this.props.navigation.navigate('MultipleChat', {
             selectedID: this.state.arr,
-            personalID: this.state.uid
+            personalID: this.state.uid,
+            userName:this.state.name,
+            userImage:this.state.avatar,
         })
     }
 

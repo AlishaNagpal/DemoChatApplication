@@ -1,6 +1,6 @@
 import React from 'react';
 import { InputToolbar } from 'react-native-gifted-chat';
-import { vh } from "../Constants";
+import { vh, vw } from "../Constants";
 
 
 export interface Props {
@@ -22,7 +22,7 @@ export default class InputToolbarClass extends React.Component<Props, State> {
                     paddingRight: vh(7.5),
                     alignItems: 'center',
                     justifyContent: 'center',
-                    height: vh(55),
+                    // height: vh(55),
                 }}
                 primaryStyle={{ alignItems: 'center' }}
             />

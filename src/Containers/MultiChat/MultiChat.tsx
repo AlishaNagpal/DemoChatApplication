@@ -18,6 +18,10 @@ interface State {
     loadEarlier: boolean,
     isLoadingEarlier: boolean,
     lastMessageKey: string,
+    typingText: boolean,
+    typingPerson: string,
+    userName: string,
+    userImage: string
 }
 
 export default class MultiChat extends React.Component<Props, State> {
@@ -28,10 +32,14 @@ export default class MultiChat extends React.Component<Props, State> {
             uid: this.props.navigation.getParam('uid'),
             chatRoomId: this.props.navigation.getParam('chatRoomId'),
             chatRoomName: this.props.navigation.getParam('chatRoomName'),
+            userName: this.props.navigation.getParam('userName'),
+            userImage: this.props.navigation.getParam('userImage'),
             messages: [],
             loadEarlier: true,
             isLoadingEarlier: false,
-            lastMessageKey: ''
+            lastMessageKey: '',
+            typingText: false,
+            typingPerson: '',
         };
     }
 
@@ -39,7 +47,9 @@ export default class MultiChat extends React.Component<Props, State> {
 
     componentDidMount() {
         // let id = this.state.uid + '-' + this.state.chatPerson
+        console.log(this.state.chatRoomName)
         this._isMounted = true
+        FirebaseServices.readUserData(this.getUsersData)
         FirebaseServices.getGroupMessages(this.state.chatRoomName, this.state.chatRoomId, (message: any) => {
             this.setState(previousState => ({
                 messages: GiftedChat.append(previousState.messages, message),
@@ -54,6 +64,41 @@ export default class MultiChat extends React.Component<Props, State> {
         );
     }
 
+    getUsersData = (data: any) => {
+        var result = Object.keys(data).map(function (key) {
+            return [String(key), data[key]];
+        })
+
+        let tempArray = result
+        let indexToFind = tempArray.findIndex((item: any) => item[0] === this.state.uid)
+        tempArray.splice(indexToFind, 1)
+
+        let participants = []
+        for (let i = 0; i < tempArray.length; i++) {
+            let id = tempArray[i][0]
+            let n = this.state.chatRoomId.includes(id)
+            if (n) {
+                participants.push(tempArray[i])
+            }
+        }
+
+        console.log('participants', participants)
+
+        for (let i = 0; i < participants.length; i++) {
+            if (participants[i][1].typing) {
+                this.setState({
+                    typingText: true,
+                    typingPerson: participants[i][1].name
+                })
+            } else {
+                this.setState({
+                    typingText: false,
+                    typingPerson: ''
+                })
+            }
+        }
+    }
+
     componentWillUnmount() {
         FirebaseServices.refOff()
         this._isMounted = false
@@ -61,10 +106,12 @@ export default class MultiChat extends React.Component<Props, State> {
 
     get user() {
         return {
-            name: this.state.chatRoomName,
+            GroupName: this.state.chatRoomName,
             idRoom: this.state.chatRoomId,
             _id: this.state.uid,
-        };
+            name: this.state.userName,
+            avatar: this.state.userImage,
+        }
     }
 
     onLongPress = (context: any, message: any) => {
@@ -131,6 +178,14 @@ export default class MultiChat extends React.Component<Props, State> {
         )
     }
 
+    ontextChanged = (val: string) => {
+        if (val !== '') {
+            FirebaseServices.ChangeTypingText(this.state.uid, true)
+        } else {
+            FirebaseServices.ChangeTypingText(this.state.uid, false)
+        }
+    }
+
     renderBubble = (props: any) => {
         return (
             <Bubble {...props} />
@@ -160,7 +215,15 @@ export default class MultiChat extends React.Component<Props, State> {
             <View style={{ flex: 1 }} >
                 <TouchableOpacity style={styles.headerView} activeOpacity={1} onPress={this.goBack} >
                     <VectorIcons.Ionicons name={'md-arrow-back'} size={vh(30)} style={styles.icon} />
-                    <Text style={styles.nameText} >{this.state.chatRoomName}</Text>
+                    <Image
+                        source={Images.groupImage}
+                        style={styles.imageStyle}
+                    />
+                    <View>
+                        <Text style={styles.nameText} >{this.state.chatRoomName}</Text>
+                        <Text style={styles.typingText} >{this.state.typingText ? this.state.typingPerson + ' typing...' : ''}</Text>
+                    </View>
+
                 </TouchableOpacity>
                 <GiftedChat
                     messages={this.state.messages}
@@ -171,7 +234,6 @@ export default class MultiChat extends React.Component<Props, State> {
                     user={this.user}
                     renderAvatarOnTop={true}
                     alwaysShowSend={true}
-                    renderUsernameOnMessage={true}
                     showAvatarForEveryMessage={false}
                     showUserAvatar={true}
                     placeholder={'Enter your message'}
@@ -181,13 +243,13 @@ export default class MultiChat extends React.Component<Props, State> {
                     timeTextStyle={{ left: { color: Colors.leftTimeText }, right: { color: Colors.white } }}
                     renderSend={this.renderSend}
                     renderComposer={this.renderComposer}
-                    onInputTextChanged={(val) => console.log(val)} //changes over here
+                    onInputTextChanged={(val) => this.ontextChanged(val)} //changes over here
                     messagesContainerStyle={styles.messagesContainerStyle}
                     ref={(ref) => this.inputText = ref}
                     renderDay={this.renderDay}
                     renderInputToolbar={this.renderInputToolbar}
                     minComposerHeight={vh(45)}
-                    maxComposerHeight={vh(80)}
+                    maxComposerHeight={vh(60)}
                 />
             </View>
         );

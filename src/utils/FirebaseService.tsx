@@ -161,8 +161,8 @@ class FirebaseSDK {
                 .format('DD MMM,YYYY');
             const message = { text, user, gettingTime: dated, createdAt: new Date().getTime(), onDay: DayTime };
             // console.log('msg sended ', message)
-            firebase.database().ref('SelectedGroupChat/' + user.name + '/' + user.idRoom).push(message)
-            firebase.database().ref('GroupInbox/' + user.name).set(message)
+            firebase.database().ref('SelectedGroupChat/' + user.GroupName + '/' + user.idRoom).push(message)
+            firebase.database().ref('GroupInbox/' + user.GroupName).set(message)
         }
     };
 
@@ -273,6 +273,11 @@ class FirebaseSDK {
     refOff() {
         firebase.database().ref('Users/').off();
     }
+
+    //Changing the value of the typing text
+    ChangeTypingText = (userId: string, value: any) => {
+        firebase.database().ref('Users/' + userId + '/' + 'typing').set(value)
+    };
 }
 const firebaseSDK = new FirebaseSDK();
 export default firebaseSDK;
