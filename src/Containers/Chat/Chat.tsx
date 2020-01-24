@@ -24,6 +24,7 @@ interface State {
     isLoadingEarlier: boolean,
     typingText: boolean,
     lastMessageKey: string,
+    lengthMessage: number
 }
 
 export default class Chat extends React.Component<Props, State> {
@@ -46,6 +47,7 @@ export default class Chat extends React.Component<Props, State> {
             loadEarlier: true,
             isLoadingEarlier: false,
             lastMessageKey: '',
+            lengthMessage: 0,
         };
     }
 
@@ -60,11 +62,15 @@ export default class Chat extends React.Component<Props, State> {
             })
             )
             // console.log(this.state.messages)
-            let lenght = this.state.messages.length
-            let getLastMessageKey = this.state.messages[lenght - 1].id
             this.setState({
-                lastMessageKey: getLastMessageKey
+                lengthMessage: this.state.messages.length
             })
+            if (this.state.lengthMessage >= 20) {
+                let getLastMessageKey = this.state.messages[19].id
+                this.setState({
+                    lastMessageKey: getLastMessageKey
+                })
+            }
         })
     }
 
@@ -119,26 +125,28 @@ export default class Chat extends React.Component<Props, State> {
     }
 
     onLoadEarlier = () => {
-        this.setState(() => {
-            return {
-                isLoadingEarlier: true,
-            }
-        })
-        console.log(this.state.lastMessageKey)
+        if (this.state.lengthMessage >= 20) {
+            this.setState(() => {
+                return {
+                    isLoadingEarlier: true,
+                }
+            })
+            console.log(this.state.lastMessageKey)
 
-        setTimeout(() => {
-            if (this._isMounted === true) {
-                FirebaseServices.getPreviousMessages(this.state.RoomID, this.state.lastMessageKey, (message: Array<any>) => {
-                    console.log('setTimeoutal', message)
-                    this.setState(previousState => ({
-                        messages: [...this.state.messages, ...message],
-                        loadEarlier: false,
-                        isLoadingEarlier: false,
+            setTimeout(() => {
+                if (this._isMounted === true) {
+                    FirebaseServices.getPreviousMessages(this.state.RoomID, this.state.lastMessageKey, (message: Array<any>) => {
+                        console.log('setTimeoutal', message)
+                        this.setState(previousState => ({
+                            messages: [...this.state.messages, ...message],
+                            loadEarlier: false,
+                            isLoadingEarlier: false,
+                        })
+                        )
                     })
-                    )
-                })
-            }
-        }, 1000)
+                }
+            }, 1000)
+        }
     }
 
     renderSend = (props: any) => {
@@ -166,7 +174,7 @@ export default class Chat extends React.Component<Props, State> {
     ontextChanged = (val: string) => {
         if (val !== '') {
             FirebaseServices.ChangeTypingText(this.state.uid, true)
-        }else{
+        } else {
             FirebaseServices.ChangeTypingText(this.state.uid, false)
         }
     }
@@ -218,13 +226,13 @@ export default class Chat extends React.Component<Props, State> {
                     />
                     <View>
                         <Text style={styles.nameText} >{this.state.otherPersonName}</Text>
-                        <Text style={styles.typingText} >{this.state.typingText ? 'Typing...' : ''}</Text>
+                        <Text style={styles.typingText} >{this.state.typingText ? 'typing...' : ''}</Text>
                     </View>
                 </TouchableOpacity>
                 <GiftedChat
                     messages={this.state.messages}
                     onSend={FirebaseServices.send}
-                    loadEarlier={this.state.loadEarlier}
+                    loadEarlier={this.state.isLoadingEarlier}
                     onLoadEarlier={this.onLoadEarlier}
                     isLoadingEarlier={this.state.isLoadingEarlier}
                     user={this.user}

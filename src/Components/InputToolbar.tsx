@@ -1,6 +1,6 @@
 import React from 'react';
 import { InputToolbar } from 'react-native-gifted-chat';
-import { vh, vw } from "../Constants";
+import { vh } from "../Constants";
 
 
 export interface Props {
