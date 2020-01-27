@@ -22,7 +22,8 @@ interface State {
     runLoader: boolean,
     groupArray: Array<any>,
     bothTrue: boolean,
-    GroupMessagesArray: Array<any>
+    GroupMessagesArray: Array<any>,
+    group: Array<string>
 }
 
 export default class Users extends React.PureComponent<Props, State> {
@@ -41,25 +42,20 @@ export default class Users extends React.PureComponent<Props, State> {
             runLoader: true,
             groupArray: [],
             bothTrue: false,
-            GroupMessagesArray: []
+            GroupMessagesArray: [],
+            group: []
         };
     }
 
     componentDidMount() {
         FirebaseService.readUserData(this.getUsersData)
-        // this.props.navigation.addListener(
-        //     'didFocus',
-        //     (payload: any) => {
-        //         FirebaseService.readUserData(this.getUsersData)
-        //         this.forceUpdate()
-        //     }
-        // );
         FirebaseService.readGroupChatData(this.getGroupChatData)
     }
-
     onRefresh = () => {
         this.setState({ isFetching: true })
-        FirebaseService.readUserData(this.getUsersData)
+        setTimeout(() => {
+            this.setState({ isFetching: false })
+        }, 400);
     }
 
     getUsersData = (data: any) => {
@@ -74,15 +70,18 @@ export default class Users extends React.PureComponent<Props, State> {
             let tempArray = this.state.data
             let indexToFind = tempArray.findIndex((item: any) => item[0] === this.state.uid)
             tempArray.splice(indexToFind, 1)
+            //removing myself from the array
             this.setState({
                 data: tempArray.splice(0)
             })
+            //getting data
             setTimeout(() => {
                 FirebaseService.readInboxData(this.state.uid, this.getLastMessages)
             }, 50);
         }
     }
 
+    //getting the last messages of the one-on-one chat
     getLastMessages = (data: any) => {
         if (data) {
             var result: Array<any> = Object.keys(data).map(function (key) {
@@ -91,28 +90,7 @@ export default class Users extends React.PureComponent<Props, State> {
             this.setState({
                 lastMessageSearch: result,
                 chatsDone: true,
-                isFetching: false
             })
-            for (let i = 0; i < this.state.data.length; i++) {
-                for (let j = 0; j < this.state.lastMessageSearch.length; j++) {
-                    if (this.state.lastMessageSearch[j][0] === this.state.data[i][0]) {
-                        this.getUpdatedData(this.state.data[i], this.state.lastMessageSearch[j])
-                    }
-                }
-            }
-        }
-    }
-
-    getUpdatedData = (data: any, lastMessage: any) => {
-        let tempArr = this.state.updatedData
-        let indexToFind = tempArr.findIndex((item: any) => item[0] === data[0])
-        if (indexToFind === -1) {
-            data[1].message = lastMessage[1].text
-            data[1].time = lastMessage[1].gettingTime
-            setTimeout(() => {
-                this.state.updatedData.push(data)
-                this.forceUpdate()
-            }, 10);
         }
     }
 
@@ -121,22 +99,41 @@ export default class Users extends React.PureComponent<Props, State> {
             var result = Object.keys(data).map(function (key) {
                 return [String(key), data[key]];
             })
-            // console.log('getGroupChatData', result)
-            for (let z = 0; z < result.length; z++) {
-                let idTocheck = result[z][1]
-                let keys = Object.keys(idTocheck)
-                // console.log(keys)
-                for (let i = 0; i < keys.length; i++) {
-                    let n = keys[i].includes(this.state.uid)
-                    if (n) {
-                        //if you find the key, then what?
-                        // this.state.groupArray.push(result[z])
-                        this.setState({ bothTrue: true })
-                        this.GetGroupData(result[z])
+            for (let i = 0; i < result.length; i++) {
+                for (let j = 0; j < result[0][1].Users.length; j++) {
+                    let index = result.findIndex((item: any) => item[1].Users[j] === this.state.uid)
+                    if (index !== -1) {
+                        this.state.group.push(result[i][0])
                     }
                 }
             }
-            // console.log(this.state.groupArray, this.state.bothTrue)
+            FirebaseService.readGroupChatMessages(this.gettingGroupMessagesToInclude)
+        }
+    }
+
+    gettingGroupMessagesToInclude = (data: any) => {
+        if (data) {
+            var result = Object.keys(data).map(function (key) {
+                return [String(key), data[key]];
+            })
+
+            for (let z = 0; z < result.length; z++) {
+                // let idTocheck = result[z][1]
+                // let keys = Object.keys(idTocheck)
+                for (let i = 0; i < this.state.group.length; i++) {
+                    if (this.state.group[i] === result[z][0]) {
+                        this.setState({ bothTrue: true })
+                        this.GetGroupData(result[z])
+                    }
+                    // let n = keys[i].includes(this.state.uid)
+                    // if (n) {
+                    //     //if you find the key, then what?
+                    //     // this.state.groupArray.push(result[z])
+                    //     this.setState({ bothTrue: true })
+                    //     this.GetGroupData(result[z])
+                    // }
+                }
+            }
             FirebaseService.readLastMessageGroup(this.getGroupMessages)
         }
     }
@@ -198,8 +195,8 @@ export default class Users extends React.PureComponent<Props, State> {
             uid: this.state.uid,
             chatRoomId: chatRoomId,
             chatRoomName: chatRoomName,
-            userName:this.state.name,
-            userImage:this.state.avatar,
+            userName: this.state.name,
+            userImage: this.state.avatar,
         })
     }
 
@@ -208,19 +205,18 @@ export default class Users extends React.PureComponent<Props, State> {
         return (
             <View>
                 <View style={styles.row} >
-                    <TouchableOpacity style={styles.root} onPress={() => this.oneOnOneChat(item[1].uid)} activeOpacity={1} >
+                    <TouchableOpacity style={styles.root} onPress={() => this.oneOnOneChat(item[1].otherId)} activeOpacity={1} >
                         <View style={styles.row2} >
-                            <Text style={styles.nameSet} >{item[1].name}</Text>
-                            <Text style={styles.message2} >{item[1].time}</Text>
+                            <Text style={styles.nameSet} >{item[1].otherName}</Text>
+                            <Text style={styles.message2} >{item[1].gettingTime}</Text>
                         </View>
                         <View style={styles.time} >
-                            <Text style={styles.message} >{item[1].message}</Text>
+                            <Text style={styles.message} >{item[1].text}</Text>
                         </View>
                     </TouchableOpacity>
                 </View>
                 <View style={styles.separator} />
             </View>
-
         )
     }
 
@@ -229,7 +225,6 @@ export default class Users extends React.PureComponent<Props, State> {
             const { item } = row
             let indexToFind = this.state.GroupMessagesArray.findIndex((value: any) => value[0] === item[0])
             const { user } = this.state.GroupMessagesArray[indexToFind][1]
-            // console.log(user)
             return (
                 <View>
                     <View style={styles.row} >
@@ -254,17 +249,17 @@ export default class Users extends React.PureComponent<Props, State> {
             this.setState({ runLoader: false })
         }, 800);
         // console.log('in verifying', this.state.chatsDone, this.state.updatedData, this.state.groupArray, this.state.bothTrue)
-        if (this.state.chatsDone && this.state.updatedData.length !== 0 && this.state.bothTrue === false) {
+        if (this.state.chatsDone && this.state.lastMessageSearch.length !== 0 && this.state.bothTrue === false) {
             return (
                 <FlatList
-                    data={this.state.updatedData}
+                    data={this.state.lastMessageSearch}
                     renderItem={this.renderData}
                     keyExtractor={(item, index) => index.toString()}
                     onRefresh={() => this.onRefresh()}
                     refreshing={this.state.isFetching}
                 />
             )
-        } else if (this.state.updatedData.length !== 0 && this.state.groupArray.length !== 0 && this.state.bothTrue === true) {
+        } else if (this.state.lastMessageSearch.length !== 0 && this.state.groupArray.length !== 0 && this.state.bothTrue === true) {
             return (
                 <ScrollView
                     refreshControl={
@@ -272,7 +267,7 @@ export default class Users extends React.PureComponent<Props, State> {
                     }>
                     <View>
                         <FlatList
-                            data={this.state.updatedData}
+                            data={this.state.lastMessageSearch}
                             renderItem={this.renderData}
                             keyExtractor={(item, index) => index.toString()}
                             scrollEnabled={false}
@@ -316,8 +311,8 @@ export default class Users extends React.PureComponent<Props, State> {
         return (
             <View style={styles.main} >
                 <View style={styles.iconView} >
-                    <TouchableOpacity onPress={() => this.props.navigation.navigate('Login')} >
-                        <VectorIcons.Ionicons name='md-arrow-back' size={vh(30)} />
+                    <TouchableOpacity onPress={() => this.props.navigation.navigate('Login')} style={styles.signOutTop} >
+                        <Text style={styles.signOut} >Sign Out</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.addMessage} onPress={() => this.selectToChat()} >
                         <VectorIcons.MaterialCommunityIcons name='message-plus' size={vh(30)} color={Colors.shembe} />

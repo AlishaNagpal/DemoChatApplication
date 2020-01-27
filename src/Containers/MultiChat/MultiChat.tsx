@@ -12,7 +12,6 @@ export interface Props {
 
 interface State {
     uid: string,
-    chatRoomId: string,
     chatRoomName: string,
     messages: any,
     loadEarlier: boolean,
@@ -21,7 +20,9 @@ interface State {
     typingText: boolean,
     typingPerson: string,
     userName: string,
-    userImage: string
+    userImage: string,
+    messageLenght: number,
+    restUsers: Array<string>
 }
 
 export default class MultiChat extends React.Component<Props, State> {
@@ -30,66 +31,56 @@ export default class MultiChat extends React.Component<Props, State> {
         super(props);
         this.state = {
             uid: this.props.navigation.getParam('uid'),
-            chatRoomId: this.props.navigation.getParam('chatRoomId'),
             chatRoomName: this.props.navigation.getParam('chatRoomName'),
             userName: this.props.navigation.getParam('userName'),
             userImage: this.props.navigation.getParam('userImage'),
             messages: [],
-            loadEarlier: true,
+            loadEarlier: false,
             isLoadingEarlier: false,
             lastMessageKey: '',
             typingText: false,
             typingPerson: '',
+            messageLenght: 0,
+            restUsers: []
         };
     }
 
     _isMounted = false
 
     componentDidMount() {
-        // let id = this.state.uid + '-' + this.state.chatPerson
-        console.log(this.state.chatRoomName)
         this._isMounted = true
-        FirebaseServices.readUserData(this.getUsersData)
-        FirebaseServices.getGroupMessages(this.state.chatRoomName, this.state.chatRoomId, (message: any) => {
+        FirebaseServices.getTypingValueForGroup(this.state.chatRoomName, this.getTyping)
+        FirebaseServices.getGroupMessages(this.state.chatRoomName, (message: any) => {
             this.setState(previousState => ({
                 messages: GiftedChat.append(previousState.messages, message),
             })
             )
-            let lenght = this.state.messages.length
-            let getLastMessageKey = this.state.messages[lenght - 1].id
             this.setState({
-                lastMessageKey: getLastMessageKey
+                messageLenght: this.state.messages.length
             })
+            if (this.state.messageLenght === 20) {
+                let getLastMessageKey = this.state.messages[19].id
+                this.setState({
+                    lastMessageKey: getLastMessageKey,
+                    loadEarlier: true
+                })
+            }
         }
         );
     }
 
-    getUsersData = (data: any) => {
-        var result = Object.keys(data).map(function (key) {
-            return [String(key), data[key]];
-        })
-
-        let tempArray = result
-        let indexToFind = tempArray.findIndex((item: any) => item[0] === this.state.uid)
-        tempArray.splice(indexToFind, 1)
-
-        let participants = []
-        for (let i = 0; i < tempArray.length; i++) {
-            let id = tempArray[i][0]
-            let n = this.state.chatRoomId.includes(id)
-            if (n) {
-                participants.push(tempArray[i])
-            }
-        }
-
-        console.log('participants', participants)
-
-        for (let i = 0; i < participants.length; i++) {
-            if (participants[i][1].typing) {
+    getTyping = (data: any) => {
+        let tempArray = data._value
+        let keys = Object.keys(tempArray)
+        let indexToFind = keys.findIndex((item: any) => item === this.state.uid)
+        keys.splice(indexToFind, 1)
+        for (let i = 0; i < keys.length; i++) {
+            if (tempArray[keys[i]].typing === true) {
                 this.setState({
                     typingText: true,
-                    typingPerson: participants[i][1].name
+                    typingPerson: tempArray[keys[i]]._name
                 })
+                break;
             } else {
                 this.setState({
                     typingText: false,
@@ -100,14 +91,12 @@ export default class MultiChat extends React.Component<Props, State> {
     }
 
     componentWillUnmount() {
-        FirebaseServices.refOff()
         this._isMounted = false
     }
 
     get user() {
         return {
             GroupName: this.state.chatRoomName,
-            idRoom: this.state.chatRoomId,
             _id: this.state.uid,
             name: this.state.userName,
             avatar: this.state.userImage,
@@ -134,26 +123,29 @@ export default class MultiChat extends React.Component<Props, State> {
 
     goBack = () => {
         // this.props.navigation.state.params.refresh()
+        FirebaseServices.ChangeTypingText(this.state.chatRoomName, this.state.uid, false)
         this.props.navigation.navigate('Users')
     }
 
     onLoadEarlier = () => {
-        this.setState({
-            isLoadingEarlier: true,
-        })
+        if (this.state.lastMessageKey) {
+            this.setState({
+                isLoadingEarlier: true,
+            })
 
-        setTimeout(() => {
-            if (this._isMounted === true) {
-                FirebaseServices.getPreviousGroupMessages(this.state.chatRoomName, this.state.chatRoomId, this.state.lastMessageKey, (message: Array<any>) => {
-                    this.setState(previousState => ({
-                        messages: [...this.state.messages, ...message],
-                        loadEarlier: false,
-                        isLoadingEarlier: false,
+            setTimeout(() => {
+                if (this._isMounted === true) {
+                    FirebaseServices.getPreviousGroupMessages(this.state.chatRoomName, this.state.lastMessageKey, (message: Array<any>) => {
+                        this.setState(previousState => ({
+                            messages: [...this.state.messages, ...message],
+                            loadEarlier: false,
+                            isLoadingEarlier: false,
+                        })
+                        )
                     })
-                    )
-                })
-            }
-        }, 1000)
+                }
+            }, 1000)
+        }
     }
 
     renderSend = (props: any) => {
@@ -180,9 +172,9 @@ export default class MultiChat extends React.Component<Props, State> {
 
     ontextChanged = (val: string) => {
         if (val !== '') {
-            FirebaseServices.ChangeTypingText(this.state.uid, true)
+            FirebaseServices.ChangeTypingText(this.state.chatRoomName, this.state.uid, true)
         } else {
-            FirebaseServices.ChangeTypingText(this.state.uid, false)
+            FirebaseServices.ChangeTypingText(this.state.chatRoomName, this.state.uid, false)
         }
     }
 
@@ -211,6 +203,7 @@ export default class MultiChat extends React.Component<Props, State> {
     }
 
     render() {
+        // console.log('in render function', this.state.typingText, this.state.typingPerson)
         return (
             <View style={{ flex: 1 }} >
                 <TouchableOpacity style={styles.headerView} activeOpacity={1} onPress={this.goBack} >

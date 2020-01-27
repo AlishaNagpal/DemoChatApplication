@@ -44,7 +44,7 @@ export default class Chat extends React.Component<Props, State> {
             messages: [],
             otherPersonName: '',
             typingText: false,
-            loadEarlier: true,
+            loadEarlier: false,
             isLoadingEarlier: false,
             lastMessageKey: '',
             lengthMessage: 0,
@@ -56,22 +56,34 @@ export default class Chat extends React.Component<Props, State> {
     componentDidMount() {
         this._isMounted = true
         FirebaseServices.readUserData(this.getUsersData)
+        FirebaseServices.getTypingValue(this.state.RoomID, this.state.theOtherPerson, this.getTyping)
         FirebaseServices.refOn(this.state.RoomID, (message: any) => {
             this.setState(previousState => ({
                 messages: GiftedChat.append(previousState.messages, message),
             })
             )
-            // console.log(this.state.messages)
             this.setState({
                 lengthMessage: this.state.messages.length
             })
-            if (this.state.lengthMessage >= 20) {
+            if (this.state.lengthMessage === 20) {
                 let getLastMessageKey = this.state.messages[19].id
                 this.setState({
-                    lastMessageKey: getLastMessageKey
+                    lastMessageKey: getLastMessageKey,
+                    loadEarlier: true
                 })
             }
         })
+    }
+    getTyping = (data: any) => {
+        if (data._value) {
+            this.setState({
+                typingText: true
+            })
+        } else {
+            this.setState({
+                typingText: false
+            })
+        }
     }
 
     getUsersData = (data: any) => {
@@ -83,27 +95,17 @@ export default class Chat extends React.Component<Props, State> {
         this.setState({
             otherPersonName: tempArray[indexToFind][1].name
         })
-
-        console.log(tempArray[indexToFind][1].typing)
-        if (tempArray[indexToFind][1].typing) {
-            this.setState({
-                typingText: true
-            })
-        } else {
-            this.setState({
-                typingText: false
-            })
-        }
     }
 
     componentWillUnmount() {
-        FirebaseServices.refOff()
+        // FirebaseServices.refOff()
         this._isMounted = false
     }
 
     goBack = () => {
         // this.props.navigation.state.params.refresh()
         this.props.navigation.navigate('Users')
+        FirebaseServices.ChangeTypingText(this.state.RoomID, this.state.uid, false)
     }
 
     onLongPress = (context: any, message: any) => {
@@ -125,18 +127,16 @@ export default class Chat extends React.Component<Props, State> {
     }
 
     onLoadEarlier = () => {
-        if (this.state.lengthMessage >= 20) {
+        if (this.state.lastMessageKey) {
             this.setState(() => {
                 return {
                     isLoadingEarlier: true,
                 }
             })
-            console.log(this.state.lastMessageKey)
 
             setTimeout(() => {
                 if (this._isMounted === true) {
                     FirebaseServices.getPreviousMessages(this.state.RoomID, this.state.lastMessageKey, (message: Array<any>) => {
-                        console.log('setTimeoutal', message)
                         this.setState(previousState => ({
                             messages: [...this.state.messages, ...message],
                             loadEarlier: false,
@@ -173,9 +173,9 @@ export default class Chat extends React.Component<Props, State> {
 
     ontextChanged = (val: string) => {
         if (val !== '') {
-            FirebaseServices.ChangeTypingText(this.state.uid, true)
+            FirebaseServices.ChangeTypingText(this.state.RoomID, this.state.uid, true)
         } else {
-            FirebaseServices.ChangeTypingText(this.state.uid, false)
+            FirebaseServices.ChangeTypingText(this.state.RoomID, this.state.uid, false)
         }
     }
 
@@ -232,7 +232,7 @@ export default class Chat extends React.Component<Props, State> {
                 <GiftedChat
                     messages={this.state.messages}
                     onSend={FirebaseServices.send}
-                    loadEarlier={this.state.isLoadingEarlier}
+                    loadEarlier={this.state.loadEarlier}
                     onLoadEarlier={this.onLoadEarlier}
                     isLoadingEarlier={this.state.isLoadingEarlier}
                     user={this.user}

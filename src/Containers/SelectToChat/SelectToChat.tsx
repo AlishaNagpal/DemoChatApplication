@@ -63,18 +63,6 @@ export default class SelectToChat extends React.Component<Props, State> {
         })
     }
 
-    // getUnique = (array: any) => {
-    //     var uniqueArray = [];
-
-    //     // Loop through array values
-    //     for (let i = 0; i < array.length; i++) {
-    //         if (uniqueArray.indexOf(array[i]) === -1) {
-    //             uniqueArray.push(array[i]);
-    //         }
-    //     }
-    //     return uniqueArray;
-    // }
-
     longPress = (uid: string, value: boolean) => {
         if (value === false) {
             let tempArray = this.state.arr
@@ -125,7 +113,7 @@ export default class SelectToChat extends React.Component<Props, State> {
                         <VectorIcons.MaterialIcons name='group-add' size={vh(30)} color={Colors.shembe} />
                     </TouchableOpacity>
                 </View>
-                <Text style={styles.chats} >Chats</Text>
+                <Text style={styles.chats} >Contacts</Text>
                 <FlatList
                     data={this.state.data}
                     renderItem={this.renderData}

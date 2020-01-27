@@ -48,6 +48,7 @@ export default class MultipleChat extends React.Component<Props, State> {
         FirebaseService.readLastMessageGroup(this.getGroupMessages)
     }
 
+    //just getting the participants array over here.
     getUsersData = (data: any) => {
         var result = Object.keys(data).map(function (key) {
             return [String(key), data[key]];
@@ -68,6 +69,7 @@ export default class MultipleChat extends React.Component<Props, State> {
         }
     }
 
+    //the participants array has been updated
     participantsArray = (data: any) => {
         let tempArr = this.state.participants
         let indexToFind = tempArr.findIndex((item: any) => item[0] === data[0])
@@ -115,16 +117,11 @@ export default class MultipleChat extends React.Component<Props, State> {
     }
 
     multiChat = () => {
-        let otherId = ''
-        for (let i = 0; i < this.state.participants.length; i++) {
-            otherId += this.state.participants[i][0]
-        }
-
         let index = this.state.GroupMessagesArray.findIndex((item: any) => item[0] === this.state.textInputValue)
         if (index === -1) {
+            FirebaseService.writeGroupToDatabase(this.state.textInputValue,this.state.participants )
             this.props.navigation.navigate('MultiChat', {
                 uid: this.state.personalId,
-                chatRoomId: otherId,
                 chatRoomName: this.state.textInputValue,
                 userName: this.state.userName,
                 userImage: this.state.userImage,

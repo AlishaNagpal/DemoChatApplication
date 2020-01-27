@@ -13,18 +13,27 @@ import SelectToChat from '../Containers/SelectToChat/SelectToChat'
 
 console.disableYellowBox = true
 
-const MainStack = createStackNavigator(
+const LoginStack = createStackNavigator(
     {
         Login: { screen: Login, navigationOptions: { headerShown: false } },
-        Chat: { screen: Chat, navigationOptions: { headerShown: false } },
         SignUp: { screen: SignUp, navigationOptions: { headerShown: false } },
+    },
+    {
+        initialRouteName: 'Login',
+    }
+);
+
+
+const MainStack = createStackNavigator(
+    {
+        Chat: { screen: Chat, navigationOptions: { headerShown: false } },
         Users: { screen: Users, navigationOptions: { headerShown: false } },
         SelectToChat: { screen: SelectToChat, navigationOptions: { headerShown: false } },
         GroupChat: GroupChat,
         MultiChat: { screen: MultiChat, navigationOptions: { headerShown: false } },
     },
     {
-        initialRouteName: 'Login',
+        initialRouteName: 'Users',
     }
 );
 
@@ -46,9 +55,10 @@ const ModalStack = createStackNavigator(
 export default createAppContainer(createSwitchNavigator(
     {
         ModalStack: ModalStack,
+        LoginStack: LoginStack
     },
     {
-        initialRouteName: 'ModalStack',
+        initialRouteName: 'LoginStack',
         defaultNavigationOptions: ({ navigation }) => ({
             headerBackTitle: null,
             header: null,

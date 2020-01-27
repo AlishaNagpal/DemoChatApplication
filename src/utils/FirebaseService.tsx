@@ -28,24 +28,30 @@ class FirebaseSDK {
     };
 
     writeTheUserToDatabase = (name: string, email: string, uid: string, image: string) => {
-        let message = 'No chat has occured yet!'
-        let time = ''
         let selected = false
-        let typing = false
         firebase.database().ref('Users/' + uid).set({
             email,
             name,
             uid,
             image,
-            message,
-            time,
             selected,
-            typing
         }).then((data) => {
             console.log('data ', data)
         }).catch((error) => {
             console.log('error ', error)
         })
+    }
+
+    writeGroupToDatabase = (name: string, users: Array<string>) => {
+        let Users = []
+        let typing = false
+        for (let i = 0; i < users.length; i++) {
+            Users.push(users[i][0])
+            let _name = users[i][1].name
+            firebase.database().ref('Typing/' + name + '/' + users[i][0]).set({ typing, _name })
+        }
+        firebase.database().ref('GroupUsers/' + name).set({ Users })
+
     }
 
     createAccount = (user: any, callback: Function) => {
@@ -142,12 +148,20 @@ class FirebaseSDK {
             const message = { text, user, gettingTime: dated, createdAt: new Date().getTime(), onDay: DayTime };
             console.log('msg sended ', message)
             firebase.database().ref('ChatRooms/' + user.idRoom).push(message)
-            firebase.database().ref('GroupChats/').push(message)
-            firebase.database().ref('Inbox/' + user._id + '/' + user.otherID).set(message)
-            firebase.database().ref('Inbox/' + user.otherID + '/' + user._id).set(message)
+            // firebase.database().ref('GroupChats/').push(message)
+            let inboxThisMessage = { text, gettingTime: dated, createdAt: new Date().getTime(), onDay: DayTime, id: user._id, otherId: user.otherID, thisName: user.name, otherName: user.otherPersonName, type: 'OneOnOne' }
+            let inboxOtherMessage = { text, gettingTime: dated, createdAt: new Date().getTime(), onDay: DayTime, id: user.otherID, otherId: user._id, thisName: user.otherPersonName, otherName: user.name, type: 'OneOnOne' }
+            firebase.database().ref('Inbox/' + user._id + '/' + user.otherID).set(inboxThisMessage)
+            firebase.database().ref('Inbox/' + user.otherID + '/' + user._id).set(inboxOtherMessage)
+
+            let typing = { typing: false }
+            firebase.database().ref('Typing/' + user.idRoom + '/' + user._id).set(typing)
+            firebase.database().ref('Typing/' + user.idRoom + '/' + user.otherID).set(typing)
+
         }
     };
 
+    //sending the messages in the group chat
     sendMultiChat = (messages: any) => {
         for (let i = 0; i < messages.length; i++) {
             const { text, user } = messages[i];
@@ -159,10 +173,10 @@ class FirebaseSDK {
             var DayTime = moment()
                 .utcOffset('+05:30')
                 .format('DD MMM,YYYY');
-            const message = { text, user, gettingTime: dated, createdAt: new Date().getTime(), onDay: DayTime };
+            const message = { text, user, gettingTime: dated, createdAt: new Date().getTime(), onDay: DayTime, type: 'GroupChat' };
             // console.log('msg sended ', message)
-            firebase.database().ref('SelectedGroupChat/' + user.GroupName + '/' + user.idRoom).push(message)
-            firebase.database().ref('GroupInbox/' + user.GroupName).set(message)
+            firebase.database().ref('SelectedGroupChat/' + user.GroupName).push(message)
+            firebase.database().ref('Inbox/' + user.GroupName).set(message)
         }
     };
 
@@ -180,8 +194,22 @@ class FirebaseSDK {
         })
     }
 
-    //reading the group data
+    //reading the group users
     readGroupChatData(callback: Function) {
+        firebase.database().ref('GroupUsers/').on('value', function (snapshot: any) {
+            callback(snapshot.val())
+        })
+    }
+
+    //get specific  group chat data
+    readGroupChatSpecific( chatRoomName: string, callback: Function) {
+        firebase.database().ref('GroupUsers/').child(chatRoomName).child('Users/').on('value', function (snapshot: any) {
+            callback(snapshot.val())
+        })
+    }
+
+    //getting the groupData
+    readGroupChatMessages(callback: Function) {
         firebase.database().ref('SelectedGroupChat/').on('value', function (snapshot: any) {
             callback(snapshot.val())
         })
@@ -189,7 +217,7 @@ class FirebaseSDK {
 
     //reading the last messages in a group
     readLastMessageGroup(callback: Function) {
-        firebase.database().ref('GroupInbox/').on('value', function (snapshot: any) {
+        firebase.database().ref('Inbox/').on('value', function (snapshot: any) {
             callback(snapshot.val())
         })
     }
@@ -202,18 +230,49 @@ class FirebaseSDK {
     }
 
     //For group messages
-    getGroupMessages = (chatRoomName: string, chatPerson: string, callback: Function) => {
-        firebase.database().ref('SelectedGroupChat/' + chatRoomName + '/' + chatPerson) //good for personal ones 
+    getGroupMessages = (chatRoomName: string, callback: Function) => {
+        // const onReceive = (data: any) => {
+        //     const message = data.val();
+        //     // debugger
+        //     let keys = Object.keys(message)
+        //     let messages = [];
+        //     for (let i = 0; i < keys.length; i++) {
+        //         let a = keys[i]
+        //         messages.push(message[a])
+        //     }
+        //     console.log('getGroupMessages',messages)
+        //     function compare(a: any, b: any) {
+        //         // Use toUpperCase() to ignore character casing
+        //         const bandA = a.createdAt;
+        //         console.log(a.createdAt)
+        //         const bandB = b.createdAt;
+        //         let comparison = 0;
+        //         if (bandA > bandB) {
+        //             comparison = 1;
+        //         } else if (bandA < bandB) {
+        //             comparison = -1;
+        //         }
+        //         return comparison;
+        //     }
+        //     let msg = messages
+        //     msg.sort(compare)
+        //     console.log('compared messages',msg)
+        //     callback(messages)
+        //     // debugger
+        // };
+
+        firebase.database().ref('SelectedGroupChat/' + chatRoomName) //good for personal ones 
+            .orderByKey()
             .limitToLast(20)
             .on('child_added', (snapshot: any) => { callback(this.parse(snapshot)) });
     }
 
     //For one group for all users and things
-    GroupChatRefOn = (callback: Function) => {
-        firebase.database().ref('GroupChats/') //good for group chats 
-            .limitToLast(20)
-            .on('child_added', (snapshot: any) => { callback(this.parse(snapshot)) });
-    }
+    // GroupChatRefOn = (callback: Function) => {
+    //     firebase.database().ref('GroupChats/') //good for group chats 
+    //         .limitToLast(20)
+    //         .on('child_added', (snapshot: any) => { callback(this.parse(snapshot)) });
+    // }
 
     //parsing my data
     parse = (snapshot: any) => {
@@ -233,12 +292,12 @@ class FirebaseSDK {
             let messages = [];
             for (let i = 0; i < keys.length; i++) {
                 let a = keys[i]
-                messages.push(message[a])
+                if (i !== 0) {
+                    messages.push(message[a])
+                }
                 // callback(this.parse(msg));
             }
             callback(messages)
-
-
         };
         firebase.database().ref('ChatRooms/')
             .child(chatPerson)
@@ -248,7 +307,7 @@ class FirebaseSDK {
             .on('value', onReceive);
     }
     // Getting group messages
-    getPreviousGroupMessages = ( chatRoomName: string, chatID: string, lastMessageKey: string, callback: Function) => {
+    getPreviousGroupMessages = (chatRoomName: string, lastMessageKey: string, callback: Function) => {
         const onReceive = (data: any) => {
             const message = data.val();
             let keys = Object.keys(message)
@@ -262,7 +321,6 @@ class FirebaseSDK {
         };
         firebase.database().ref('SelectedGroupChat/')
             .child(chatRoomName)
-            .child(chatID)
             .orderByKey()
             .limitToLast(20)
             .endAt(lastMessageKey)
@@ -274,9 +332,21 @@ class FirebaseSDK {
         firebase.database().ref('Users/').off();
     }
 
+    //getting typing value for the group
+    getTypingValueForGroup = (chatRoomName: string, callback: Function) => {
+        firebase.database().ref('Typing/' + chatRoomName) //good for personal ones 
+            .on('value', (snapshot: any) => { callback(snapshot) });
+    }
+
+    //getting typing value
+    getTypingValue = (chatRoomID: string, chatPerson: string, callback: Function) => {
+        firebase.database().ref('Typing/' + chatRoomID + '/' + chatPerson + '/' + 'typing') //good for personal ones 
+            .on('value', (snapshot: any) => { callback(snapshot) });
+    }
+
     //Changing the value of the typing text
-    ChangeTypingText = (userId: string, value: any) => {
-        firebase.database().ref('Users/' + userId + '/' + 'typing').set(value)
+    ChangeTypingText = (chatRoomId: string, personalID: string, value: any) => {
+        firebase.database().ref('Typing/' + chatRoomId + '/' + personalID + '/' + 'typing').set(value)
     };
 }
 const firebaseSDK = new FirebaseSDK();

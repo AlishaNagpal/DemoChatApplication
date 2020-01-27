@@ -22,6 +22,11 @@ const Styles = StyleSheet.create({
         marginLeft: vw(15),
         marginTop: vh(20)
     },
+    signOut:{
+        fontSize: vh(14),
+        fontWeight: '500',
+        color: Colors.shembe
+    },
     noChatImage: {
         height: vh(180),
         width: vh(220),
@@ -89,6 +94,10 @@ const Styles = StyleSheet.create({
         position: 'absolute',
         marginTop: vw(280),
         marginLeft: vw(80)
+    },
+    signOutTop:{
+        flexDirection:'row',
+        alignItems:'center'
     }
 })
 export default Styles;
