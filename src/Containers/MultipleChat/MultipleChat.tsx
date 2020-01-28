@@ -117,19 +117,22 @@ export default class MultipleChat extends React.Component<Props, State> {
     }
 
     multiChat = () => {
-        let index = this.state.GroupMessagesArray.findIndex((item: any) => item[0] === this.state.textInputValue)
-        if (index === -1) {
-            FirebaseService.writeGroupToDatabase(this.state.textInputValue,this.state.participants )
-            this.props.navigation.navigate('MultiChat', {
-                uid: this.state.personalId,
-                chatRoomName: this.state.textInputValue,
-                userName: this.state.userName,
-                userImage: this.state.userImage,
-            })
+        if (!(/^[a-zA-Z ]+$/.test(this.state.textInputValue))) {
+            Alert.alert('No special characters are allowed in the name!')
         } else {
-            Alert.alert('This Group Name is Already Taken!')
+            let index = this.state.GroupMessagesArray.findIndex((item: any) => item[0] === this.state.textInputValue)
+            if (index === -1) {
+                FirebaseService.writeGroupToDatabase(this.state.textInputValue, this.state.participants)
+                this.props.navigation.navigate('MultiChat', {
+                    uid: this.state.personalId,
+                    chatRoomName: this.state.textInputValue,
+                    userName: this.state.userName,
+                    userImage: this.state.userImage,
+                })
+            } else {
+                Alert.alert('This Group Name is Already Taken!')
+            }
         }
-
     }
 
     render() {

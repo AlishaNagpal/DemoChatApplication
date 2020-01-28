@@ -149,10 +149,10 @@ class FirebaseSDK {
             console.log('msg sended ', message)
             firebase.database().ref('ChatRooms/' + user.idRoom).push(message)
             // firebase.database().ref('GroupChats/').push(message)
-            let inboxThisMessage = { text, gettingTime: dated, createdAt: new Date().getTime(), onDay: DayTime, id: user._id, otherId: user.otherID, thisName: user.name, otherName: user.otherPersonName, type: 'OneOnOne' }
-            let inboxOtherMessage = { text, gettingTime: dated, createdAt: new Date().getTime(), onDay: DayTime, id: user.otherID, otherId: user._id, thisName: user.otherPersonName, otherName: user.name, type: 'OneOnOne' }
-            firebase.database().ref('Inbox/' + user._id + '/' + user.otherID).set(inboxThisMessage)
-            firebase.database().ref('Inbox/' + user.otherID + '/' + user._id).set(inboxOtherMessage)
+            let inboxThisMessage = { text, gettingTime: dated, createdAt: new Date().getTime(), id: user._id, otherId: user.otherID, thisName: user.name, otherName: user.otherPersonName }
+            let inboxOtherMessage = { text, gettingTime: dated, createdAt: new Date().getTime(), id: user.otherID, otherId: user._id, thisName: user.otherPersonName, otherName: user.name }
+            firebase.database().ref('Inbox/' + 'OneonOne/' + user._id + '/' + user.otherID).set(inboxThisMessage)
+            firebase.database().ref('Inbox/' + 'OneonOne/' + user.otherID + '/' + user._id).set(inboxOtherMessage)
 
             let typing = { typing: false }
             firebase.database().ref('Typing/' + user.idRoom + '/' + user._id).set(typing)
@@ -173,10 +173,10 @@ class FirebaseSDK {
             var DayTime = moment()
                 .utcOffset('+05:30')
                 .format('DD MMM,YYYY');
-            const message = { text, user, gettingTime: dated, createdAt: new Date().getTime(), onDay: DayTime, type: 'GroupChat' };
+            const message = { text, user, gettingTime: dated, createdAt: new Date().getTime(), onDay: DayTime, otherName: user.GroupName, otherId: user.GroupName };
             // console.log('msg sended ', message)
             firebase.database().ref('SelectedGroupChat/' + user.GroupName).push(message)
-            firebase.database().ref('Inbox/' + user.GroupName).set(message)
+            firebase.database().ref('Inbox/' + 'GroupChat/' + user.GroupName).set(message)
         }
     };
 
@@ -189,7 +189,9 @@ class FirebaseSDK {
 
     //reading last messages
     readInboxData(uid: string, callback: Function) {
-        firebase.database().ref('Inbox/').child(uid).on('value', function (snapshot: any) {
+        
+        firebase.database().ref('Inbox/' + 'OneonOne/').child(uid).on('value', function (snapshot: any) {
+            // debugger
             callback(snapshot.val())
         })
     }
@@ -197,6 +199,7 @@ class FirebaseSDK {
     //reading the group users
     readGroupChatData(callback: Function) {
         firebase.database().ref('GroupUsers/').on('value', function (snapshot: any) {
+            // debugger
             callback(snapshot.val())
         })
     }
@@ -217,7 +220,8 @@ class FirebaseSDK {
 
     //reading the last messages in a group
     readLastMessageGroup(callback: Function) {
-        firebase.database().ref('Inbox/').on('value', function (snapshot: any) {
+        firebase.database().ref('Inbox/' + 'GroupChat/').on('value', function (snapshot: any) {
+            // debugger
             callback(snapshot.val())
         })
     }
@@ -244,34 +248,20 @@ class FirebaseSDK {
 
     //For group messages
     getGroupMessages = (chatRoomName: string, callback: Function) => {
-
         const onReceive = (data: any) => {
-            const message = data.val();
-            let keys = Object.keys(message)
-            let messages = [];
-            for (let i = 0; i < keys.length; i++) {
-                let a = keys[i]
-                let mess = message[a]
-                let msg = { mess, id: a }
-                messages.push(msg)
+            // console.log('getting the data', data)
+            if (data._value) {
+                const message = data.val();
+                let keys = Object.keys(message)
+                let messages = [];
+                for (let i = 0; i < keys.length; i++) {
+                    let a = keys[i]
+                    let mess = message[a]
+                    let msg = { mess, id: a }
+                    messages.push(msg)
+                }
+                callback(messages)
             }
-            callback(messages)
-
-
-
-            // function compare(a: any, b: any) {
-            //     const bandA = a.createdAt;
-            //     const bandB = b.createdAt;
-            //     let comparison = 0;
-            //     if (bandA > bandB) {
-            //         comparison = 1;
-            //     } else if (bandA < bandB) {
-            //         comparison = -1;
-            //     }
-            //     return comparison * -1;
-            // }
-            // let sorted = messages.sort(compare)
-            // callback(sorted)
         };
         firebase.database().ref('SelectedGroupChat/' + chatRoomName) //good for personal ones 
             .orderByKey()

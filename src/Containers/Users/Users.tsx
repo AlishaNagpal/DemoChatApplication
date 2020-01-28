@@ -1,56 +1,46 @@
 import React from 'react';
-import { Text, View, FlatList, TouchableOpacity, Image, ScrollView, RefreshControl } from 'react-native';
+import { Text, View, FlatList, TouchableOpacity, Image, } from 'react-native';
 import FirebaseService from '../../utils/FirebaseService';
 import styles from './styles'
 import { Colors, vh, VectorIcons, Images } from '../../Constants';
 import { Circle } from 'react-native-animated-spinkit'
+import { setData } from '../../Modules/Chat/ChatAction'
+import { connect } from 'react-redux'
 
 export interface Props {
-    navigation: any
+    navigation: any,
+    setData: Function,
+    chatData: Array<any>
 }
 
 interface State {
-    data: Array<any>,
     name: string,
     email: string,
     avatar: string,
     uid: string,
-    lastMessageSearch: Array<any>,
     chatsDone: boolean,
     updatedData: any,
     isFetching: boolean,
     runLoader: boolean,
-    groupArray: Array<any>,
-    bothTrue: boolean,
-    GroupMessagesArray: Array<any>,
     group: Array<string>
 }
 
-export default class Users extends React.PureComponent<Props, State> {
+class Users extends React.PureComponent<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            data: [],
             name: this.props.navigation.getParam('name'),
             email: this.props.navigation.getParam('email'),
             uid: this.props.navigation.getParam('userId'),
             avatar: this.props.navigation.getParam('avatar'),
-            lastMessageSearch: [],
             chatsDone: false,
             updatedData: [],
             isFetching: false,
             runLoader: true,
-            groupArray: [],
-            bothTrue: false,
-            GroupMessagesArray: [],
-            group: []
+            group: [],
         };
     }
 
-    componentDidMount() {
-        FirebaseService.readUserData(this.getUsersData)
-        FirebaseService.readGroupChatData(this.getGroupChatData)
-    }
     onRefresh = () => {
         this.setState({ isFetching: true })
         setTimeout(() => {
@@ -58,154 +48,134 @@ export default class Users extends React.PureComponent<Props, State> {
         }, 400);
     }
 
-    getUsersData = (data: any) => {
-        if (data) {
-            var result = Object.keys(data).map(function (key) {
-                return [String(key), data[key]];
-            })
-
-            this.setState({
-                data: result,
-            })
-            let tempArray = this.state.data
-            let indexToFind = tempArray.findIndex((item: any) => item[0] === this.state.uid)
-            tempArray.splice(indexToFind, 1)
-            //removing myself from the array
-            this.setState({
-                data: tempArray.splice(0)
-            })
-            //getting data
-            setTimeout(() => {
-                FirebaseService.readInboxData(this.state.uid, this.getLastMessages)
-            }, 50);
-        }
-    }
-
-    //getting the last messages of the one-on-one chat
-    getLastMessages = (data: any) => {
-        if (data) {
-            var result: Array<any> = Object.keys(data).map(function (key) {
-                return [String(key), data[key]];
-            })
-            this.setState({
-                lastMessageSearch: result,
-                chatsDone: true,
-            })
-        }
-    }
-
-    getGroupChatData = (data: any) => {
-        if (data) {
-            var result = Object.keys(data).map(function (key) {
-                return [String(key), data[key]];
-            })
-            for (let i = 0; i < result.length; i++) {
-                for (let j = 0; j < result[0][1].Users.length; j++) {
-                    let index = result.findIndex((item: any) => item[1].Users[j] === this.state.uid)
-                    if (index !== -1) {
-                        this.state.group.push(result[i][0])
-                    }
-                }
-            }
-            FirebaseService.readGroupChatMessages(this.gettingGroupMessagesToInclude)
-        }
-    }
-
-    gettingGroupMessagesToInclude = (data: any) => {
-        if (data) {
-            var result = Object.keys(data).map(function (key) {
-                return [String(key), data[key]];
-            })
-
-            for (let z = 0; z < result.length; z++) {
-                // let idTocheck = result[z][1]
-                // let keys = Object.keys(idTocheck)
-                for (let i = 0; i < this.state.group.length; i++) {
-                    if (this.state.group[i] === result[z][0]) {
-                        this.setState({ bothTrue: true })
-                        this.GetGroupData(result[z])
-                    }
-                    // let n = keys[i].includes(this.state.uid)
-                    // if (n) {
-                    //     //if you find the key, then what?
-                    //     // this.state.groupArray.push(result[z])
-                    //     this.setState({ bothTrue: true })
-                    //     this.GetGroupData(result[z])
-                    // }
-                }
-            }
-            FirebaseService.readLastMessageGroup(this.getGroupMessages)
-        }
-    }
-
-    GetGroupData = (data: any) => {
-        let tempArr = this.state.groupArray
-        let indexToFind = tempArr.findIndex((item: any) => item[0] === data[0])
-        if (indexToFind === -1) {
-            setTimeout(() => {
-                this.state.groupArray.push(data)
-                this.forceUpdate()
-            }, 10);
-        }
-    }
-
-    getGroupMessages = (data: any) => {
-        if (data) {
-            var result: Array<any> = Object.keys(data).map(function (key) {
-                return [String(key), data[key]];
-            })
-            this.setState({
-                GroupMessagesArray: result
-            })
-        }
-    }
-
-    oneOnOneChat(uid: string) {
-        //going for one on one chat
-        var chatRoomId: string
-        if (uid > this.state.uid) {
-            chatRoomId = uid.concat(this.state.uid)
-        } else {
-            chatRoomId = this.state.uid.concat(uid)
-        }
-        let otherperson = uid
-        this.props.navigation.navigate('Chat', {
-            name: this.state.name,
-            email: this.state.email,
-            avatar: this.state.avatar,
-            userId: this.state.uid,
-            sendingChat: chatRoomId,
-            theOtherPerson: otherperson,
-            // refresh: this.refresh.bind(this)
-        });
-    }
-
+    //going to the next page for chat
     selectToChat = () => {
         this.props.navigation.navigate('SelectToChat', {
             name: this.state.name,
             email: this.state.email,
             avatar: this.state.avatar,
             userId: this.state.uid,
-            data: this.state.data,
         })
     }
 
-    goForMultiChat = (chatRoomId: string, chatRoomName: string) => {
-        this.props.navigation.navigate('MultiChat', {
-            uid: this.state.uid,
-            chatRoomId: chatRoomId,
-            chatRoomName: chatRoomName,
-            userName: this.state.name,
-            userImage: this.state.avatar,
-        })
+    componentDidMount() {
+        FirebaseService.readInboxData(this.state.uid, this.getLastMessages)
+        FirebaseService.readGroupChatData(this.getGroupChatData)
     }
+
+    //getting the last messages of the one-on-one chat
+    getLastMessages = (data: any) => {
+        debugger
+        if (data) {
+            var result: Array<any> = Object.keys(data).map(function (key) {
+                return [String(key), data[key]];
+            })
+            for (let i = 0; i < result.length; i++) {
+                this.props.setData(result[i])
+            }
+            this.setState({
+                chatsDone: true,
+            })
+            FirebaseService.readGroupChatData(this.getGroupChatData)
+        }
+    }
+
+    //just getting the group users, if the group is to be included here or not 
+    getGroupChatData = (data: any) => {
+        if (data) {
+            this.setState({
+                chatsDone: true,
+            })
+            var result = Object.keys(data).map(function (key) {
+                return [String(key), data[key]];
+            })
+            for (let i = 0; i < result.length; i++) {
+                for (let j = 0; j < result[i][1].Users.length; j++) {
+                    if (result[i][1].Users[j] === this.state.uid) {
+                        this.GetGroupData(result[i][0])
+                    }
+                }
+            }
+            FirebaseService.readLastMessageGroup(this.getGroupMessages)
+        }
+    }
+
+    //relevant messages to be showed
+    GetGroupData = (data: any) => {
+        let tempArr = this.state.group
+        let indexToFind = tempArr.findIndex((item: any) => item === data)
+        if (indexToFind === -1) {
+            this.state.group.push(data)
+        }
+    }
+
+    //last inbox messages
+    getGroupMessages = (data: any) => {
+        if (data) {
+            var result: Array<any> = Object.keys(data).map(function (key) {
+                return [String(key), data[key]];
+            })
+            for (let i = 0; i < this.state.group.length; i++) {
+                for (let j = 0; j < result.length; j++) {
+                    if (this.state.group[i] === result[j][0]) {
+                        this.GetGroupMessages(result[j])
+                    }
+                }
+            }
+        }
+    }
+
+    //relevant groups made
+    GetGroupMessages = (data: any) => {
+        debugger 
+        let tempArr = this.props.chatData
+        let indexToFind = tempArr.findIndex((item: any) => item[0] === data[0])
+        if (indexToFind === -1) {
+            this.props.setData(data)
+        }
+    }
+
+    onChat(value: string, type: number) {
+        if (type === 0) {
+            //going for one on one chat
+            var chatRoomId: string
+            if (value > this.state.uid) {
+                chatRoomId = value.concat(this.state.uid)
+            } else {
+                chatRoomId = this.state.uid.concat(value)
+            }
+            let otherperson = value
+            this.props.navigation.navigate('Chat', {
+                name: this.state.name,
+                email: this.state.email,
+                avatar: this.state.avatar,
+                userId: this.state.uid,
+                sendingChat: chatRoomId,
+                theOtherPerson: otherperson,
+                // refresh: this.refresh.bind(this)
+            });
+        } else if (type === 1) {
+            this.props.navigation.navigate('MultiChat', {
+                uid: this.state.uid,
+                chatRoomName: value,
+                userName: this.state.name,
+                userImage: this.state.avatar,
+            })
+        }
+    } 
 
     renderData = (rowData: any) => {
         const { item } = rowData
+        // console.log(item)
+        let num = 0
+        if (item[1].otherName === item[1].otherId) {
+            num = 1
+        }
+        // console.log('num',num)
         return (
             <View>
                 <View style={styles.row} >
-                    <TouchableOpacity style={styles.root} onPress={() => this.oneOnOneChat(item[1].otherId)} activeOpacity={1} >
+                    <TouchableOpacity style={styles.root} onPress={() => this.onChat(item[1].otherId, num)} activeOpacity={1} >
                         <View style={styles.row2} >
                             <Text style={styles.nameSet} >{item[1].otherName}</Text>
                             <Text style={styles.message2} >{item[1].gettingTime}</Text>
@@ -220,90 +190,33 @@ export default class Users extends React.PureComponent<Props, State> {
         )
     }
 
-    renderGroup = (row: any) => {
-        if (this.state.GroupMessagesArray.length !== 0) {
-            const { item } = row
-            let indexToFind = this.state.GroupMessagesArray.findIndex((value: any) => value[0] === item[0])
-            const { user } = this.state.GroupMessagesArray[indexToFind][1]
-            return (
-                <View>
-                    <View style={styles.row} >
-                        <TouchableOpacity style={styles.root} onPress={() => this.goForMultiChat(user.idRoom, user.GroupName)} activeOpacity={1} >
-                            <View style={styles.row2} >
-                                <Text style={styles.nameSet} >{item[0]}</Text>
-                                <Text style={styles.message2} >{this.state.GroupMessagesArray[indexToFind][1].gettingTime}</Text>
-                            </View>
-                            <View style={styles.time} >
-                                <Text style={styles.message} >{this.state.GroupMessagesArray[indexToFind][1].text}</Text>
-                            </View>
-                        </TouchableOpacity>
-                    </View>
-                    <View style={styles.separator} />
-                </View>
-            )
-        }
-    }
-
     verifying = () => {
         setTimeout(() => {
             this.setState({ runLoader: false })
         }, 800);
-        // console.log('in verifying', this.state.chatsDone, this.state.updatedData, this.state.groupArray, this.state.bothTrue)
-        if (this.state.chatsDone && this.state.lastMessageSearch.length !== 0 && this.state.bothTrue === false) {
-            return (
-                <FlatList
-                    data={this.state.lastMessageSearch}
-                    renderItem={this.renderData}
-                    keyExtractor={(item, index) => index.toString()}
-                    onRefresh={() => this.onRefresh()}
-                    refreshing={this.state.isFetching}
-                />
-            )
-        } else if (this.state.lastMessageSearch.length !== 0 && this.state.groupArray.length !== 0 && this.state.bothTrue === true) {
-            return (
-                <ScrollView
-                    refreshControl={
-                        <RefreshControl refreshing={this.state.isFetching} onRefresh={this.onRefresh} />
-                    }>
-                    <View>
-                        <FlatList
-                            data={this.state.lastMessageSearch}
-                            renderItem={this.renderData}
-                            keyExtractor={(item, index) => index.toString()}
-                            scrollEnabled={false}
-                        />
-                        <FlatList
-                            data={this.state.groupArray}
-                            renderItem={this.renderGroup}
-                            keyExtractor={(item, index) => index.toString()}
-                            scrollEnabled={false}
-                        />
-                    </View>
+        if (this.props.chatData.length !== 0) {
+            if (this.state.chatsDone) {
 
-                </ScrollView>
-            )
-        } else if (this.state.groupArray.length !== 0 && this.state.bothTrue === true) {
-            return (
-                <View>
+                return (
                     <FlatList
-                        data={this.state.groupArray}
-                        renderItem={this.renderGroup}
+                        data={this.props.chatData}
+                        renderItem={this.renderData}
                         keyExtractor={(item, index) => index.toString()}
                         onRefresh={() => this.onRefresh()}
                         refreshing={this.state.isFetching}
                     />
-                </View>
-            )
-        } else {
-            return (
-                <View style={styles.centerNoChats} >
-                    <Image
-                        source={Images.noChat}
-                        style={styles.noChatImage}
-                    />
-                    <Text style={styles.noChat} >No Chats</Text>
-                </View>
-            )
+                )
+            } else {
+                return (
+                    <View style={styles.centerNoChats} >
+                        <Image
+                            source={Images.noChat}
+                            style={styles.noChatImage}
+                        />
+                        <Text style={styles.noChat} >No Chats</Text>
+                    </View>
+                )
+            }
         }
     }
 
@@ -329,3 +242,22 @@ export default class Users extends React.PureComponent<Props, State> {
         )
     }
 }
+
+
+function mapDispatchToProps(dispatch: Function) {
+    return {
+        setData: (value: any) => dispatch(setData(value))
+    }
+}
+
+function mapStateToProps(state: any) {
+    const { chatData } = state.ChatMessagesReducer;
+    return {
+        chatData
+    }
+}
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Users);

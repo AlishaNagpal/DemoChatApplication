@@ -9,7 +9,8 @@
     "test": "jest",
     "lint": "eslint .",
     "pods": "cd ios && pod install && cd ..",
-    "emu": "emulator -avd Pixel_2_API_28 -gpu host"
+    "emu": "emulator -avd Pixel_2_API_28 -gpu host",
+    "simu": "react-native run-ios --simulator=\"iPhone 8\""
   },
   "dependencies": {
     "@react-native-community/masked-view": "^0.1.6",

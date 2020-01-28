@@ -48,7 +48,6 @@ export default class MultiChat extends React.Component<Props, State> {
     componentDidMount() {
         this._isMounted = true
         FirebaseServices.getTypingValueForGroup(this.state.chatRoomName, this.getTyping)
-        console.log('incomponent did mount ')
         FirebaseServices.getGroupMessages(this.state.chatRoomName, (message: any) => {
             function compareWhole(a: any, b: any) {
                 const bandA = a.mess.createdAt;

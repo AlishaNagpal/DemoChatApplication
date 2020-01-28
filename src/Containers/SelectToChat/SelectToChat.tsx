@@ -5,13 +5,14 @@ import { Colors, vh, VectorIcons } from '../../Constants';
 import { CheckBox } from '../../Components'
 import LinearGradient from 'react-native-linear-gradient';
 const colors = [Colors.shembe, Colors.weirdGreen]
+import FirebaseService from '../../utils/FirebaseService'
 
 export interface Props {
     navigation: any
 }
 
 interface State {
-    data: any,
+    data: Array<any>,
     name: string,
     email: string,
     uid: string,
@@ -25,7 +26,7 @@ export default class SelectToChat extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            data: this.props.navigation.getParam('data'),
+            data: [],
             name: this.props.navigation.getParam('name'),
             email: this.props.navigation.getParam('email'),
             uid: this.props.navigation.getParam('userId'),
@@ -33,6 +34,29 @@ export default class SelectToChat extends React.Component<Props, State> {
             showSelected: false,
             arr: [],
         };
+    }
+
+    componentDidMount() {
+        FirebaseService.readUserData(this.getUsersData)
+    }
+
+    getUsersData = (data: any) => {
+        if (data) {
+            var result = Object.keys(data).map(function (key) {
+                return [String(key), data[key]];
+            })
+
+            this.setState({
+                data: result,
+            })
+            let tempArray = this.state.data
+            let indexToFind = tempArray.findIndex((item: any) => item[0] === this.state.uid)
+            tempArray.splice(indexToFind, 1)
+            //removing myself from the array
+            this.setState({
+                data: tempArray.splice(0)
+            })
+        }
     }
 
     oneOnOneChat(uid: string) {
@@ -58,8 +82,8 @@ export default class SelectToChat extends React.Component<Props, State> {
         this.props.navigation.navigate('MultipleChat', {
             selectedID: this.state.arr,
             personalID: this.state.uid,
-            userName:this.state.name,
-            userImage:this.state.avatar,
+            userName: this.state.name,
+            userImage: this.state.avatar,
         })
     }
 
