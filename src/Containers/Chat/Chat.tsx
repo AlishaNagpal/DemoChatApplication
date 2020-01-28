@@ -58,15 +58,34 @@ export default class Chat extends React.Component<Props, State> {
         FirebaseServices.readUserData(this.getUsersData)
         FirebaseServices.getTypingValue(this.state.RoomID, this.state.theOtherPerson, this.getTyping)
         FirebaseServices.refOn(this.state.RoomID, (message: any) => {
+            function compareWhole(a: any, b: any) {
+                const bandA = a.mess.createdAt;
+                const bandB = b.mess.createdAt;
+                let comparison = 0;
+                if (bandA > bandB) {
+                    comparison = 1;
+                } else if (bandA < bandB) {
+                    comparison = -1;
+                }
+                return comparison * -1;
+            }
+            let ans = message.sort(compareWhole)
+            let data: Array<any> = []
+            for (let i = 0; i < ans.length; i++) {
+                let mess = ans[i].mess
+                data.push(mess)
+            }
             this.setState(previousState => ({
-                messages: GiftedChat.append(previousState.messages, message),
+                messages: data
+                // GiftedChat.append(previousState.messages, message),
             })
             )
             this.setState({
                 lengthMessage: this.state.messages.length
             })
             if (this.state.lengthMessage === 20) {
-                let getLastMessageKey = this.state.messages[19].id
+                let getLastMessageKey = ans[19].id
+                console.log('getLastMessageKey', getLastMessageKey)
                 this.setState({
                     lastMessageKey: getLastMessageKey,
                     loadEarlier: true
@@ -127,6 +146,7 @@ export default class Chat extends React.Component<Props, State> {
     }
 
     onLoadEarlier = () => {
+        console.log(this.state.lastMessageKey)
         if (this.state.lastMessageKey) {
             this.setState(() => {
                 return {

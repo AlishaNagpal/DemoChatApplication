@@ -202,7 +202,7 @@ class FirebaseSDK {
     }
 
     //get specific  group chat data
-    readGroupChatSpecific( chatRoomName: string, callback: Function) {
+    readGroupChatSpecific(chatRoomName: string, callback: Function) {
         firebase.database().ref('GroupUsers/').child(chatRoomName).child('Users/').on('value', function (snapshot: any) {
             callback(snapshot.val())
         })
@@ -224,47 +224,59 @@ class FirebaseSDK {
 
     // Load msgs from Database to Chat
     refOn = (chatPerson: string, callback: Function) => {
+        const onReceive = (data: any) => {
+            const message = data.val();
+            let keys = Object.keys(message)
+            let messages = [];
+            for (let i = 0; i < keys.length; i++) {
+                let a = keys[i]
+                let mess = message[a]
+                let msg = { mess, id: a }
+                messages.push(msg)
+            }
+            callback(messages)
+        };
+
         firebase.database().ref('ChatRooms/' + chatPerson) //good for personal ones 
             .limitToLast(20)
-            .on('child_added', (snapshot: any) => { callback(this.parse(snapshot)) });
+            .on('value', onReceive);
     }
 
     //For group messages
     getGroupMessages = (chatRoomName: string, callback: Function) => {
-        // const onReceive = (data: any) => {
-        //     const message = data.val();
-        //     // debugger
-        //     let keys = Object.keys(message)
-        //     let messages = [];
-        //     for (let i = 0; i < keys.length; i++) {
-        //         let a = keys[i]
-        //         messages.push(message[a])
-        //     }
-        //     console.log('getGroupMessages',messages)
-        //     function compare(a: any, b: any) {
-        //         // Use toUpperCase() to ignore character casing
-        //         const bandA = a.createdAt;
-        //         console.log(a.createdAt)
-        //         const bandB = b.createdAt;
-        //         let comparison = 0;
-        //         if (bandA > bandB) {
-        //             comparison = 1;
-        //         } else if (bandA < bandB) {
-        //             comparison = -1;
-        //         }
-        //         return comparison;
-        //     }
-        //     let msg = messages
-        //     msg.sort(compare)
-        //     console.log('compared messages',msg)
-        //     callback(messages)
-        //     // debugger
-        // };
 
+        const onReceive = (data: any) => {
+            const message = data.val();
+            let keys = Object.keys(message)
+            let messages = [];
+            for (let i = 0; i < keys.length; i++) {
+                let a = keys[i]
+                let mess = message[a]
+                let msg = { mess, id: a }
+                messages.push(msg)
+            }
+            callback(messages)
+
+
+
+            // function compare(a: any, b: any) {
+            //     const bandA = a.createdAt;
+            //     const bandB = b.createdAt;
+            //     let comparison = 0;
+            //     if (bandA > bandB) {
+            //         comparison = 1;
+            //     } else if (bandA < bandB) {
+            //         comparison = -1;
+            //     }
+            //     return comparison * -1;
+            // }
+            // let sorted = messages.sort(compare)
+            // callback(sorted)
+        };
         firebase.database().ref('SelectedGroupChat/' + chatRoomName) //good for personal ones 
             .orderByKey()
             .limitToLast(20)
-            .on('child_added', (snapshot: any) => { callback(this.parse(snapshot)) });
+            .on('value', onReceive)
     }
 
     //For one group for all users and things
@@ -292,13 +304,24 @@ class FirebaseSDK {
             let messages = [];
             for (let i = 0; i < keys.length; i++) {
                 let a = keys[i]
-                if (i !== 0) {
-                    messages.push(message[a])
-                }
-                // callback(this.parse(msg));
+                messages.push(message[a])
             }
-            callback(messages)
+            function compare(a: any, b: any) {
+                const bandA = a.createdAt;
+                const bandB = b.createdAt;
+                let comparison = 0;
+                if (bandA > bandB) {
+                    comparison = 1;
+                } else if (bandA < bandB) {
+                    comparison = -1;
+                }
+                return comparison * -1;
+            }
+            let sorted = messages.sort(compare)
+            sorted.splice(0, 1)
+            callback(sorted)
         };
+
         firebase.database().ref('ChatRooms/')
             .child(chatPerson)
             .orderByKey()
@@ -316,9 +339,22 @@ class FirebaseSDK {
                 let a = keys[i]
                 messages.push(message[a])
             }
-            callback(messages)
-            // debugger
+            function compare(a: any, b: any) {
+                const bandA = a.createdAt;
+                const bandB = b.createdAt;
+                let comparison = 0;
+                if (bandA > bandB) {
+                    comparison = 1;
+                } else if (bandA < bandB) {
+                    comparison = -1;
+                }
+                return comparison * -1;
+            }
+            let sorted = messages.sort(compare)
+            sorted.splice(0, 1)
+            callback(sorted)
         };
+
         firebase.database().ref('SelectedGroupChat/')
             .child(chatRoomName)
             .orderByKey()

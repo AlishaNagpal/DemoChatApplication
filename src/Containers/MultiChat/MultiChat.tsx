@@ -22,7 +22,6 @@ interface State {
     userName: string,
     userImage: string,
     messageLenght: number,
-    restUsers: Array<string>
 }
 
 export default class MultiChat extends React.Component<Props, State> {
@@ -41,7 +40,6 @@ export default class MultiChat extends React.Component<Props, State> {
             typingText: false,
             typingPerson: '',
             messageLenght: 0,
-            restUsers: []
         };
     }
 
@@ -50,23 +48,42 @@ export default class MultiChat extends React.Component<Props, State> {
     componentDidMount() {
         this._isMounted = true
         FirebaseServices.getTypingValueForGroup(this.state.chatRoomName, this.getTyping)
+        console.log('incomponent did mount ')
         FirebaseServices.getGroupMessages(this.state.chatRoomName, (message: any) => {
+            function compareWhole(a: any, b: any) {
+                const bandA = a.mess.createdAt;
+                const bandB = b.mess.createdAt;
+                let comparison = 0;
+                if (bandA > bandB) {
+                    comparison = 1;
+                } else if (bandA < bandB) {
+                    comparison = -1;
+                }
+                return comparison * -1;
+            }
+            let ans = message.sort(compareWhole)
+            let data: Array<any> = []
+            for (let i = 0; i < ans.length; i++) {
+                let mess = ans[i].mess
+                data.push(mess)
+            }
             this.setState(previousState => ({
-                messages: GiftedChat.append(previousState.messages, message),
+                messages: data
+                // GiftedChat.append(previousState.messages, message),
             })
             )
             this.setState({
                 messageLenght: this.state.messages.length
             })
             if (this.state.messageLenght === 20) {
-                let getLastMessageKey = this.state.messages[19].id
+                let getLastMessageKey = ans[19].id
+                console.log('getLastMessageKey', getLastMessageKey)
                 this.setState({
                     lastMessageKey: getLastMessageKey,
                     loadEarlier: true
                 })
             }
-        }
-        );
+        });
     }
 
     getTyping = (data: any) => {
