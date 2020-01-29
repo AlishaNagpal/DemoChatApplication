@@ -59,6 +59,7 @@ class Users extends React.PureComponent<Props, State> {
     }
 
     componentDidMount() {
+        console.log('uid', this.state.uid)
         FirebaseService.readInboxData(this.state.uid, this.getLastMessages)
         FirebaseService.readGroupChatData(this.getGroupChatData)
     }
@@ -91,6 +92,7 @@ class Users extends React.PureComponent<Props, State> {
             for (let i = 0; i < result.length; i++) {
                 for (let j = 0; j < result[i][1].Users.length; j++) {
                     if (result[i][1].Users[j] === this.state.uid) {
+                        console.log('checkinbg', result[i][1].Users[j], this.state.uid)
                         this.GetGroupData(result[i][0])
                     }
                 }
@@ -181,28 +183,26 @@ class Users extends React.PureComponent<Props, State> {
         setTimeout(() => {
             this.setState({ runLoader: false })
         }, 1000);
-        if (this.props.chatData.length !== 0) {
-            if (this.state.chatsDone) {
-                return (
-                    <FlatList
-                        data={this.props.chatData}
-                        renderItem={this.renderData}
-                        keyExtractor={(item, index) => index.toString()}
-                        onRefresh={() => this.onRefresh()}
-                        refreshing={this.state.isFetching}
+        if (this.state.chatsDone && this.props.chatData.length !== 0) {
+            return (
+                <FlatList
+                    data={this.props.chatData}
+                    renderItem={this.renderData}
+                    keyExtractor={(item, index) => index.toString()}
+                    onRefresh={() => this.onRefresh()}
+                    refreshing={this.state.isFetching}
+                />
+            )
+        } else {
+            return (
+                <View style={styles.centerNoChats}>
+                    <Image
+                        source={Images.noChat}
+                        style={styles.noChatImage}
                     />
-                )
-            } else {
-                return (
-                    <View style={styles.centerNoChats} >
-                        <Image
-                            source={Images.noChat}
-                            style={styles.noChatImage}
-                        />
-                        <Text style={styles.noChat} >No Chats</Text>
-                    </View>
-                )
-            }
+                    <Text style={styles.noChat} >No Chats</Text>
+                </View>
+            )
         }
     }
 

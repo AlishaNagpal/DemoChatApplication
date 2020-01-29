@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, FlatList, TouchableOpacity, TextInput, Image, Alert } from 'react-native';
+import { Text, View, FlatList, TouchableOpacity, TextInput, Image, Alert, Modal } from 'react-native';
 import FirebaseService from '../../utils/FirebaseService';
 import styles from './styles'
 import { Colors, VectorIcons, vh, Images } from "../../Constants";
@@ -117,7 +117,7 @@ export default class MultipleChat extends React.Component<Props, State> {
     }
 
     multiChat = () => {
-        if (!(/^[a-zA-Z ]+$/.test(this.state.textInputValue))) {
+        if (!(/^[a-zA-Z! ]+$/.test(this.state.textInputValue))) {
             Alert.alert('No special characters are allowed in the name!')
         } else {
             let index = this.state.GroupMessagesArray.findIndex((item: any) => item[0] === this.state.textInputValue)
@@ -142,14 +142,14 @@ export default class MultipleChat extends React.Component<Props, State> {
                     <VectorIcons.Entypo name='cross' size={vh(30)} />
                 </TouchableOpacity>
                 <Text style={styles.group} >Complete your Group!</Text>
-                <View>
+                {/* <View>
                     <LinearGradient style={styles.groupButton} colors={colors} start={{ x: 1, y: 0 }} end={{ x: 1, y: 1 }}>
                         <VectorIcons.MaterialCommunityIcons name='account-group' color={Colors.white} size={vh(100)} />
                     </LinearGradient>
                     <TouchableOpacity style={styles.editIcon}>
                         <VectorIcons.Feather name='edit' size={vh(40)} />
                     </TouchableOpacity>
-                </View>
+                </View> */}
 
                 <TextInput
                     style={styles.textInput}

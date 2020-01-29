@@ -5,7 +5,7 @@ export const setData = (value: any) => {
         const { chatData } = getState().ChatMessagesReducer;
         let emptyArray = chatData;
         let index = emptyArray.findIndex((item: any) => item[0] === value[0])
-        // console.log('in reducer', index, value)
+        console.log('in reducer', index, value)
         if (index !== -1) {
             emptyArray.splice(index, 1)
             emptyArray.push(value)
