@@ -24,6 +24,18 @@ interface State {
     messageLenght: number,
 }
 
+function compare(a: any, b: any) {
+    const bandA = a.mess.createdAt;
+    const bandB = b.mess.createdAt;
+    let comparison = 0;
+    if (bandA > bandB) {
+        comparison = 1;
+    } else if (bandA < bandB) {
+        comparison = -1;
+    }
+    return comparison * -1;
+}
+
 export default class MultiChat extends React.Component<Props, State> {
 
     constructor(props: Props) {
@@ -49,18 +61,7 @@ export default class MultiChat extends React.Component<Props, State> {
         this._isMounted = true
         FirebaseServices.getTypingValueForGroup(this.state.chatRoomName, this.getTyping)
         FirebaseServices.getGroupMessages(this.state.chatRoomName, (message: any) => {
-            function compareWhole(a: any, b: any) {
-                const bandA = a.mess.createdAt;
-                const bandB = b.mess.createdAt;
-                let comparison = 0;
-                if (bandA > bandB) {
-                    comparison = 1;
-                } else if (bandA < bandB) {
-                    comparison = -1;
-                }
-                return comparison * -1;
-            }
-            let ans = message.sort(compareWhole)
+            let ans = message.sort(compare)
             let data: Array<any> = []
             for (let i = 0; i < ans.length; i++) {
                 let mess = ans[i].mess
@@ -140,7 +141,8 @@ export default class MultiChat extends React.Component<Props, State> {
     goBack = () => {
         // this.props.navigation.state.params.refresh()
         FirebaseServices.ChangeTypingText(this.state.chatRoomName, this.state.uid, false)
-        this.props.navigation.navigate('Users')
+        // this.props.navigation.navigate('Users')
+        this.props.navigation.pop(2)
     }
 
     onLoadEarlier = () => {
@@ -152,12 +154,27 @@ export default class MultiChat extends React.Component<Props, State> {
             setTimeout(() => {
                 if (this._isMounted === true) {
                     FirebaseServices.getPreviousGroupMessages(this.state.chatRoomName, this.state.lastMessageKey, (message: Array<any>) => {
+                        let sorted = message.sort(compare)
+                        sorted.splice(0, 1)
+                        let data: Array<any> = []
+                        for (let i = 0; i < sorted.length; i++) {
+                            let mess = sorted[i].mess
+                            data.push(mess)
+                        }
+                        if (sorted.length === 19) {
+                            let getLastMessageKey = sorted[18].id
+                            this.setState({
+                                loadEarlier: true,
+                                lastMessageKey: getLastMessageKey,
+                            })
+                        } else {
+                            this.setState({ loadEarlier: false, })
+                        }
+
                         this.setState(previousState => ({
-                            messages: [...this.state.messages, ...message],
-                            loadEarlier: false,
+                            messages: [...this.state.messages, ...data],
                             isLoadingEarlier: false,
-                        })
-                        )
+                        }))
                     })
                 }
             }, 1000)

@@ -65,7 +65,6 @@ class Users extends React.PureComponent<Props, State> {
 
     //getting the last messages of the one-on-one chat
     getLastMessages = (data: any) => {
-        debugger
         if (data) {
             var result: Array<any> = Object.keys(data).map(function (key) {
                 return [String(key), data[key]];
@@ -118,20 +117,10 @@ class Users extends React.PureComponent<Props, State> {
             for (let i = 0; i < this.state.group.length; i++) {
                 for (let j = 0; j < result.length; j++) {
                     if (this.state.group[i] === result[j][0]) {
-                        this.GetGroupMessages(result[j])
+                        this.props.setData(result[j])
                     }
                 }
             }
-        }
-    }
-
-    //relevant groups made
-    GetGroupMessages = (data: any) => {
-        debugger 
-        let tempArr = this.props.chatData
-        let indexToFind = tempArr.findIndex((item: any) => item[0] === data[0])
-        if (indexToFind === -1) {
-            this.props.setData(data)
         }
     }
 
@@ -162,16 +151,14 @@ class Users extends React.PureComponent<Props, State> {
                 userImage: this.state.avatar,
             })
         }
-    } 
+    }
 
     renderData = (rowData: any) => {
         const { item } = rowData
-        // console.log(item)
         let num = 0
         if (item[1].otherName === item[1].otherId) {
             num = 1
         }
-        // console.log('num',num)
         return (
             <View>
                 <View style={styles.row} >
@@ -193,10 +180,9 @@ class Users extends React.PureComponent<Props, State> {
     verifying = () => {
         setTimeout(() => {
             this.setState({ runLoader: false })
-        }, 800);
+        }, 1000);
         if (this.props.chatData.length !== 0) {
             if (this.state.chatsDone) {
-
                 return (
                     <FlatList
                         data={this.props.chatData}

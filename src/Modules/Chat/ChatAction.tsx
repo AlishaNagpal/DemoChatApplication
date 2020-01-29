@@ -4,8 +4,12 @@ export const setData = (value: any) => {
     return (dispatch: any, getState: any) => {
         const { chatData } = getState().ChatMessagesReducer;
         let emptyArray = chatData;
-        let index = emptyArray.findIndex((item:any)=>item[0]===value[0])
-        if(index === -1){
+        let index = emptyArray.findIndex((item: any) => item[0] === value[0])
+        // console.log('in reducer', index, value)
+        if (index !== -1) {
+            emptyArray.splice(index, 1)
+            emptyArray.push(value)
+        } else {
             emptyArray.push(value)
         }
         function compareWhole(a: any, b: any) {

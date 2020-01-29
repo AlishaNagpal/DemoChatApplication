@@ -27,6 +27,18 @@ interface State {
     lengthMessage: number
 }
 
+function compare(a: any, b: any) {
+    const bandA = a.mess.createdAt;
+    const bandB = b.mess.createdAt;
+    let comparison = 0;
+    if (bandA > bandB) {
+        comparison = 1;
+    } else if (bandA < bandB) {
+        comparison = -1;
+    }
+    return comparison * -1;
+}
+
 export default class Chat extends React.Component<Props, State> {
     static navigationOptions = {
         title: 'Chat',
@@ -58,18 +70,7 @@ export default class Chat extends React.Component<Props, State> {
         FirebaseServices.readUserData(this.getUsersData)
         FirebaseServices.getTypingValue(this.state.RoomID, this.state.theOtherPerson, this.getTyping)
         FirebaseServices.refOn(this.state.RoomID, (message: any) => {
-            function compareWhole(a: any, b: any) {
-                const bandA = a.mess.createdAt;
-                const bandB = b.mess.createdAt;
-                let comparison = 0;
-                if (bandA > bandB) {
-                    comparison = 1;
-                } else if (bandA < bandB) {
-                    comparison = -1;
-                }
-                return comparison * -1;
-            }
-            let ans = message.sort(compareWhole)
+            let ans = message.sort(compare)
             let data: Array<any> = []
             for (let i = 0; i < ans.length; i++) {
                 let mess = ans[i].mess
@@ -85,7 +86,6 @@ export default class Chat extends React.Component<Props, State> {
             })
             if (this.state.lengthMessage === 20) {
                 let getLastMessageKey = ans[19].id
-                console.log('getLastMessageKey', getLastMessageKey)
                 this.setState({
                     lastMessageKey: getLastMessageKey,
                     loadEarlier: true
@@ -123,7 +123,8 @@ export default class Chat extends React.Component<Props, State> {
 
     goBack = () => {
         // this.props.navigation.state.params.refresh()
-        this.props.navigation.navigate('Users')
+        // this.props.navigation.navigate('Users')
+        this.props.navigation.pop(2)
         FirebaseServices.ChangeTypingText(this.state.RoomID, this.state.uid, false)
     }
 
@@ -157,12 +158,28 @@ export default class Chat extends React.Component<Props, State> {
             setTimeout(() => {
                 if (this._isMounted === true) {
                     FirebaseServices.getPreviousMessages(this.state.RoomID, this.state.lastMessageKey, (message: Array<any>) => {
+                        let sorted = message.sort(compare)
+                        sorted.splice(0, 1)
+                        let data: Array<any> = []
+                        for (let i = 0; i < sorted.length; i++) {
+                            let mess = sorted[i].mess
+                            data.push(mess)
+                        }
+
+                        if (sorted.length === 19) {
+                            let getLastMessageKey = sorted[18].id
+                            this.setState({
+                                loadEarlier: true,
+                                lastMessageKey: getLastMessageKey,
+                            })
+                        } else {
+                            this.setState({ loadEarlier: false, })
+                        }
+
                         this.setState(previousState => ({
-                            messages: [...this.state.messages, ...message],
-                            loadEarlier: false,
+                            messages: [...this.state.messages, ...data],
                             isLoadingEarlier: false,
-                        })
-                        )
+                        }))
                     })
                 }
             }, 1000)

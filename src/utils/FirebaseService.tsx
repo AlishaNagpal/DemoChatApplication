@@ -52,6 +52,17 @@ class FirebaseSDK {
         }
         firebase.database().ref('GroupUsers/' + name).set({ Users })
 
+        let user = { GroupName: name, _id: '', avatar: '', name: '' }
+        let text = 'No messages yet!'
+        var dated = moment()
+            .utcOffset('+05:30')
+            .format(' hh:mm a');
+        var DayTime = moment()
+            .utcOffset('+05:30')
+            .format('DD MMM,YYYY');
+
+        const message = { text, user, gettingTime: dated, createdAt: new Date().getTime(), onDay: DayTime, otherName: name, otherId: name };
+        firebase.database().ref('Inbox/' + 'GroupChat/' + name).set(message)
     }
 
     createAccount = (user: any, callback: Function) => {
@@ -118,7 +129,6 @@ class FirebaseSDK {
                 }
             );
         } else {
-            console.log("can't update avatar, user is not login.");
             alert('Unable to update avatar. You must login first.');
         }
     };
@@ -128,12 +138,10 @@ class FirebaseSDK {
     //         let toUpdate = firebase.database().ref('Users/' + uid)
     //         toUpdate.update({ message: message, time: time })
     //     }
-    //     console.log('oh my goodness', message, uid)
     // }
 
     // Storing msgs on Firebase Database
     send = (messages: any) => {
-        // console.log('gettin the messages', messages)
         for (let i = 0; i < messages.length; i++) {
             const { text, user } = messages[i];
 
@@ -146,7 +154,6 @@ class FirebaseSDK {
                 .format('DD MMM,YYYY');
 
             const message = { text, user, gettingTime: dated, createdAt: new Date().getTime(), onDay: DayTime };
-            console.log('msg sended ', message)
             firebase.database().ref('ChatRooms/' + user.idRoom).push(message)
             // firebase.database().ref('GroupChats/').push(message)
             let inboxThisMessage = { text, gettingTime: dated, createdAt: new Date().getTime(), id: user._id, otherId: user.otherID, thisName: user.name, otherName: user.otherPersonName }
@@ -165,7 +172,6 @@ class FirebaseSDK {
     sendMultiChat = (messages: any) => {
         for (let i = 0; i < messages.length; i++) {
             const { text, user } = messages[i];
-            // console.log(user)
             var dated = moment()
                 .utcOffset('+05:30')
                 .format(' hh:mm a');
@@ -174,7 +180,6 @@ class FirebaseSDK {
                 .utcOffset('+05:30')
                 .format('DD MMM,YYYY');
             const message = { text, user, gettingTime: dated, createdAt: new Date().getTime(), onDay: DayTime, otherName: user.GroupName, otherId: user.GroupName };
-            // console.log('msg sended ', message)
             firebase.database().ref('SelectedGroupChat/' + user.GroupName).push(message)
             firebase.database().ref('Inbox/' + 'GroupChat/' + user.GroupName).set(message)
         }
@@ -189,9 +194,8 @@ class FirebaseSDK {
 
     //reading last messages
     readInboxData(uid: string, callback: Function) {
-        
+
         firebase.database().ref('Inbox/' + 'OneonOne/').child(uid).on('value', function (snapshot: any) {
-            // debugger
             callback(snapshot.val())
         })
     }
@@ -199,7 +203,6 @@ class FirebaseSDK {
     //reading the group users
     readGroupChatData(callback: Function) {
         firebase.database().ref('GroupUsers/').on('value', function (snapshot: any) {
-            // debugger
             callback(snapshot.val())
         })
     }
@@ -221,7 +224,6 @@ class FirebaseSDK {
     //reading the last messages in a group
     readLastMessageGroup(callback: Function) {
         firebase.database().ref('Inbox/' + 'GroupChat/').on('value', function (snapshot: any) {
-            // debugger
             callback(snapshot.val())
         })
     }
@@ -229,16 +231,18 @@ class FirebaseSDK {
     // Load msgs from Database to Chat
     refOn = (chatPerson: string, callback: Function) => {
         const onReceive = (data: any) => {
-            const message = data.val();
-            let keys = Object.keys(message)
-            let messages = [];
-            for (let i = 0; i < keys.length; i++) {
-                let a = keys[i]
-                let mess = message[a]
-                let msg = { mess, id: a }
-                messages.push(msg)
+            if (data._value) {
+                const message = data.val();
+                let keys = Object.keys(message)
+                let messages = [];
+                for (let i = 0; i < keys.length; i++) {
+                    let a = keys[i]
+                    let mess = message[a]
+                    let msg = { mess, id: a }
+                    messages.push(msg)
+                }
+                callback(messages)
             }
-            callback(messages)
         };
 
         firebase.database().ref('ChatRooms/' + chatPerson) //good for personal ones 
@@ -294,22 +298,11 @@ class FirebaseSDK {
             let messages = [];
             for (let i = 0; i < keys.length; i++) {
                 let a = keys[i]
-                messages.push(message[a])
+                let mess = message[a]
+                let msg = { mess, id: a }
+                messages.push(msg)
             }
-            function compare(a: any, b: any) {
-                const bandA = a.createdAt;
-                const bandB = b.createdAt;
-                let comparison = 0;
-                if (bandA > bandB) {
-                    comparison = 1;
-                } else if (bandA < bandB) {
-                    comparison = -1;
-                }
-                return comparison * -1;
-            }
-            let sorted = messages.sort(compare)
-            sorted.splice(0, 1)
-            callback(sorted)
+            callback(messages)
         };
 
         firebase.database().ref('ChatRooms/')
@@ -327,22 +320,11 @@ class FirebaseSDK {
             let messages = [];
             for (let i = 0; i < keys.length; i++) {
                 let a = keys[i]
-                messages.push(message[a])
+                let mess = message[a]
+                let msg = { mess, id: a }
+                messages.push(msg)
             }
-            function compare(a: any, b: any) {
-                const bandA = a.createdAt;
-                const bandB = b.createdAt;
-                let comparison = 0;
-                if (bandA > bandB) {
-                    comparison = 1;
-                } else if (bandA < bandB) {
-                    comparison = -1;
-                }
-                return comparison * -1;
-            }
-            let sorted = messages.sort(compare)
-            sorted.splice(0, 1)
-            callback(sorted)
+            callback(messages)
         };
 
         firebase.database().ref('SelectedGroupChat/')
