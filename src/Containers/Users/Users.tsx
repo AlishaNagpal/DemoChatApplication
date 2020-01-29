@@ -59,7 +59,6 @@ class Users extends React.PureComponent<Props, State> {
     }
 
     componentDidMount() {
-        console.log('uid', this.state.uid)
         FirebaseService.readInboxData(this.state.uid, this.getLastMessages)
         FirebaseService.readGroupChatData(this.getGroupChatData)
     }
@@ -92,7 +91,6 @@ class Users extends React.PureComponent<Props, State> {
             for (let i = 0; i < result.length; i++) {
                 for (let j = 0; j < result[i][1].Users.length; j++) {
                     if (result[i][1].Users[j] === this.state.uid) {
-                        console.log('checkinbg', result[i][1].Users[j], this.state.uid)
                         this.GetGroupData(result[i][0])
                     }
                 }

@@ -93,7 +93,6 @@ export default class SignUp extends React.Component<Props, State> {
     };
 
     userUid = (data: any) => {
-        console.log('userUid',data)
         this.setState({
             showIndicator: false
         })
