@@ -1,14 +1,18 @@
 import React from 'react';
 import { GiftedChat } from 'react-native-gifted-chat';
 import FirebaseServices from '../../utils/FirebaseService'
-import { Clipboard, TouchableOpacity, View, Text, Image } from 'react-native';
+import { Clipboard, TouchableOpacity, View, Text, Image, ActivityIndicator, FlatList } from 'react-native';
 import styles from './styles'
 import { Colors, vh, VectorIcons, Images } from "../../Constants";
 import { Bubble, Composer, Day, InputToolbar } from '../../Components'
+import { connect } from 'react-redux'
+import moment from 'moment'
 
 
 export interface Props {
     navigation?: any,
+    mediaMessage: Array<any>,
+    renderFooter: boolean,
 }
 
 interface State {
@@ -39,7 +43,7 @@ function compare(a: any, b: any) {
     return comparison * -1;
 }
 
-export default class Chat extends React.Component<Props, State> {
+class Chat extends React.Component<Props, State> {
     static navigationOptions = {
         title: 'Chat',
     };
@@ -147,7 +151,6 @@ export default class Chat extends React.Component<Props, State> {
     }
 
     onLoadEarlier = () => {
-        console.log(this.state.lastMessageKey)
         if (this.state.lastMessageKey) {
             this.setState(() => {
                 return {
@@ -183,6 +186,50 @@ export default class Chat extends React.Component<Props, State> {
                     })
                 }
             }, 1000)
+        }
+    }
+
+    reRenderMessages = () => {
+        this.setState({
+            messages: this.state.messages.splice(0)
+        })
+    }
+
+    renderData = (rowDATA: any) => {
+        const { item } = rowDATA
+        var dated = moment()
+            .utcOffset('+05:30')
+            .format(' hh:mm a');
+        console.log('renderData item', item)
+        return (
+            <View style={styles.footerView} >
+                <Image
+                    source={{ uri: item.fileURL }}
+                    style={styles.footerImage}
+                />
+                <Text style={styles.timeStyle} >{dated}</Text>
+                <ActivityIndicator size='large' style={styles.indicator} color={Colors.white} />
+            </View>
+        )
+    }
+
+    renderFooter = (prop: any) => {
+        console.log(' renderFooter', this.props.mediaMessage, this.props.renderFooter)
+        if (this.props.renderFooter) {
+            let array = this.props.mediaMessage.filter((item:any)=>item.chatRoomId === this.state.RoomID && item.senderId === this.state.uid);
+           
+            // let index = array.findIndex((item: any) => item.chatRoomId === this.state.RoomID && item.senderId === this.state.uid)
+            // array.push(this.props.mediaMessage[index])
+            console.log('renderFooter',array)
+            return (
+                <FlatList
+                    data={array}
+                    keyExtractor={(item, index) => (item + index).toString()}
+                    renderItem={this.renderData}
+                />
+            )
+        } else {
+            return null
         }
     }
 
@@ -236,7 +283,7 @@ export default class Chat extends React.Component<Props, State> {
 
     renderInputToolbar = (props: any) => {
         return (
-            <InputToolbar {...props} />
+            <InputToolbar {...props} reRenderMessages={() => this.reRenderMessages()} />
         )
     }
 
@@ -244,7 +291,6 @@ export default class Chat extends React.Component<Props, State> {
         return {
             name: this.state.name,
             avatar: this.state.avatar,
-            email: this.state.email,
             idRoom: this.state.RoomID,
             _id: this.state.uid,
             otherID: this.state.theOtherPerson,
@@ -291,8 +337,21 @@ export default class Chat extends React.Component<Props, State> {
                     renderInputToolbar={this.renderInputToolbar}
                     minComposerHeight={vh(45)}
                     maxComposerHeight={vh(80)}
+                    renderFooter={this.renderFooter}
                 />
             </View>
         );
     }
 }
+
+function mapStateToProps(state: any) {
+    const { mediaMessage, renderFooter } = state.MediaMessagesReducer;
+    return {
+        mediaMessage,
+        renderFooter,
+    }
+}
+
+export default connect(
+    mapStateToProps,
+)(Chat);

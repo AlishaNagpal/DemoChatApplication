@@ -25,8 +25,8 @@ const Styles = StyleSheet.create({
     typingText: {
         color: Colors.dayText,
         fontSize: vh(11),
-        marginLeft:vw(10),
-        marginBottom:vw(5)
+        marginLeft: vw(10),
+        marginBottom: vw(5)
     },
     sendView: {
         backgroundColor: Colors.tealBlue,
@@ -48,11 +48,37 @@ const Styles = StyleSheet.create({
     messagesContainerStyle: {
         paddingBottom: vh(30)
     },
-    imageStyle:{
-        resizeMode:'contain',
+    imageStyle: {
+        resizeMode: 'contain',
         height: vh(30),
-        width:vh(30),
-        marginLeft:vw(10)
+        width: vh(30),
+        marginLeft: vw(10)
+    },
+    footerView: {
+        backgroundColor: Colors.chatBubble,
+        marginLeft: vw(150),
+        marginRight: vw(50),
+        borderBottomEndRadius: vw(10),
+        borderBottomLeftRadius: vw(10),
+        borderTopLeftRadius: vw(10),
+        padding:vw(10),
+        marginBottom:vh(10)
+    },
+    timeStyle:{
+        color:Colors.white,
+        fontSize:vh(9),
+        marginLeft:vw(130)
+    },
+    footerImage:{
+        height:vw(180),
+        width:vw(180),
+        borderRadius:vw(20),
+        margin:vw(10)
+    },
+    indicator:{
+        position:'absolute',
+        alignSelf:'center',
+        top: vh(70)
     }
 })
 export default Styles;

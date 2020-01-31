@@ -4,8 +4,6 @@ import FirebaseService from '../../utils/FirebaseService';
 import styles from './styles'
 import { Colors, vh, VectorIcons, Images } from '../../Constants';
 import { Circle } from 'react-native-animated-spinkit'
-import { setData } from '../../Modules/Chat/ChatAction'
-import { connect } from 'react-redux'
 
 export interface Props {
     navigation: any,
@@ -22,10 +20,11 @@ interface State {
     updatedData: any,
     isFetching: boolean,
     runLoader: boolean,
-    group: Array<string>
+    group: Array<string>,
+    data: Array<any>
 }
 
-class Users extends React.PureComponent<Props, State> {
+export default class Users extends React.PureComponent<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
@@ -38,6 +37,7 @@ class Users extends React.PureComponent<Props, State> {
             isFetching: false,
             runLoader: true,
             group: [],
+            data:[]
         };
     }
 
@@ -70,7 +70,8 @@ class Users extends React.PureComponent<Props, State> {
                 return [String(key), data[key]];
             })
             for (let i = 0; i < result.length; i++) {
-                this.props.setData(result[i])
+                // this.props.setData(result[i])
+                this.getUniqueData(result[i])
             }
             this.setState({
                 chatsDone: true,
@@ -117,11 +118,39 @@ class Users extends React.PureComponent<Props, State> {
             for (let i = 0; i < this.state.group.length; i++) {
                 for (let j = 0; j < result.length; j++) {
                     if (this.state.group[i] === result[j][0]) {
-                        this.props.setData(result[j])
+                        // this.props.setData(result[j])
+                        this.getUniqueData(result[j])
                     }
                 }
             }
         }
+    }
+
+    getUniqueData = (data: any) => {
+        let emptyArray = this.state.data;
+        let index = emptyArray.findIndex((item: any) => item[0] === data[0])
+        if (index !== -1) {
+            emptyArray.splice(index, 1)
+            emptyArray.push(data)
+        } else {
+            emptyArray.push(data)
+        }
+        function compareWhole(a: any, b: any) {
+            const bandA = a[1].createdAt;
+            const bandB = b[1].createdAt;
+            let comparison = 0;
+            if (bandA > bandB) {
+                comparison = 1;
+            } else if (bandA < bandB) {
+                comparison = -1;
+            }
+            return comparison * -1;
+        }
+        emptyArray.sort(compareWhole)
+        this.setState({
+            data: emptyArray
+        })
+        this.forceUpdate()
     }
 
     onChat(value: string, type: number) {
@@ -181,10 +210,10 @@ class Users extends React.PureComponent<Props, State> {
         setTimeout(() => {
             this.setState({ runLoader: false })
         }, 1000);
-        if (this.state.chatsDone && this.props.chatData.length !== 0) {
+        if (this.state.chatsDone && this.state.data.length !== 0) {
             return (
                 <FlatList
-                    data={this.props.chatData}
+                    data={this.state.data}
                     renderItem={this.renderData}
                     keyExtractor={(item, index) => index.toString()}
                     onRefresh={() => this.onRefresh()}
@@ -226,22 +255,3 @@ class Users extends React.PureComponent<Props, State> {
         )
     }
 }
-
-
-function mapDispatchToProps(dispatch: Function) {
-    return {
-        setData: (value: any) => dispatch(setData(value))
-    }
-}
-
-function mapStateToProps(state: any) {
-    const { chatData } = state.ChatMessagesReducer;
-    return {
-        chatData
-    }
-}
-
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(Users);

@@ -92,6 +92,25 @@ class FirebaseSDK {
             )
     };
 
+    uploadPic = (uid: string, chatRoomId: string, paths: any, callback: Function, num: number, uniqueID: number) => {
+        if (!!paths) {
+            const imageRef = firebase.storage().ref('profilePic/' + chatRoomId + uid).child(uniqueID.toString());
+
+            return imageRef.putFile(paths, { contentType: 'jpg' })
+                .then(() => {
+                    return imageRef.getDownloadURL();
+                })
+                .then(url => {
+                    callback(url, num)
+                })
+                .catch(error => {
+                    console.warn('Error uploading image: ', error);
+                });
+        } else {
+            callback(null)
+        }
+    }
+
     uploadImage = async (uri: string, email: string) => {
         try {
             const ref = firebase
@@ -167,6 +186,50 @@ class FirebaseSDK {
 
         }
     };
+
+    //Send image message
+
+    sendImageMessage = (
+        chatRoomId: string,
+        senderId: string,
+        senderName: string,
+        otherID: string,
+        otherName: string,
+        avatar: string,
+        createdAt: number,
+        fileURL: string,
+    ) => {
+
+        var dated = moment()
+            .utcOffset('+05:30')
+            .format(' hh:mm a');
+
+        var DayTime = moment()
+            .utcOffset('+05:30')
+            .format('DD MMM,YYYY');
+
+        let text = 'File Attachment'
+
+        let user = {
+            name: senderName,
+            avatar: avatar,
+            idRoom: chatRoomId,
+            _id: senderId,
+            otherID: otherID,
+            otherPersonName: otherName
+        }
+
+        const message = { user, text, createdAt: createdAt, gettingTime: dated, onDay: DayTime, image: fileURL };
+        firebase.database().ref('ChatRooms/' + chatRoomId).push(message)
+        console.log('fileURL', fileURL)
+
+        let inboxThisMessage = { text, image: fileURL, gettingTime: dated, createdAt: createdAt, id: senderId, otherId: otherID, thisName: senderName, otherName: otherName }
+        let inboxOtherMessage = { text, image: fileURL, gettingTime: dated, createdAt: createdAt, id: otherID, otherId: senderId, thisName: otherName, otherName: senderName }
+        firebase.database().ref('Inbox/' + 'OneonOne/' + senderId + '/' + otherID).set(inboxThisMessage)
+        firebase.database().ref('Inbox/' + 'OneonOne/' + otherID + '/' + senderId).set(inboxOtherMessage)
+
+
+    }
 
     //sending the messages in the group chat
     sendMultiChat = (messages: any) => {
@@ -307,7 +370,7 @@ class FirebaseSDK {
 
         firebase.database().ref('ChatRooms/')
             .child(chatPerson)
-            .orderByKey()
+            // .orderByKey()
             .limitToLast(20)
             .endAt(lastMessageKey)
             .on('value', onReceive);
