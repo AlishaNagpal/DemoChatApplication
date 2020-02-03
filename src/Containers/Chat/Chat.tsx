@@ -1,18 +1,21 @@
 import React from 'react';
 import { GiftedChat } from 'react-native-gifted-chat';
 import FirebaseServices from '../../utils/FirebaseService'
-import { Clipboard, TouchableOpacity, View, Text, Image, ActivityIndicator, FlatList } from 'react-native';
+import { Clipboard, TouchableOpacity, View, Text, Image, ActivityIndicator } from 'react-native';
 import styles from './styles'
-import { Colors, vh, VectorIcons, Images } from "../../Constants";
+import { Colors, vh, VectorIcons, Images, vw } from "../../Constants";
 import { Bubble, Composer, Day, InputToolbar } from '../../Components'
 import { connect } from 'react-redux'
 import moment from 'moment'
+import { ArrayLenght } from '../../Modules/MediaMessage/MediaMessageAction'
 
 
 export interface Props {
     navigation?: any,
     mediaMessage: Array<any>,
     renderFooter: boolean,
+    ArrayLenght: Function,
+    lengthArray: number
 }
 
 interface State {
@@ -28,7 +31,8 @@ interface State {
     isLoadingEarlier: boolean,
     typingText: boolean,
     lastMessageKey: string,
-    lengthMessage: number
+    lengthMessage: number,
+    showFooter: boolean
 }
 
 function compare(a: any, b: any) {
@@ -64,6 +68,7 @@ class Chat extends React.Component<Props, State> {
             isLoadingEarlier: false,
             lastMessageKey: '',
             lengthMessage: 0,
+            showFooter: false
         };
     }
 
@@ -71,6 +76,7 @@ class Chat extends React.Component<Props, State> {
 
     componentDidMount() {
         this._isMounted = true
+        this.reRenderMessages()
         FirebaseServices.readUserData(this.getUsersData)
         FirebaseServices.getTypingValue(this.state.RoomID, this.state.theOtherPerson, this.getTyping)
         FirebaseServices.refOn(this.state.RoomID, (message: any) => {
@@ -190,43 +196,36 @@ class Chat extends React.Component<Props, State> {
     }
 
     reRenderMessages = () => {
-        this.setState({
-            messages: this.state.messages.splice(0)
-        })
-    }
-
-    renderData = (rowDATA: any) => {
-        const { item } = rowDATA
-        var dated = moment()
-            .utcOffset('+05:30')
-            .format(' hh:mm a');
-        console.log('renderData item', item)
-        return (
-            <View style={styles.footerView} >
-                <Image
-                    source={{ uri: item.fileURL }}
-                    style={styles.footerImage}
-                />
-                <Text style={styles.timeStyle} >{dated}</Text>
-                <ActivityIndicator size='large' style={styles.indicator} color={Colors.white} />
-            </View>
-        )
+        let array = this.props.mediaMessage.filter((item: any) => item.chatRoomId === this.state.RoomID && item.senderId === this.state.uid);
+        if (array.length !== 0) {
+            this.props.ArrayLenght(array.length)
+            this.setState({
+                showFooter: true,
+                messages: this.state.messages.splice(0)
+            })
+        } else {
+            this.setState({
+                showFooter: false
+            })
+        }
     }
 
     renderFooter = (prop: any) => {
-        console.log(' renderFooter', this.props.mediaMessage, this.props.renderFooter)
-        if (this.props.renderFooter) {
-            let array = this.props.mediaMessage.filter((item:any)=>item.chatRoomId === this.state.RoomID && item.senderId === this.state.uid);
-           
-            // let index = array.findIndex((item: any) => item.chatRoomId === this.state.RoomID && item.senderId === this.state.uid)
-            // array.push(this.props.mediaMessage[index])
-            console.log('renderFooter',array)
+        var dated = moment()
+            .utcOffset('+05:30')
+            .format(' hh:mm a');
+        if (this.props.renderFooter && this.state.showFooter) {
+            let array = this.props.mediaMessage.filter((item: any) => item.chatRoomId === this.state.RoomID && item.senderId === this.state.uid);
             return (
-                <FlatList
-                    data={array}
-                    keyExtractor={(item, index) => (item + index).toString()}
-                    renderItem={this.renderData}
-                />
+                <View style={styles.footerView} >
+                    <Image
+                        source={{ uri: array[0].fileURL }}
+                        style={styles.footerImage}
+                    />
+                    <Text style={styles.timeStyle} >{dated}</Text>
+                    <Text style={styles.arrayText} >{this.props.lengthArray}</Text>
+                    <ActivityIndicator size='large' style={styles.indicator} color={Colors.white} />
+                </View>
             )
         } else {
             return null
@@ -283,7 +282,7 @@ class Chat extends React.Component<Props, State> {
 
     renderInputToolbar = (props: any) => {
         return (
-            <InputToolbar {...props} reRenderMessages={() => this.reRenderMessages()} />
+            <InputToolbar {...props} reRenderMessages={() => this.reRenderMessages()} type={'OneOnOne'} />
         )
     }
 
@@ -332,11 +331,13 @@ class Chat extends React.Component<Props, State> {
                     renderComposer={this.renderComposer}
                     onInputTextChanged={(val) => this.ontextChanged(val)} //changes over here
                     messagesContainerStyle={styles.messagesContainerStyle}
+                    //@ts-ignore
                     ref={(ref) => this.inputText = ref}
                     renderDay={this.renderDay}
                     renderInputToolbar={this.renderInputToolbar}
-                    minComposerHeight={vh(45)}
-                    maxComposerHeight={vh(80)}
+                    minComposerHeight={vw(45)}
+                    maxComposerHeight={vw(80)}
+                    //@ts-ignore
                     renderFooter={this.renderFooter}
                 />
             </View>
@@ -344,14 +345,22 @@ class Chat extends React.Component<Props, State> {
     }
 }
 
+function mapDispatchToProps(dispatch: Function) {
+    return {
+        ArrayLenght: (value: number) => dispatch(ArrayLenght(value))
+    }
+}
+
 function mapStateToProps(state: any) {
-    const { mediaMessage, renderFooter } = state.MediaMessagesReducer;
+    const { mediaMessage, renderFooter, lengthArray } = state.MediaMessagesReducer;
     return {
         mediaMessage,
         renderFooter,
+        lengthArray
     }
 }
 
 export default connect(
     mapStateToProps,
+    mapDispatchToProps
 )(Chat);

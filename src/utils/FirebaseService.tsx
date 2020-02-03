@@ -92,16 +92,15 @@ class FirebaseSDK {
             )
     };
 
-    uploadPic = (uid: string, chatRoomId: string, paths: any, callback: Function, num: number, uniqueID: number) => {
+    uploadPic = (uid: string, chatRoomId: string, paths: any, callback: Function, uniqueID: number) => {
         if (!!paths) {
             const imageRef = firebase.storage().ref('profilePic/' + chatRoomId + uid).child(uniqueID.toString());
-
             return imageRef.putFile(paths, { contentType: 'jpg' })
                 .then(() => {
                     return imageRef.getDownloadURL();
                 })
                 .then(url => {
-                    callback(url, num)
+                    callback(url, uniqueID.toString())
                 })
                 .catch(error => {
                     console.warn('Error uploading image: ', error);
@@ -198,6 +197,7 @@ class FirebaseSDK {
         avatar: string,
         createdAt: number,
         fileURL: string,
+        type: string
     ) => {
 
         var dated = moment()
@@ -210,25 +210,34 @@ class FirebaseSDK {
 
         let text = 'File Attachment'
 
-        let user = {
-            name: senderName,
-            avatar: avatar,
-            idRoom: chatRoomId,
-            _id: senderId,
-            otherID: otherID,
-            otherPersonName: otherName
+        if (type === 'OneOnOne') {
+            let user = {
+                name: senderName,
+                avatar: avatar,
+                idRoom: chatRoomId,
+                _id: senderId,
+                otherID: otherID,
+                otherPersonName: otherName
+            }
+
+            const message = { user, text, createdAt: createdAt, gettingTime: dated, onDay: DayTime, image: fileURL };
+            firebase.database().ref('ChatRooms/' + chatRoomId).push(message)
+
+            let inboxThisMessage = { text, image: fileURL, gettingTime: dated, createdAt: createdAt, id: senderId, otherId: otherID, thisName: senderName, otherName: otherName }
+            let inboxOtherMessage = { text, image: fileURL, gettingTime: dated, createdAt: createdAt, id: otherID, otherId: senderId, thisName: otherName, otherName: senderName }
+            firebase.database().ref('Inbox/' + 'OneonOne/' + senderId + '/' + otherID).set(inboxThisMessage)
+            firebase.database().ref('Inbox/' + 'OneonOne/' + otherID + '/' + senderId).set(inboxOtherMessage)
+        } else if (type === 'Group') {
+            let user = {
+                GroupName: chatRoomId,
+                _id: senderId,
+                avatar: avatar,
+                name: senderName
+            }
+            const message = { text, user, image: fileURL, gettingTime: dated, createdAt: new Date().getTime(), onDay: DayTime, otherName: otherName, otherId: otherID };
+            firebase.database().ref('SelectedGroupChat/' + chatRoomId).push(message)
+            firebase.database().ref('Inbox/' + 'GroupChat/' + chatRoomId).set(message)
         }
-
-        const message = { user, text, createdAt: createdAt, gettingTime: dated, onDay: DayTime, image: fileURL };
-        firebase.database().ref('ChatRooms/' + chatRoomId).push(message)
-        console.log('fileURL', fileURL)
-
-        let inboxThisMessage = { text, image: fileURL, gettingTime: dated, createdAt: createdAt, id: senderId, otherId: otherID, thisName: senderName, otherName: otherName }
-        let inboxOtherMessage = { text, image: fileURL, gettingTime: dated, createdAt: createdAt, id: otherID, otherId: senderId, thisName: otherName, otherName: senderName }
-        firebase.database().ref('Inbox/' + 'OneonOne/' + senderId + '/' + otherID).set(inboxThisMessage)
-        firebase.database().ref('Inbox/' + 'OneonOne/' + otherID + '/' + senderId).set(inboxOtherMessage)
-
-
     }
 
     //sending the messages in the group chat

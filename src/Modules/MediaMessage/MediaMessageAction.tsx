@@ -14,10 +14,9 @@ export const MediaMessageAction = (
     uniqueID: string
 ) => {
     return (dispatch: any, getState: any) => {
-        const { Message, mediaMessage } = getState().MediaMessagesReducer;
-        let emptyArray = Message
+        const { mediaMessage } = getState().MediaMessagesReducer;
+        let emptyArray: any = {}
         let array = mediaMessage
-        console.log('MediaMessageAction',array)
         emptyArray.chatRoomId = chatRoomId
         emptyArray.senderId = senderId
         emptyArray.senderName = senderName
@@ -29,9 +28,7 @@ export const MediaMessageAction = (
         emptyArray.fileName = fileName
         emptyArray.fileURL = fileURL
         emptyArray.uniqueID = uniqueID
-        console.log(Message, mediaMessage)
         array.push(emptyArray)
-        console.log('in Action', array)
         dispatch({ type: Actions.MEDIA_MESSAGE, payload: { data: array } });
     }
 }
@@ -39,5 +36,24 @@ export const MediaMessageAction = (
 export const forFooter = (value: boolean) => {
     return (dispatch: any) => {
         dispatch({ type: Actions.RENDER_FOOTER, payload: { data: value } });
+    }
+}
+
+
+export const ArrayLenght = (value: number) => {
+    return (dispatch: any) => {
+        dispatch({ type: Actions.ARRAY_LENGHT, payload: { data: value } });
+    }
+}
+
+export const RemoveTask = (uniqueID: number) => {
+    return (dispatch: any, getState: any) => {
+        const { mediaMessage } = getState().MediaMessagesReducer;
+        let array = mediaMessage
+        let index = array.findIndex((item: any) => item.uniqueID === uniqueID)
+        if (index !== -1) {
+            array.splice(index, 1)
+        }
+        dispatch({ type: Actions.MEDIA_MESSAGE, payload: { data: array } });
     }
 }

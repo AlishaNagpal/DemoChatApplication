@@ -15,9 +15,9 @@ interface UploadType {
 }
 
 const initialState = {
-    Message: new Array<UploadType>(),
     renderFooter: false,
-    mediaMessage: [],
+    mediaMessage: new Array<UploadType>(),
+    lengthArray: 0,
 };
 
 export const MediaMessagesReducer = (state = initialState, action: any) => {
@@ -26,6 +26,8 @@ export const MediaMessagesReducer = (state = initialState, action: any) => {
             return { ...state, mediaMessage: action.payload.data }
         case Actions.RENDER_FOOTER:
             return { ...state, renderFooter: action.payload.data }
+        case Actions.ARRAY_LENGHT:
+            return { ...state, lengthArray: action.payload.data }
         default:
             return state
     }

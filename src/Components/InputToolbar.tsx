@@ -1,81 +1,131 @@
 import React from 'react';
 import { InputToolbar } from 'react-native-gifted-chat';
-import { vh, VectorIcons, Colors } from "../Constants";
-import { TouchableOpacity } from 'react-native'
+import { vh, VectorIcons, Colors, vw } from "../Constants";
+import { TouchableOpacity, Platform } from 'react-native'
 import styles from './styles'
 import ImagePicker from 'react-native-image-crop-picker'
-import { MediaMessageAction, forFooter } from '../Modules/MediaMessage/MediaMessageAction'
+import { MediaMessageAction, forFooter, RemoveTask } from '../Modules/MediaMessage/MediaMessageAction'
 import { connect } from 'react-redux'
 import FirebaseServices from '../utils/FirebaseService'
+import ActionSheet from 'react-native-action-sheet';
+import S3Handler from "../utils/S3Handler";
 
 export interface Props {
     props: any,
     mediaMessage: Array<any>,
     MediaMessageAction: Function,
     reRenderMessages: Function,
-    forFooter: Function
+    forFooter: Function,
+    RemoveTask: Function,
+    type: string
 }
 
 interface State {
-    num: number
+
 }
 
-class InputToolbarClass extends React.Component<Props, State> {
-    state = { num: 0 }
+var BUTTONSiOS = [
+    'Send a Photo',
+    'Send a Video',
+    'Cancel'
+];
 
+var BUTTONSandroid = [
+    'Send a Photo',
+    'Send a Video'
+];
+var CANCEL_INDEX = 3;
+
+class InputToolbarClass extends React.Component<Props, State> {
     onImageUpload = () => {
         //@ts-ignore
         ImagePicker.openPicker({
-            cropping: true
+            multiple: true,
+            compressImageQuality:0.6
         }).then(image => {
             const { user } = this.props
             const { mediaMessage } = this.props
-            const { num } = this.state
-            let createdAt = new Date().getTime()
-            let random = Math.random() + createdAt
-            console.log('running onece')
-            this.props.MediaMessageAction(
-                user.idRoom || user.GroupName,
-                user._id,
-                user.name,
-                user.otherID,
-                user.otherPersonName,
-                user.avatar,
-                new Date().getTime(),
-                'image',
-                image.filename,
-                image.path,
-                random.toString()
-            )
-            
-            this.props.forFooter(true)
-            this.setState({ num: this.props.mediaMessage.length - 1 })
-            console.log('this.props.mediaMessage.length', this.props.mediaMessage, this.props.mediaMessage.length)
-            // FirebaseServices.uploadPic(mediaMessage[num].senderId, mediaMessage[num].chatRoomId, mediaMessage[num].fileURL, this.getStorageURL, num, random)
-            this.props.reRenderMessages && this.props.reRenderMessages()
+
+            for (let i = 0; i < image.length; i++) {
+                let createdAt = new Date().getTime()
+                let random = ((Math.random() + createdAt) * createdAt) / Math.random()
+                this.props.MediaMessageAction(
+                    user.idRoom || user.GroupName,
+                    user._id,
+                    user.name,
+                    user.otherID || user.GroupName,
+                    user.otherPersonName || user.GroupName,
+                    user.avatar,
+                    new Date().getTime(),
+                    'image',
+                    image[i].filename,
+                    image[i].path,
+                    random.toString()
+                )
+                this.props.forFooter(true)
+                this.props.reRenderMessages && this.props.reRenderMessages()
+                // FirebaseServices.uploadPic(mediaMessage[i].senderId, mediaMessage[i].chatRoomId, mediaMessage[i].fileURL, this.getStorageURL, random)
+                S3Handler.uploadImageToS3(mediaMessage[i].fileURL, mediaMessage[i].fileName,this.getStorageURL,this.errorCallBack, random.toString())
+            }
         });
     };
 
-    getStorageURL = (url: string, num: number) => {
+    errorCallBack = (error: any) => {
+        console.log('error',error)
+    }
+
+    getStorageURL = (url: string, uniqueID: string) => {
         const { mediaMessage } = this.props
-        // FirebaseServices.sendImageMessage(
-        //     mediaMessage[num].chatRoomId,
-        //     mediaMessage[num].senderId,
-        //     mediaMessage[num].senderName,
-        //     mediaMessage[num].otherID,
-        //     mediaMessage[num].otherName,
-        //     mediaMessage[num].avatar,
-        //     mediaMessage[num].createdAt,
-        //     url,
-        // )
-        // this.props.reRenderMessages && this.props.reRenderMessages()
-        // this.props.forFooter(false)
+        let num = mediaMessage.findIndex((item: any) => uniqueID === item.uniqueID)
+        FirebaseServices.sendImageMessage(
+            mediaMessage[num].chatRoomId,
+            mediaMessage[num].senderId,
+            mediaMessage[num].senderName,
+            mediaMessage[num].otherID,
+            mediaMessage[num].otherName,
+            mediaMessage[num].avatar,
+            mediaMessage[num].createdAt,
+            url,
+            this.props.type
+        )
+        this.props.RemoveTask(uniqueID)
+        this.props.reRenderMessages && this.props.reRenderMessages()
+        this.props.forFooter(false)
+    }
+
+    onVideoUpload = () => {
+        //@ts-ignore
+        ImagePicker.openPicker({
+            mediaType: "video",
+        }).then((video) => {
+            console.log(video);
+        });
+    }
+
+    showActionSheet = () => {
+        ActionSheet.showActionSheetWithOptions({
+            options: (Platform.OS == 'ios') ? BUTTONSiOS : BUTTONSandroid,
+            cancelButtonIndex: CANCEL_INDEX,
+            tintColor: 'blue'
+        },
+            (buttonIndex) => {
+                switch (buttonIndex) {
+                    case 0:
+                        this.onImageUpload()
+                        break;
+                    case 1:
+                        this.onVideoUpload()
+                        break;
+                    default:
+                        break;
+                }
+            });
     }
 
     renderAccesory = (props: any) => {
         return (
-            <TouchableOpacity style={styles.main} activeOpacity={1} onPress={this.onImageUpload} >
-                <VectorIcons.Ionicons name='ios-add-circle-outline' color={Colors.tealBlue} size={vh(30)} />
+            <TouchableOpacity style={styles.main} activeOpacity={1} onPress={this.showActionSheet} >
+                <VectorIcons.Ionicons name='ios-add-circle-outline' color={Colors.tealBlue} size={vw(30)} />
             </TouchableOpacity>
         )
     }
@@ -126,7 +176,8 @@ function mapDispatchToProps(dispatch: Function) {
             fileURL,
             uniqueID
         )),
-        forFooter: (value: boolean) => dispatch(forFooter(value))
+        forFooter: (value: boolean) => dispatch(forFooter(value)),
+        RemoveTask: (value: number) => dispatch(RemoveTask(value))
     }
 }
 

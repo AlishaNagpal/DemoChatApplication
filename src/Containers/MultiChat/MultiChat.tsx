@@ -1,13 +1,20 @@
 import React from 'react';
 import { GiftedChat } from 'react-native-gifted-chat';
 import FirebaseServices from '../../utils/FirebaseService'
-import { Clipboard, TouchableOpacity, View, Text, Image } from 'react-native';
-import { Colors, vh, VectorIcons, Images } from "../../Constants";
+import { Clipboard, TouchableOpacity, View, Text, Image, ActivityIndicator } from 'react-native';
+import { Colors, vh, VectorIcons, Images, vw } from "../../Constants";
 import styles from './styles'
 import { Bubble, Composer, Day, InputToolbar } from '../../Components'
+import { connect } from 'react-redux'
+import moment from 'moment'
+import { ArrayLenght } from '../../Modules/MediaMessage/MediaMessageAction'
 
 export interface Props {
     navigation?: any,
+    mediaMessage: Array<any>,
+    renderFooter: boolean,
+    ArrayLenght: Function,
+    lengthArray: number
 }
 
 interface State {
@@ -22,6 +29,7 @@ interface State {
     userName: string,
     userImage: string,
     messageLenght: number,
+    showFooter: boolean
 }
 
 function compare(a: any, b: any) {
@@ -35,8 +43,7 @@ function compare(a: any, b: any) {
     }
     return comparison * -1;
 }
-
-export default class MultiChat extends React.Component<Props, State> {
+class MultiChat extends React.Component<Props, State> {
 
     constructor(props: Props) {
         super(props);
@@ -52,6 +59,7 @@ export default class MultiChat extends React.Component<Props, State> {
             typingText: false,
             typingPerson: '',
             messageLenght: 0,
+            showFooter: false
         };
     }
 
@@ -77,7 +85,6 @@ export default class MultiChat extends React.Component<Props, State> {
             })
             if (this.state.messageLenght === 20) {
                 let getLastMessageKey = ans[19].id
-                console.log('getLastMessageKey', getLastMessageKey)
                 this.setState({
                     lastMessageKey: getLastMessageKey,
                     loadEarlier: true
@@ -181,6 +188,43 @@ export default class MultiChat extends React.Component<Props, State> {
         }
     }
 
+    reRenderMessages = () => {
+        let array = this.props.mediaMessage.filter((item: any) => item.chatRoomId === this.state.chatRoomName && item.senderId === this.state.uid);
+        if (array.length !== 0) {
+            this.props.ArrayLenght(array.length)
+            this.setState({
+                showFooter: true,
+                messages: this.state.messages.splice(0)
+            })
+        } else {
+            this.setState({
+                showFooter: false
+            })
+        }
+    }
+
+    renderFooter = (prop: any) => {
+        var dated = moment()
+            .utcOffset('+05:30')
+            .format(' hh:mm a');
+        if (this.props.renderFooter && this.state.showFooter) {
+            let array = this.props.mediaMessage.filter((item: any) => item.chatRoomId === this.state.chatRoomName && item.senderId === this.state.uid);
+            return (
+                <View style={styles.footerView} >
+                    <Image
+                        source={{ uri: array[0].fileURL }}
+                        style={styles.footerImage}
+                    />
+                    <Text style={styles.timeStyle} >{dated}</Text>
+                    <Text style={styles.arrayText} >{this.props.lengthArray}</Text>
+                    <ActivityIndicator size='large' style={styles.indicator} color={Colors.white} />
+                </View>
+            )
+        } else {
+            return null
+        }
+    }
+
     renderSend = (props: any) => {
         const message = this.inputText.state.text || '';
         return (
@@ -231,12 +275,11 @@ export default class MultiChat extends React.Component<Props, State> {
 
     renderInputToolbar = (props: any) => {
         return (
-            <InputToolbar {...props} />
+            <InputToolbar {...props} reRenderMessages={() => this.reRenderMessages()} type={'Group'} />
         )
     }
 
     render() {
-        // console.log('in render function', this.state.typingText, this.state.typingPerson)
         return (
             <View style={{ flex: 1 }} >
                 <TouchableOpacity style={styles.headerView} activeOpacity={1} onPress={this.goBack} >
@@ -274,10 +317,34 @@ export default class MultiChat extends React.Component<Props, State> {
                     ref={(ref) => this.inputText = ref}
                     renderDay={this.renderDay}
                     renderInputToolbar={this.renderInputToolbar}
-                    minComposerHeight={vh(45)}
-                    maxComposerHeight={vh(60)}
+                    minComposerHeight={vw(45)}
+                    maxComposerHeight={vw(60)}
+                    //@ts-ignore
+                    renderFooter={this.renderFooter}
                 />
             </View>
         );
     }
 }
+
+
+function mapDispatchToProps(dispatch: Function) {
+    return {
+        ArrayLenght: (value: number) => dispatch(ArrayLenght(value))
+    }
+}
+
+function mapStateToProps(state: any) {
+    const { mediaMessage, renderFooter, lengthArray } = state.MediaMessagesReducer;
+    return {
+        mediaMessage,
+        renderFooter,
+        lengthArray
+    }
+}
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(MultiChat);
+
