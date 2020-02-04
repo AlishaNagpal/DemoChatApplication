@@ -8,6 +8,7 @@ import { Bubble, Composer, Day, InputToolbar } from '../../Components'
 import { connect } from 'react-redux'
 import moment from 'moment'
 import { ArrayLenght } from '../../Modules/MediaMessage/MediaMessageAction'
+import Video from 'react-native-video';
 
 
 export interface Props {
@@ -254,6 +255,21 @@ class Chat extends React.Component<Props, State> {
         )
     }
 
+    renderMessageVideo = (props: any) => {
+        console.log('props', props, props.currentMessage.video)
+        return (
+            <Video
+                source={{ uri: props.currentMessage.video }}   // Can be a URL or a local file.
+                ref={(ref) => {
+                    this.player = ref
+                }}                                      // Store reference
+                // onBuffer={this.onBuffer}                // Callback when remote video is buffering
+                // onError={this.videoError}               // Callback when video cannot be loaded
+                style={styles.backgroundVideo}
+            />
+        )
+    }
+
     ontextChanged = (val: string) => {
         if (val !== '') {
             FirebaseServices.ChangeTypingText(this.state.RoomID, this.state.uid, true)
@@ -339,6 +355,7 @@ class Chat extends React.Component<Props, State> {
                     maxComposerHeight={vw(80)}
                     //@ts-ignore
                     renderFooter={this.renderFooter}
+                    renderMessageVideo={this.renderMessageVideo}
                 />
             </View>
         );

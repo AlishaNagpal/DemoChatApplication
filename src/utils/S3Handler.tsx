@@ -7,12 +7,15 @@ const S3Handler = {
     fileName: string,
     success: Function,
     failure: Function,
-    random: string
+    random: string,
+    mimeType: string
   ) {
     const file = {
       uri: imageLocalUrl,
       name: fileName,
-      type: 'image/jpeg'
+      type: mimeType
+      // 'video/mp4'
+      //'image/jpeg'   
     };
     const options = {
       keyPrefix: 'chatApp',
@@ -27,7 +30,7 @@ const S3Handler = {
     RNS3.put(file, options)
       .then((response: any) => {
         if (response.status === 201) {
-          success(response.body.postResponse.location, random);
+          success(response.body.postResponse.location, random, mimeType);
         }
       })
       .catch((error: any) => {

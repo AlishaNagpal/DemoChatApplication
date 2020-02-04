@@ -1,4 +1,4 @@
-import { StyleSheet, Platform } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Colors, DesignWidth, vh, vw } from "../../Constants";
 
 const Styles = StyleSheet.create({
@@ -87,6 +87,11 @@ const Styles = StyleSheet.create({
         position: 'absolute',
         alignSelf: 'center',
         top: vh(70)
+    },
+    backgroundVideo: {
+        height: vw(100),
+        width: vw(200),
+        marginTop: vw(10)
     },
 })
 export default Styles;

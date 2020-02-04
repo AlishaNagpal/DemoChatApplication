@@ -35,6 +35,7 @@ target 'DemoChatApplication' do
   pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
   pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
   pod 'QBImagePickerController', :path => '../node_modules/react-native-image-crop-picker/ios/QBImagePicker/QBImagePickerController.podspec'
+  pod 'react-native-video', :path => '../node_modules/react-native-video/react-native-video.podspec'
 
   pod 'Firebase/Analytics' 
   # pod 'Firebase/Messaging'  
@@ -44,6 +45,7 @@ target 'DemoChatApplication' do
   pod 'Firebase/Storage'
 
   # pod 'RNFirebase', :path => '../node_modules/react-native-firebase'
+
 
   target 'DemoChatApplicationTests' do
     inherit! :search_paths

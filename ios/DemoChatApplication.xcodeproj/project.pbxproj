@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* DemoChatApplicationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* DemoChatApplicationTests.m */; };
 		0C16CED223CC38AB00149337 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0C16CED123CC38AA00149337 /* GoogleService-Info.plist */; };
+		0CB4BC6B23E95DF800A3E3FD /* libBVLinearGradient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0CB4BC6A23E95DF800A3E3FD /* libBVLinearGradient.a */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB11A68108700A75B9A /* LaunchScreen.xib */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
@@ -18,7 +19,6 @@
 		2D02E4BF1E0B4AB3006451C7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		2DCD954D1E0B4F2C00145EB5 /* DemoChatApplicationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* DemoChatApplicationTests.m */; };
 		5E4DC2FF13F6E940D701E81F /* libPods-DemoChatApplication-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AD8C1468BE5FCCA6BA38EEF6 /* libPods-DemoChatApplication-tvOS.a */; };
-		9EF5F66765BA54C8C4F37B5E /* libPods-DemoChatApplication.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 04EF73E1F8BC6D3476E4A70B /* libPods-DemoChatApplication.a */; };
 		AE221B07E4D5653B2B5BD994 /* libPods-DemoChatApplication-tvOSTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01BC36BDA32DF046E3F90FEC /* libPods-DemoChatApplication-tvOSTests.a */; };
 		C0EE22A48C41AE06417D7612 /* libPods-DemoChatApplicationTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CA3C3F0B781E98AE1267E7F /* libPods-DemoChatApplicationTests.a */; };
 		E45DC3733A97427789F94ED1 /* Medinah.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6AEFB1ACA6BC40B39BAAA96B /* Medinah.ttf */; };
@@ -31,6 +31,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = 13B07F861A680F5B00A75B9A;
 			remoteInfo = DemoChatApplication;
+		};
+		0CB4BC6223E95BEC00A3E3FD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0CB4BC5D23E95BEC00A3E3FD /* RCTVideo.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 134814201AA4EA6300B7C361;
+			remoteInfo = RCTVideo;
+		};
+		0CB4BC6423E95BEC00A3E3FD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0CB4BC5D23E95BEC00A3E3FD /* RCTVideo.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 641E28441F0EEC8500443AF6;
+			remoteInfo = "RCTVideo-tvOS";
 		};
 		2D02E4911E0B4A5D006451C7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -49,6 +63,8 @@
 		01BC36BDA32DF046E3F90FEC /* libPods-DemoChatApplication-tvOSTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-DemoChatApplication-tvOSTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		04EF73E1F8BC6D3476E4A70B /* libPods-DemoChatApplication.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-DemoChatApplication.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0C16CED123CC38AA00149337 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		0CB4BC5D23E95BEC00A3E3FD /* RCTVideo.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTVideo.xcodeproj; path = "../node_modules/react-native-video/ios/RCTVideo.xcodeproj"; sourceTree = "<group>"; };
+		0CB4BC6A23E95DF800A3E3FD /* libBVLinearGradient.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libBVLinearGradient.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07F961A680F5B00A75B9A /* DemoChatApplication.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DemoChatApplication.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = DemoChatApplication/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = DemoChatApplication/AppDelegate.m; sourceTree = "<group>"; };
@@ -102,7 +118,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9EF5F66765BA54C8C4F37B5E /* libPods-DemoChatApplication.a in Frameworks */,
+				0CB4BC6B23E95DF800A3E3FD /* libBVLinearGradient.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -142,6 +158,15 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		0CB4BC5E23E95BEC00A3E3FD /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				0CB4BC6323E95BEC00A3E3FD /* libRCTVideo.a */,
+				0CB4BC6523E95BEC00A3E3FD /* libRCTVideo.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		13B07FAE1A68108700A75B9A /* DemoChatApplication */ = {
 			isa = PBXGroup;
 			children = (
@@ -160,6 +185,7 @@
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				0CB4BC6A23E95DF800A3E3FD /* libBVLinearGradient.a */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				ED2971642150620600B7C4FE /* JavaScriptCore.framework */,
 				04EF73E1F8BC6D3476E4A70B /* libPods-DemoChatApplication.a */,
@@ -188,6 +214,7 @@
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				0CB4BC5D23E95BEC00A3E3FD /* RCTVideo.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -361,6 +388,12 @@
 			mainGroup = 83CBB9F61A601CBA00E9B192;
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 0CB4BC5E23E95BEC00A3E3FD /* Products */;
+					ProjectRef = 0CB4BC5D23E95BEC00A3E3FD /* RCTVideo.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				13B07F861A680F5B00A75B9A /* DemoChatApplication */,
@@ -370,6 +403,23 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		0CB4BC6323E95BEC00A3E3FD /* libRCTVideo.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRCTVideo.a;
+			remoteRef = 0CB4BC6223E95BEC00A3E3FD /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		0CB4BC6523E95BEC00A3E3FD /* libRCTVideo.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRCTVideo.a;
+			remoteRef = 0CB4BC6423E95BEC00A3E3FD /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		00E356EC1AD99517003FC87E /* Resources */ = {

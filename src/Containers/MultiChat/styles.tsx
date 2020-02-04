@@ -105,5 +105,10 @@ const Styles = StyleSheet.create({
         alignSelf: 'center',
         top: vh(70)
     },
+    backgroundVideo: {
+        height: vw(100),
+        width: vw(200),
+        marginTop: vw(10)
+    },
 })
 export default Styles;

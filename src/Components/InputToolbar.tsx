@@ -41,7 +41,7 @@ class InputToolbarClass extends React.Component<Props, State> {
         //@ts-ignore
         ImagePicker.openPicker({
             multiple: true,
-            compressImageQuality:0.6
+            compressImageQuality: 0.6
         }).then(image => {
             const { user } = this.props
             const { mediaMessage } = this.props
@@ -65,16 +65,16 @@ class InputToolbarClass extends React.Component<Props, State> {
                 this.props.forFooter(true)
                 this.props.reRenderMessages && this.props.reRenderMessages()
                 // FirebaseServices.uploadPic(mediaMessage[i].senderId, mediaMessage[i].chatRoomId, mediaMessage[i].fileURL, this.getStorageURL, random)
-                S3Handler.uploadImageToS3(mediaMessage[i].fileURL, mediaMessage[i].fileName,this.getStorageURL,this.errorCallBack, random.toString())
+                S3Handler.uploadImageToS3(mediaMessage[i].fileURL, mediaMessage[i].fileName, this.getStorageURL, this.errorCallBack, random.toString(), 'image/jpeg')
             }
         });
     };
 
     errorCallBack = (error: any) => {
-        console.log('error',error)
+        console.log('error', error)
     }
 
-    getStorageURL = (url: string, uniqueID: string) => {
+    getStorageURL = (url: string, uniqueID: string, mime: string) => {
         const { mediaMessage } = this.props
         let num = mediaMessage.findIndex((item: any) => uniqueID === item.uniqueID)
         FirebaseServices.sendImageMessage(
@@ -86,7 +86,8 @@ class InputToolbarClass extends React.Component<Props, State> {
             mediaMessage[num].avatar,
             mediaMessage[num].createdAt,
             url,
-            this.props.type
+            this.props.type,
+            mime
         )
         this.props.RemoveTask(uniqueID)
         this.props.reRenderMessages && this.props.reRenderMessages()
@@ -97,8 +98,32 @@ class InputToolbarClass extends React.Component<Props, State> {
         //@ts-ignore
         ImagePicker.openPicker({
             mediaType: "video",
+            compressVideoPreset: 'Passthrough'
         }).then((video) => {
-            console.log(video);
+            // console.log('onVideoUpload', video);
+            const { user } = this.props
+            const { mediaMessage } = this.props
+
+            let createdAt = new Date().getTime()
+            let random = ((Math.random() + createdAt) * createdAt) / Math.random()
+            this.props.MediaMessageAction(
+                user.idRoom || user.GroupName,
+                user._id,
+                user.name,
+                user.otherID || user.GroupName,
+                user.otherPersonName || user.GroupName,
+                user.avatar,
+                new Date().getTime(),
+                'image',
+                video.filename,
+                video.path,
+                random.toString()
+            )
+            this.props.forFooter(true)
+            this.props.reRenderMessages && this.props.reRenderMessages()
+            let i = this.props.mediaMessage.length - 1
+            // FirebaseServices.uploadPic(mediaMessage[i].senderId, mediaMessage[i].chatRoomId, mediaMessage[i].fileURL, this.getStorageURL, random)
+            S3Handler.uploadImageToS3(mediaMessage[i].fileURL, mediaMessage[i].fileName, this.getStorageURL, this.errorCallBack, random.toString(), 'video/mp4')
         });
     }
 
