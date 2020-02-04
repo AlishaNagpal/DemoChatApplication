@@ -8,7 +8,7 @@ const Styles = StyleSheet.create({
     },
     header: {
         height: vw(100),
-        width: vw(DesignWidth)
+        width: vw(DesignWidth),
     },
     headerText: {
         fontSize: vh(34),
@@ -19,15 +19,15 @@ const Styles = StyleSheet.create({
     },
     imageStyle: {
         height: vh(150),
-        width: vw(110),
+        width: vw(130),
         position: 'absolute',
         right: vw(0),
-        top: vw(0)
+        top: vw(0),
     },
     signUP: {
         position: 'absolute',
         right: vw(10),
-        top: vw(80)
+        top: vw(65)
     },
     signUpText: {
         color: Colors.shembe,
@@ -35,18 +35,18 @@ const Styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     signIn: {
-        marginLeft: vw(30),
-        marginTop: vh(60),
         fontWeight: 'bold',
         fontSize: vh(25)
     },
+    alignView:{
+        marginTop: vh(60),
+        alignSelf:'center'
+    },
     icSlection: {
-        marginLeft: vw(35),
         width: vw(25)
     },
     welcome: {
-        marginTop: vh(25),
-        left: vw(30),
+        marginTop: vh(20),
         fontSize: vh(15),
         fontWeight: '700'
     },
@@ -54,18 +54,17 @@ const Styles = StyleSheet.create({
         width: vw(315),
         height: vh(55),
         backgroundColor: Colors.textInput,
-        alignSelf: 'center',
-        marginTop: vh(25),
+        marginTop: vh(20),
         padding: vw(10),
         borderRadius: vh(10),
         fontSize: vh(16),
         borderWidth:vw(1),
-        // textTransform: 'lowercase'
     },
     eye: {
         position: 'absolute',
-        top: vh(50),
-        right: vw(70)
+        alignSelf:'center',
+        top: vh(40),
+        right: vw(20)
     },
     eyeOpen: {
         height: vw(15),
@@ -77,7 +76,6 @@ const Styles = StyleSheet.create({
         alignItems: 'center',
         marginTop: vh(45),
         borderRadius: vh(10),
-        alignSelf:'center',
         justifyContent:'center'
     },
     submit:{

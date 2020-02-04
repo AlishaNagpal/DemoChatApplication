@@ -2,13 +2,11 @@ import React from 'react';
 import { Text, View, FlatList, TouchableOpacity, Image, } from 'react-native';
 import FirebaseService from '../../utils/FirebaseService';
 import styles from './styles'
-import { Colors, vh, VectorIcons, Images } from '../../Constants';
+import { Colors, vh, VectorIcons, Images, Strings } from '../../Constants';
 import { Circle } from 'react-native-animated-spinkit'
 
 export interface Props {
     navigation: any,
-    setData: Function,
-    chatData: Array<any>
 }
 
 interface State {
@@ -37,7 +35,7 @@ export default class Users extends React.PureComponent<Props, State> {
             isFetching: false,
             runLoader: true,
             group: [],
-            data:[]
+            data: []
         };
     }
 
@@ -70,7 +68,6 @@ export default class Users extends React.PureComponent<Props, State> {
                 return [String(key), data[key]];
             })
             for (let i = 0; i < result.length; i++) {
-                // this.props.setData(result[i])
                 this.getUniqueData(result[i])
             }
             this.setState({
@@ -89,6 +86,7 @@ export default class Users extends React.PureComponent<Props, State> {
             var result = Object.keys(data).map(function (key) {
                 return [String(key), data[key]];
             })
+
             for (let i = 0; i < result.length; i++) {
                 for (let j = 0; j < result[i][1].Users.length; j++) {
                     if (result[i][1].Users[j] === this.state.uid) {
@@ -107,6 +105,7 @@ export default class Users extends React.PureComponent<Props, State> {
         if (indexToFind === -1) {
             this.state.group.push(data)
         }
+
     }
 
     //last inbox messages
@@ -118,7 +117,6 @@ export default class Users extends React.PureComponent<Props, State> {
             for (let i = 0; i < this.state.group.length; i++) {
                 for (let j = 0; j < result.length; j++) {
                     if (this.state.group[i] === result[j][0]) {
-                        // this.props.setData(result[j])
                         this.getUniqueData(result[j])
                     }
                 }
@@ -126,7 +124,8 @@ export default class Users extends React.PureComponent<Props, State> {
         }
     }
 
-    getUniqueData = (data: any) => {
+     //sorting the data as per the timestamp
+     getUniqueData = (data: any) => {
         let emptyArray = this.state.data;
         let index = emptyArray.findIndex((item: any) => item[0] === data[0])
         if (index !== -1) {
@@ -153,7 +152,7 @@ export default class Users extends React.PureComponent<Props, State> {
         this.forceUpdate()
     }
 
-    onChat(value: string, type: number) {
+    onChat(value: string, type: number, otherPerson: string) {
         if (type === 0) {
             //going for one on one chat
             var chatRoomId: string
@@ -165,7 +164,7 @@ export default class Users extends React.PureComponent<Props, State> {
             let otherperson = value
             this.props.navigation.navigate('Chat', {
                 name: this.state.name,
-                email: this.state.email,
+                otherName: otherPerson,
                 avatar: this.state.avatar,
                 userId: this.state.uid,
                 sendingChat: chatRoomId,
@@ -191,7 +190,7 @@ export default class Users extends React.PureComponent<Props, State> {
         return (
             <View>
                 <View style={styles.row} >
-                    <TouchableOpacity style={styles.root} onPress={() => this.onChat(item[1].otherId, num)} activeOpacity={1} >
+                    <TouchableOpacity style={styles.root} onPress={() => this.onChat(item[1].otherId, num, item[1].otherName)} activeOpacity={1} >
                         <View style={styles.row2} >
                             <Text style={styles.nameSet} >{item[1].otherName}</Text>
                             <Text style={styles.message2} >{item[1].gettingTime}</Text>
@@ -238,7 +237,7 @@ export default class Users extends React.PureComponent<Props, State> {
             <View style={styles.main} >
                 <View style={styles.iconView} >
                     <TouchableOpacity onPress={() => this.props.navigation.navigate('Login')} style={styles.signOutTop} >
-                        <Text style={styles.signOut} >Sign Out</Text>
+                        <Text style={styles.signOut} >{Strings.signOut}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.addMessage} onPress={() => this.selectToChat()} >
                         <VectorIcons.MaterialCommunityIcons name='message-plus' size={vh(30)} color={Colors.shembe} />

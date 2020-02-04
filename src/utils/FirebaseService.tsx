@@ -455,7 +455,7 @@ class FirebaseSDK {
     //getting typing value
     getTypingValue = (chatRoomID: string, chatPerson: string, callback: Function) => {
         firebase.database().ref('Typing/' + chatRoomID + '/' + chatPerson + '/' + 'typing') //good for personal ones 
-            .on('value', (snapshot: any) => { callback(snapshot) });
+            .on('value', (snapshot: any) => { callback(snapshot.val()) });
     }
 
     //Changing the value of the typing text

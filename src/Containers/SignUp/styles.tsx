@@ -15,17 +15,18 @@ const Styles = StyleSheet.create({
         marginTop: vh(40),
         left: vw(15),
         flexDirection: 'row',
-        alignItems: 'center'
+        alignItems: 'center',
     },
     signIn: {
-        fontSize: vh(22),
+        fontSize: vh(18),
         color: Colors.fadedGray,
-        left: vw(15),
-        fontWeight: '500'
+        left: vw(10),
+        fontWeight: '500',
+        alignSelf:'center'
     },
     signUP: {
         marginTop: vh(44),
-        left: vw(30)
+        left: vw(30),
     },
     signUpText: {
         fontWeight: 'bold',
@@ -59,7 +60,6 @@ const Styles = StyleSheet.create({
         width: vw(25)
     },
     checkbox: {
-        marginLeft: vw(8),
         borderRadius: vh(20),
         marginRight: vw(10)
     },

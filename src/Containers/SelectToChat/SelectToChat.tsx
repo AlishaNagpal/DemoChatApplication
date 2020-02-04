@@ -59,7 +59,7 @@ export default class SelectToChat extends React.Component<Props, State> {
         }
     }
 
-    oneOnOneChat(uid: string) {
+    oneOnOneChat(uid: string, otherName: string) {
         //going for one on one chat
         var chatRoomId: string
         if (uid > this.state.uid) {
@@ -70,7 +70,7 @@ export default class SelectToChat extends React.Component<Props, State> {
         let otherperson = uid
         this.props.navigation.navigate('Chat', {
             name: this.state.name,
-            email: this.state.email,
+            otherName: otherName,
             avatar: this.state.avatar,
             userId: this.state.uid,
             sendingChat: chatRoomId,
@@ -106,24 +106,24 @@ export default class SelectToChat extends React.Component<Props, State> {
         })
     }
 
-    renderData = (rowData: any) => {
-        const { item } = rowData
-        // console.log(item)
-        return (
-            <View>
-                <View style={styles.row} >
-                    {this.state.showSelected &&
-                        <CheckBox id={item[1].uid} style={styles.checkbox} outerSize={vh(20)} innerSize={vh(16)} innerColor={Colors.shembe} outerColor={Colors.fadedGray} isCheck={item[1].selected} clicked={(id: string, value: boolean) => this.longPress(id, value)} />
-                    }
-                    <TouchableOpacity style={styles.row2} onPress={() => this.oneOnOneChat(item[1].uid)} activeOpacity={1} >
-                        <Text style={styles.nameSet} >{item[1].name}</Text>
-                        <VectorIcons.Ionicons name='ios-chatbubbles' color={Colors.shembe} size={vh(30)} style={styles.icon} />
-                    </TouchableOpacity>
+    renderData = () => {
+        return this.state.data.map((item) => {
+            return (
+                <View>
+                    <View style={styles.row} >
+                        {this.state.showSelected &&
+                            <CheckBox id={item[1].uid} style={styles.checkbox} outerSize={vh(20)} innerSize={vh(16)} innerColor={Colors.shembe} outerColor={Colors.fadedGray} isCheck={item[1].selected} clicked={(id: string, value: boolean) => this.longPress(id, value)} />
+                        }
+                        <TouchableOpacity style={styles.row2} onPress={() => this.oneOnOneChat(item[1].uid, item[1].name)} activeOpacity={1} >
+                            <Text style={styles.nameSet} >{item[1].name}</Text>
+                            <VectorIcons.Ionicons name='ios-chatbubbles' color={Colors.shembe} size={vh(30)} style={styles.icon} />
+                        </TouchableOpacity>
+                    </View>
+                    <View style={styles.separator} />
                 </View>
-                <View style={styles.separator} />
-            </View>
+            )
+        })
 
-        )
     }
 
     render() {
@@ -138,12 +138,7 @@ export default class SelectToChat extends React.Component<Props, State> {
                     </TouchableOpacity>
                 </View>
                 <Text style={styles.chats} >Contacts</Text>
-                <FlatList
-                    data={this.state.data}
-                    renderItem={this.renderData}
-                    keyExtractor={(item, index) => index.toString()}
-                />
-
+                {this.renderData()}
                 {this.state.showSelected &&
                     <TouchableOpacity style={styles.submitButton} onPress={this.createGroup}>
                         <LinearGradient style={styles.submitButtonInner} colors={colors} start={{ x: 0, y: 1 }} end={{ x: 1, y: 0 }}>

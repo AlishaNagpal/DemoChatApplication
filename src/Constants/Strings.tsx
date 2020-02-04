@@ -1,6 +1,8 @@
 const Strings = {
-    signIn: 'SignIn',
-    signUp: 'SignUp',
+    signIn: 'Sign In',
+    signUp: 'Sign Up',
+    signOut: 'Sign Out',
+    fillDetails: 'Please fill the details below',
     email: 'Enter email',
     password: 'Enter password',
     or: 'OR',
@@ -13,6 +15,8 @@ const Strings = {
     chats: 'Chats',
     noChat: 'No Chats',
     typeMsg: 'Type Message',
-
+    completeGroup: 'Complete your Group!',
+    Participants:'Participants',
+    createGroup:'Create Group!'
 }
 export default Strings;

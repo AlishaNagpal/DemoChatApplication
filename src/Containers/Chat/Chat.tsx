@@ -21,7 +21,6 @@ export interface Props {
 
 interface State {
     uid: string,
-    email: string,
     messages: any,
     avatar: string,
     name: string,
@@ -57,17 +56,16 @@ class Chat extends React.Component<Props, State> {
         super(props);
         this.state = {
             uid: this.props.navigation.getParam('userId'),
-            email: this.props.navigation.getParam('email'),
             name: this.props.navigation.getParam('name'),
             avatar: this.props.navigation.getParam('avatar'),
             RoomID: this.props.navigation.getParam('sendingChat'),
             theOtherPerson: this.props.navigation.getParam('theOtherPerson'),
+            otherPersonName: this.props.navigation.getParam('otherName'),
             messages: [],
-            otherPersonName: '',
-            typingText: false,
             loadEarlier: false,
             isLoadingEarlier: false,
             lastMessageKey: '',
+            typingText: false,
             lengthMessage: 0,
             showFooter: false
         };
@@ -78,7 +76,6 @@ class Chat extends React.Component<Props, State> {
     componentDidMount() {
         this._isMounted = true
         this.reRenderMessages()
-        FirebaseServices.readUserData(this.getUsersData)
         FirebaseServices.getTypingValue(this.state.RoomID, this.state.theOtherPerson, this.getTyping)
         FirebaseServices.refOn(this.state.RoomID, (message: any) => {
             let ans = message.sort(compare)
@@ -104,29 +101,11 @@ class Chat extends React.Component<Props, State> {
             }
         })
     }
-    getTyping = (data: any) => {
-        if (data._value) {
-            this.setState({
-                typingText: true
-            })
-        } else {
-            this.setState({
-                typingText: false
-            })
-        }
-    }
-
-    getUsersData = (data: any) => {
-        var result = Object.keys(data).map(function (key) {
-            return [String(key), data[key]];
-        })
-        let tempArray = result
-        let indexToFind = tempArray.findIndex((item: any) => item[0] === this.state.theOtherPerson)
+    getTyping = (data: boolean) => {
         this.setState({
-            otherPersonName: tempArray[indexToFind][1].name
+            typingText: data
         })
     }
-
     componentWillUnmount() {
         // FirebaseServices.refOff()
         this._isMounted = false
@@ -140,6 +119,7 @@ class Chat extends React.Component<Props, State> {
     }
 
     onLongPress = (context: any, message: any) => {
+        console.log('onLongPress', context, message )
         const options = ['Copy', 'Delete Message', 'Cancel'];
         const cancelButtonIndex = options.length - 1;
         context.actionSheet().showActionSheetWithOptions({

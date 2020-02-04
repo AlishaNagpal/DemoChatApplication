@@ -1,5 +1,4 @@
 import React from 'react';
-// import ImagePicker from 'react-native-image-crop-picker';
 import {
     Text,
     TextInput,
@@ -12,7 +11,7 @@ import {
 
 import firebaseSDK from '../../utils/FirebaseService';
 import styles from './styles'
-import { Images, VectorIcons, vh, Colors } from "../../Constants";
+import { Images, VectorIcons, vh, Colors, Strings } from "../../Constants";
 import { CheckBox } from '../../Components'
 import LinearGradient from 'react-native-linear-gradient';
 const colors = [Colors.shembe, Colors.weirdGreen]
@@ -85,7 +84,6 @@ export default class SignUp extends React.Component<Props, State> {
             };
             firebaseSDK.createAccount(user, this.userUid);
         } catch ({ message }) {
-            console.log('create account failed. catch error:' + message);
             this.setState({
                 showIndicator: false
             })
@@ -108,91 +106,80 @@ export default class SignUp extends React.Component<Props, State> {
     }
 
     logging = (id: string, value: boolean) => {
-        // console.log(id, value)
         this.setState({
             isChecked: value
         })
-        // console.log(this.state.isChecked)
         setTimeout(() => {
             this.buttonDisabled()
         }, 500);
     }
 
-    // onImageUpload = () => {
-    //     ImagePicker.openPicker({
-    //         cropping: true
-    //     }).then(image => {
-    //         console.log(image);
-    //     });
-    // };
-
     render() {
         return (
             <View style={styles.main} >
-                <View>
-                    <TouchableOpacity style={styles.backView} onPress={() => this.props.navigation.goBack()} >
-                        <VectorIcons.Ionicons name={'md-arrow-back'} size={vh(25)} />
-                        <Text style={styles.signIn} >Sign In</Text>
-                    </TouchableOpacity>
+                <TouchableOpacity style={styles.backView} onPress={() => this.props.navigation.goBack()} activeOpacity={1} >
+                    <VectorIcons.Ionicons name={'md-arrow-back'} size={vh(20)} />
+                    <Text style={styles.signIn} >{Strings.signIn}</Text>
+                </TouchableOpacity>
 
-                    <View style={styles.signUP} >
-                        <Text style={styles.signUpText} >Sign Up</Text>
-                        <Image
-                            source={Images.icSlection}
-                            style={styles.icSlection}
-                        />
-                        <Text style={styles.detailsText} > Please fill the details below </Text>
+                <View style={styles.signUP} >
+                    <Text style={styles.signUpText} >{Strings.signUp}</Text>
+                    <Image
+                        source={Images.icSlection}
+                        style={styles.icSlection}
+                    />
+                    <Text style={styles.detailsText} >{Strings.fillDetails} </Text>
 
+                    <TextInput
+                        style={[styles.nameInput, { borderColor: this.state.name === '' ? Colors.white : Colors.shembe }]}
+                        placeholder="Your Name"
+                        onChangeText={(text) => { this.setState({ name: text }), this.buttonDisabled() }}
+                        value={this.state.name}
+                        onSubmitEditing={() => this.input.focus()}
+                        returnKeyLabel='Next'
+                        returnKeyType='next'
+                        keyboardType='default'
+                        keyboardAppearance='light'
+                    />
+                    <TextInput
+                        style={[styles.nameInput, { borderColor: this.state.email === '' ? Colors.white : Colors.shembe }]}
+                        placeholder="Email Address"
+                        onChangeText={(text) => { this.setState({ email: text }), this.buttonDisabled() }}
+                        value={this.state.email}
+                        ref={(ref) => { this.input = ref }}
+                        onSubmitEditing={() => this.input1.focus()}
+                        returnKeyLabel='Next'
+                        returnKeyType='next'
+                        keyboardType='email-address'
+                        keyboardAppearance='light'
+                    />
+                    <View>
                         <TextInput
-                            style={[styles.nameInput, { borderColor: this.state.name === '' ? Colors.white : Colors.shembe }]}
-                            placeholder="Your Name"
-                            onChangeText={(text) => { this.setState({ name: text }), this.buttonDisabled() }}
-                            value={this.state.name}
-                            onSubmitEditing={() => this.input.focus()}
-                            returnKeyLabel='Next'
-                            returnKeyType='next'
+                            placeholder="Create Password"
+                            style={[styles.nameInput, { borderColor: this.state.password === '' ? Colors.white : Colors.shembe }]}
+                            onChangeText={(text) => { this.setState({ password: text }), this.buttonDisabled() }}
+                            value={this.state.password}
+                            secureTextEntry={!this.state.showPassword}
+                            ref={(ref) => { this.input1 = ref }}
+                            returnKeyType='done'
+                            returnKeyLabel='Submit'
                             keyboardType='default'
                             keyboardAppearance='light'
                         />
-                        <TextInput
-                            style={[styles.nameInput, { borderColor: this.state.email === '' ? Colors.white : Colors.shembe }]}
-                            placeholder="Email Address"
-                            onChangeText={(text) => { this.setState({ email: text }), this.buttonDisabled() }}
-                            value={this.state.email}
-                            ref={(ref) => { this.input = ref }}
-                            onSubmitEditing={() => this.input1.focus()}
-                            returnKeyLabel='Next'
-                            returnKeyType='next'
-                            keyboardType='email-address'
-                            keyboardAppearance='light'
-                        />
-                        <View>
-                            <TextInput
-                                placeholder="Create Password"
-                                style={[styles.nameInput, { borderColor: this.state.password === '' ? Colors.white : Colors.shembe }]}
-                                onChangeText={(text) => { this.setState({ password: text }), this.buttonDisabled() }}
-                                value={this.state.password}
-                                secureTextEntry={!this.state.showPassword}
-                                ref={(ref) => { this.input1 = ref }}
-                                returnKeyType='done'
-                                returnKeyLabel='Submit'
-                                keyboardType='default'
-                                keyboardAppearance='light'
+                        <TouchableOpacity style={styles.eye} onPress={() => this.showPassword(!this.state.showPassword)} >
+                            <Image
+                                source={this.state.showPassword ? Images.eyeEnabled : Images.eyeDisabled}
+                                style={styles.eyeOpen}
                             />
-                            <TouchableOpacity style={styles.eye} onPress={() => this.showPassword(!this.state.showPassword)} >
-                                <Image
-                                    source={this.state.showPassword ? Images.eyeEnabled : Images.eyeDisabled}
-                                    style={styles.eyeOpen}
-                                />
-                            </TouchableOpacity>
-                        </View>
-                        {this.state.showIndicator &&
-                            <ActivityIndicator size='large' style={styles.indicator} />}
-                        <View style={styles.Conditions}>
-                            <CheckBox id={'1'} style={styles.checkbox} outerSize={vh(20)} innerSize={vh(18)} innerColor={Colors.shembe} outerColor={Colors.fadedGray} isCheck={this.state.isChecked} clicked={(id: string, value: boolean) => this.logging(id, value)} />
-                            <Text style={styles.conditionText} > I agree to the </Text>
-                            <Text style={styles.conditionText2} > Terms & Conditions </Text>
-                        </View>
+                        </TouchableOpacity>
+                    </View>
+                    {this.state.showIndicator &&
+                        <ActivityIndicator size='large' style={styles.indicator} />
+                    }
+                    <View style={styles.Conditions}>
+                        <CheckBox id={'1'} style={styles.checkbox} outerSize={vh(20)} innerSize={vh(18)} innerColor={Colors.shembe} outerColor={Colors.fadedGray} isCheck={this.state.isChecked} clicked={(id: string, value: boolean) => this.logging(id, value)} />
+                        <Text style={styles.conditionText} > I agree to the </Text>
+                        <Text style={styles.conditionText2} > Terms & Conditions </Text>
                     </View>
                 </View>
                 <TouchableOpacity style={styles.submitButton} onPress={this.onPressCreate} disabled={this.state.submitDisabled} >

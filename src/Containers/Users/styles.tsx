@@ -11,7 +11,7 @@ const Styles = StyleSheet.create({
         marginTop: vh(45),
         justifyContent: 'space-between',
         left: vw(15),
-        flexDirection: 'row'
+        flexDirection: 'row',
     },
     addMessage: {
         marginRight: vw(20)
@@ -20,7 +20,7 @@ const Styles = StyleSheet.create({
         fontSize: vh(25),
         fontWeight: 'bold',
         marginLeft: vw(15),
-        marginTop: vh(20)
+        marginTop: vh(20),
     },
     signOut:{
         fontSize: vh(14),
@@ -89,8 +89,7 @@ const Styles = StyleSheet.create({
         marginRight: vw(10)
     },
     loader: {
-        alignItems: 'center',
-        justifyContent: 'center',
+        alignSelf:'center',
         position: 'absolute',
         marginTop: vw(280),
         marginLeft: vw(80)

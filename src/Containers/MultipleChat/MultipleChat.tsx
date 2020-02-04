@@ -1,10 +1,8 @@
 import React from 'react';
-import { Text, View, FlatList, TouchableOpacity, TextInput, Image, Alert, Modal } from 'react-native';
+import { Text, View, TouchableOpacity, TextInput, Image, Alert } from 'react-native';
 import FirebaseService from '../../utils/FirebaseService';
 import styles from './styles'
-import { Colors, VectorIcons, vh, Images } from "../../Constants";
-import LinearGradient from 'react-native-linear-gradient';
-const colors = [Colors.shembe, Colors.weirdGreen, '#7DEAAB']
+import { Colors, VectorIcons, vh, Images, Strings } from "../../Constants";
 
 export interface Props {
     navigation: any,
@@ -64,7 +62,6 @@ export default class MultipleChat extends React.Component<Props, State> {
             let index = tempArray.findIndex((item: any) => item[0] === this.state.selectedArray[i])
             if (index !== -1) {
                 this.participantsArray(tempArray[index])
-                // this.state.participants.push(tempArray[index])
             }
         }
     }
@@ -91,17 +88,18 @@ export default class MultipleChat extends React.Component<Props, State> {
 
     }
 
-    renderData = (rowData: any) => {
-        const { item } = rowData
-        return (
-            <View style={styles.root} >
-                <Image
-                    style={styles.image}
-                    source={Images.ProfileImage}
-                />
-                <Text style={styles.nameSet} >{item[1].name}</Text>
-            </View>
-        )
+    renderData = () => {
+        return this.state.participants.map((item: any) => {
+            return (
+                <View style={styles.root} >
+                    <Image
+                        style={styles.image}
+                        source={Images.ProfileImage}
+                    />
+                    <Text style={styles.nameSet} >{item[1].name}</Text>
+                </View>
+            )
+        })
     }
 
     getUnique = (array: any) => {
@@ -141,16 +139,7 @@ export default class MultipleChat extends React.Component<Props, State> {
                 <TouchableOpacity activeOpacity={1} style={styles.cross} onPress={() => this.props.navigation.goBack()} >
                     <VectorIcons.Entypo name='cross' size={vh(30)} />
                 </TouchableOpacity>
-                <Text style={styles.group} >Complete your Group!</Text>
-                {/* <View>
-                    <LinearGradient style={styles.groupButton} colors={colors} start={{ x: 1, y: 0 }} end={{ x: 1, y: 1 }}>
-                        <VectorIcons.MaterialCommunityIcons name='account-group' color={Colors.white} size={vh(100)} />
-                    </LinearGradient>
-                    <TouchableOpacity style={styles.editIcon}>
-                        <VectorIcons.Feather name='edit' size={vh(40)} />
-                    </TouchableOpacity>
-                </View> */}
-
+                <Text style={styles.group}>{Strings.completeGroup} </Text>
                 <TextInput
                     style={styles.textInput}
                     placeholder={'Enter Your Group Name'}
@@ -159,14 +148,10 @@ export default class MultipleChat extends React.Component<Props, State> {
                     clearButtonMode={'while-editing'}
                     onSubmitEditing={this.multiChat}
                 />
-                <Text style={styles.participants} >Participants</Text>
-                <FlatList
-                    data={this.state.participants}
-                    renderItem={this.renderData}
-                    keyExtractor={(item, index) => index.toString()}
-                />
+                <Text style={styles.participants} >{Strings.Participants}</Text>
+                {this.renderData()}
                 <TouchableOpacity style={[styles.buttonText2, { backgroundColor: this.state.textInputValue === '' ? Colors.textInput : Colors.white, borderColor: this.state.textInputValue === '' ? Colors.white : Colors.shembe, }]} disabled={this.state.textInputValue === '' ? true : false} onPress={this.multiChat} >
-                    <Text style={styles.buttonText} >Create Group!</Text>
+                    <Text style={styles.buttonText} >{Strings.createGroup}</Text>
                 </TouchableOpacity>
             </View>
         )

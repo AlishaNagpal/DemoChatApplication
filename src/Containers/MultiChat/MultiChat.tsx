@@ -8,6 +8,7 @@ import { Bubble, Composer, Day, InputToolbar } from '../../Components'
 import { connect } from 'react-redux'
 import moment from 'moment'
 import { ArrayLenght } from '../../Modules/MediaMessage/MediaMessageAction'
+import Video from 'react-native-video';
 
 export interface Props {
     navigation?: any,

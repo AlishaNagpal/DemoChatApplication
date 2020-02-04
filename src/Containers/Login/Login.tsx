@@ -2,7 +2,7 @@ import React from 'react';
 import { Text, View, TextInput, TouchableOpacity, Alert, Image } from 'react-native';
 import FirebaseService from '../../utils/FirebaseService';
 import styles from './styles'
-import { Images, Colors } from "../../Constants";
+import { Images, Colors, Strings } from "../../Constants";
 import LinearGradient from 'react-native-linear-gradient'
 const colors = [Colors.shembe, Colors.weirdGreen]
 
@@ -96,53 +96,54 @@ export default class Login extends React.Component<Props, State> {
                     style={styles.imageStyle}
                 />
                 <TouchableOpacity style={styles.signUP} onPress={() => this.props.navigation.navigate('SignUp')} >
-                    <Text style={styles.signUpText} >Sign Up</Text>
+                    <Text style={styles.signUpText} >{Strings.signUp}</Text>
                 </TouchableOpacity>
+                <View style={styles.alignView} >
+                    <Text style={styles.signIn} >{Strings.signIn}</Text>
+                    <Image
+                        source={Images.icSlection}
+                        style={styles.icSlection}
+                    />
 
-                <Text style={styles.signIn} > Sign In </Text>
-                <Image
-                    source={Images.icSlection}
-                    style={styles.icSlection}
-                />
-
-                <Text style={styles.welcome} > Welcome to Chat! </Text>
-                <TextInput
-                    style={[styles.nameInput, { borderColor: this.state.email === '' ? Colors.white : Colors.shembe }]}
-                    placeholder="Email Address"
-                    onChangeText={(text) => { this.setState({ email: text }), this.buttonDisabled() }}
-                    value={this.state.email}
-                    onSubmitEditing={() => this.input.focus()}
-                    returnKeyLabel='Next'
-                    returnKeyType='next'
-                    keyboardType='email-address'
-                    keyboardAppearance='light'
-                />
-                <View>
+                    <Text style={styles.welcome} >{Strings.welcome}</Text>
                     <TextInput
-                        placeholder="Password"
-                        style={[styles.nameInput, { borderColor: this.state.password === '' ? Colors.white : Colors.shembe }]}
-                        onChangeText={(text) => { this.setState({ password: text }), this.buttonDisabled() }}
-                        value={this.state.password}
-                        secureTextEntry={!this.state.showPassword}
-                        ref={(ref) => { this.input = ref }}
-                        onSubmitEditing={() => this.onPressLogin()}
-                        returnKeyType='done'
-                        returnKeyLabel='Submit'
-                        keyboardType='default'
+                        style={[styles.nameInput, { borderColor: this.state.email === '' ? Colors.white : Colors.shembe }]}
+                        placeholder="Email Address"
+                        onChangeText={(text) => { this.setState({ email: text }), this.buttonDisabled() }}
+                        value={this.state.email}
+                        onSubmitEditing={() => this.input.focus()}
+                        returnKeyLabel='Next'
+                        returnKeyType='next'
+                        keyboardType='email-address'
                         keyboardAppearance='light'
                     />
-                    <TouchableOpacity style={styles.eye} onPress={() => this.showPassword(!this.state.showPassword)} >
-                        <Image
-                            source={this.state.showPassword ? Images.eyeEnabled : Images.eyeDisabled}
-                            style={styles.eyeOpen}
+                    <View>
+                        <TextInput
+                            placeholder="Password"
+                            style={[styles.nameInput, { borderColor: this.state.password === '' ? Colors.white : Colors.shembe}]}
+                            onChangeText={(text) => { this.setState({ password: text }), this.buttonDisabled() }}
+                            value={this.state.password}
+                            secureTextEntry={!this.state.showPassword}
+                            ref={(ref) => { this.input = ref }}
+                            onSubmitEditing={() => this.onPressLogin()}
+                            returnKeyType='done'
+                            returnKeyLabel='Submit'
+                            keyboardType='default'
+                            keyboardAppearance='light'
                         />
+                        <TouchableOpacity style={styles.eye} onPress={() => this.showPassword(!this.state.showPassword)} >
+                            <Image
+                                source={this.state.showPassword ? Images.eyeEnabled : Images.eyeDisabled}
+                                style={styles.eyeOpen}
+                            />
+                        </TouchableOpacity>
+                    </View>
+                    <TouchableOpacity onPress={this.onPressLogin} disabled={this.state.submitDisabled} >
+                        <LinearGradient style={[styles.submitButton, { opacity: this.state.submitDisabled ? 0.2 : 1 }]} colors={colors} start={{ x: 0, y: 1 }} end={{ x: 1, y: 0 }}>
+                            <Text style={styles.submit} >Submit</Text>
+                        </LinearGradient>
                     </TouchableOpacity>
                 </View>
-                <TouchableOpacity onPress={this.onPressLogin} disabled={this.state.submitDisabled} >
-                    <LinearGradient style={[styles.submitButton, { opacity: this.state.submitDisabled ? 0.2 : 1 }]} colors={colors} start={{ x: 0, y: 1 }} end={{ x: 1, y: 0 }}>
-                        <Text style={styles.submit} >Submit</Text>
-                    </LinearGradient>
-                </TouchableOpacity>
             </View>
         );
     }
